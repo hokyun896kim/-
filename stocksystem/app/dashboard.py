@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 from stocksystem.config import load_config
 from stocksystem.data import get_provider
 from stocksystem.data.universe import filter_universe, load_universe, sectors
+from stocksystem.data import marketcap as mcache
 from stocksystem.analysis import analyze_full, analyze_symbol
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.portfolio import (
@@ -158,9 +159,39 @@ with tab1:
     sort_by = cc[3].selectbox("정렬", ["종합점수", "시가총액", "기술점수",
                                        "펀더멘털점수"])
 
-    universe = filter_universe(top_pct=top_pct, sector=sector)
+    # --- 실시간 시총으로 랭킹 정확도 높이기 ---
+    rc = st.columns([1.4, 1, 2])
+    use_live = rc[0].toggle("실시간 시총으로 랭킹", value=True,
+                            help="현재 시가총액을 받아 상위 N%를 정확히 계산합니다")
+    refresh_caps = rc[1].button("🔄 시총 갱신")
+
+    live_caps = mcache.get_caps() if use_live else None
+    if use_live and refresh_caps:
+        prog = st.progress(0.0, text="시가총액 갱신 중...")
+        provider = get_provider(provider_name)
+
+        def _cb(done, total, sym):
+            prog.progress(done / total, text=f"시총 갱신 {done}/{total} · {sym}")
+        live_caps = mcache.refresh(provider, progress=_cb)
+        prog.empty()
+        st.cache_data.clear()
+
+    if use_live:
+        upd = mcache.last_updated()
+        if upd:
+            rc[2].caption(f"📌 실시간 시총 기준 · 마지막 갱신 **{upd}** "
+                          f"({len(live_caps)}종목)"
+                          + ("  ·  ⏳ 갱신 권장" if mcache.is_stale() else ""))
+        else:
+            rc[2].caption("📌 아직 실시간 시총이 없습니다. **시총 갱신**을 눌러주세요. "
+                          "(없으면 번들 스냅샷 사용)")
+
+    universe = filter_universe(top_pct=top_pct, sector=sector,
+                               live_caps=live_caps)
     symbols = [u.symbol for u in universe][:max_n]
-    st.caption(f"유니버스 {len(universe)}종목 중 시총 상위 {len(symbols)}종목 분석")
+    src = "실시간" if (use_live and live_caps) else "스냅샷"
+    st.caption(f"유니버스 {len(universe)}종목 중 시총({src}) 상위 "
+               f"{len(symbols)}종목 분석")
 
     with st.spinner("분석 중..."):
         rows = cached_screener(tuple(symbols), provider_name, period)

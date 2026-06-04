@@ -112,6 +112,15 @@ class SampleProvider(DataProvider):
             current_price=round(float(price), 2),
         )
 
+    def market_cap(self, symbol: str) -> float | None:
+        # 데모 환경에선 약간의 변동을 줘 '실시간 갱신' 효과를 흉내낸다.
+        from .universe import market_cap_of
+        base = market_cap_of(symbol)
+        if base is None:
+            return self.fundamentals(symbol).market_cap
+        rng = np.random.default_rng(_seed(symbol) + 5)
+        return float(base * 1e9 * (1 + rng.uniform(-0.03, 0.03)))
+
     def news(self, symbol: str, limit: int = 8) -> list[NewsItem]:
         rng = np.random.default_rng(_seed(symbol) + 2)
         name = _META.get(symbol.upper(), ("Sample Co.",))[0]

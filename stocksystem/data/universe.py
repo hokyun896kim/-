@@ -58,15 +58,30 @@ def market_cap_of(symbol: str) -> float | None:
     return None
 
 
+def effective_cap(stock: UniverseStock,
+                  live_caps: dict[str, float] | None) -> float:
+    """랭킹에 쓸 시총(USD). 실시간 캐시가 있으면 우선, 없으면 스냅샷."""
+    if live_caps:
+        v = live_caps.get(stock.symbol)
+        if v:
+            return float(v)
+    return stock.market_cap_b * 1e9
+
+
 def filter_universe(top_pct: float = 50.0,
-                    sector: str | None = None) -> list[UniverseStock]:
+                    sector: str | None = None,
+                    live_caps: dict[str, float] | None = None
+                    ) -> list[UniverseStock]:
     """시가총액 상위 top_pct% 이내 + (선택) 섹터로 필터링.
 
-    top_pct=50 이면 시총 기준 상위 절반만 남긴다.
+    live_caps(심볼->USD)가 주어지면 그 실시간 시총으로 랭킹해 정확도를 높인다.
+    없으면 번들 스냅샷 기준. top_pct=50 이면 상위 절반만 남긴다.
     """
-    stocks = load_universe()  # 이미 시총 내림차순
+    stocks = list(load_universe())
     if sector and sector != "전체":
         stocks = [s for s in stocks if s.sector == sector]
+    # 실시간 캐시가 있으면 그 값으로 재정렬
+    stocks.sort(key=lambda s: effective_cap(s, live_caps), reverse=True)
     if top_pct < 100:
         keep = max(1, int(len(stocks) * top_pct / 100))
         stocks = stocks[:keep]

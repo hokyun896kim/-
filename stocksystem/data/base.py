@@ -100,6 +100,16 @@ class DataProvider(ABC):
         raise NotImplementedError
 
     # --- 선택 기능 (기본은 빈 값; 공급자별로 재정의) ---
+    def market_cap(self, symbol: str) -> float | None:
+        """현재 시가총액(USD). 기본은 fundamentals 에서 가져온다.
+
+        공급자가 더 빠른 경로(예: fast_info)를 제공하면 재정의한다.
+        """
+        try:
+            return self.fundamentals(symbol).market_cap
+        except Exception:
+            return None
+
     def news(self, symbol: str, limit: int = 8) -> list["NewsItem"]:
         """최근 뉴스 헤드라인 목록."""
         return []

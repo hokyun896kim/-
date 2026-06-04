@@ -68,6 +68,23 @@ class YahooProvider(DataProvider):
             current_price=g("currentPrice", "regularMarketPrice"),
         )
 
+    def market_cap(self, symbol: str) -> float | None:
+        import yfinance as yf
+
+        t = yf.Ticker(symbol)
+        # fast_info 는 .info 보다 가벼워 다수 종목 조회에 적합
+        try:
+            mc = t.fast_info.get("market_cap") if hasattr(t.fast_info, "get") \
+                else t.fast_info["market_cap"]
+            if mc:
+                return float(mc)
+        except Exception:
+            pass
+        try:
+            return float((t.info or {}).get("marketCap"))
+        except (TypeError, ValueError, Exception):
+            return None
+
     def news(self, symbol: str, limit: int = 8) -> list[NewsItem]:
         import yfinance as yf
 

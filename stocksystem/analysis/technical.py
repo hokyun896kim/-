@@ -96,6 +96,46 @@ def _score_from_signals(signals: dict[str, str]) -> float:
     return round(float(np.mean(vals)) * 100, 1)
 
 
+def signal_frame(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.DataFrame:
+    """각 지표 신호를 시계열로 벡터화한다 (매수=1, 중립=0.5, 매도=0).
+
+    analyze() 의 단일 시점 로직을 전체 기간으로 확장한 것.
+    지표가 NaN 인 구간은 NaN (점수 계산에서 제외).
+    """
+    close = ind["Close"]
+    s_short, s_long = ind[f"SMA{cfg.sma_short}"], ind[f"SMA{cfg.sma_long}"]
+    out = pd.DataFrame(index=ind.index)
+
+    # 1) 추세(SMA 교차): 단기>장기 → 매수
+    out["추세(SMA교차)"] = np.where(s_short > s_long, 1.0, 0.0)
+    out.loc[s_short.isna() | s_long.isna(), "추세(SMA교차)"] = np.nan
+    # 2) 가격위치: 종가 > 장기이평 → 매수
+    out["가격위치"] = np.where(close > s_long, 1.0, 0.0)
+    out.loc[s_long.isna(), "가격위치"] = np.nan
+    # 3) RSI: 과매도 매수 / 과매수 매도 / 그 외 중립
+    rsi_v = ind["RSI"]
+    out["RSI"] = np.where(rsi_v < cfg.rsi_oversold, 1.0,
+                          np.where(rsi_v > cfg.rsi_overbought, 0.0, 0.5))
+    out.loc[rsi_v.isna(), "RSI"] = np.nan
+    # 4) MACD 히스토그램 부호
+    out["MACD"] = np.where(ind["hist"] > 0, 1.0, 0.0)
+    out.loc[ind["hist"].isna(), "MACD"] = np.nan
+    # 5) 볼린저 %B
+    pct = ind["bb_pct"]
+    out["볼린저"] = np.where(pct < 0.2, 1.0, np.where(pct > 0.8, 0.0, 0.5))
+    out.loc[pct.isna(), "볼린저"] = np.nan
+    return out
+
+
+def score_series(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.Series:
+    """기간 전체에 대한 기술 종합점수(0~100) 시계열.
+
+    가용한 신호들의 평균. analyze().score 와 마지막 값이 일치한다.
+    """
+    sf = signal_frame(ind, cfg)
+    return sf.mean(axis=1, skipna=True) * 100
+
+
 def analyze(df: pd.DataFrame, cfg: TechnicalConfig,
             symbol: str = "") -> TechnicalResult:
     """기술적 분석을 수행하고 종합 점수/신호를 반환한다."""

@@ -27,7 +27,9 @@ from stocksystem.data import get_provider
 from stocksystem.data.universe import filter_universe, load_universe, sectors
 from stocksystem.data import marketcap as mcache
 from stocksystem.analysis import analyze_full, analyze_symbol
+from stocksystem.analysis import technical as ta
 from stocksystem.analysis.scoring import RECO_LABELS
+from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio import (
     PaperBroker, InsufficientFundsError, InsufficientSharesError,
 )
@@ -110,6 +112,21 @@ def cached_full(symbol, provider_name, period):
     return res, ind
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_backtest(symbol, provider_name, strategy, period, commission,
+                    buy_th, sell_th):
+    provider = get_provider(provider_name)
+    df = provider.price_history(symbol, period=period)
+    ind = ta.compute_indicators(df, cfg.technical)
+    strat = STRATEGIES[strategy]
+    if strategy == "종합 기술점수":
+        pos = strat(ind, cfg.technical, buy=buy_th, sell=sell_th)
+    else:
+        pos = strat(ind, cfg.technical)
+    return run_backtest(ind, pos, symbol=symbol.upper(), strategy=strategy,
+                        initial_cash=10_000.0, commission=commission)
+
+
 @st.cache_data(ttl=300, show_spinner=False)
 def price_of(symbol, provider_name):
     try:
@@ -143,8 +160,8 @@ st.sidebar.caption(
     "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
     "최종 판단과 책임은 본인에게 있습니다.")
 
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["📊 스크리너", "🔍 종목 상세", "💰 모의매매", "📖 투자 가이드"])
+tab1, tab2, tab5, tab3, tab4 = st.tabs(
+    ["📊 스크리너", "🔍 종목 상세", "🧪 백테스트", "💰 모의매매", "📖 투자 가이드"])
 
 # ============================ 탭 1: 스크리너 ============================
 with tab1:
@@ -437,6 +454,88 @@ with tab2:
                        "최신 기사일수록 비중이 높습니다. 참고용으로만 보세요.")
         else:
             st.info("뉴스 데이터가 없습니다. (실시간 모드에서 더 잘 동작합니다)")
+
+# ============================ 탭 5: 백테스트 ============================
+with tab5:
+    st.subheader("전략 백테스트")
+    st.caption("과거 데이터에 매매 전략을 적용해 '실제로 돈을 벌었을지' 검증하고 "
+               "단순 보유(Buy&Hold)와 비교합니다.")
+    bc = st.columns([1.4, 1.8, 1, 1])
+    bt_sym = bc[0].selectbox("종목", [u.symbol for u in load_universe()],
+                             key="bt_sym")
+    strategy = bc[1].selectbox("전략", list(STRATEGIES.keys()))
+    bt_period = bc[2].selectbox("기간", ["2y", "5y", "max"], index=1)
+    commission = bc[3].number_input("수수료(%)", 0.0, 1.0, 0.1, step=0.05,
+                                    help="편도 거래 수수료") / 100
+
+    buy_th, sell_th = 60.0, 40.0
+    if strategy == "종합 기술점수":
+        tc = st.columns(2)
+        buy_th = tc[0].slider("매수 기준 점수", 50, 90, 60)
+        sell_th = tc[1].slider("매도 기준 점수", 10, 50, 40)
+
+    with st.spinner("백테스트 실행 중..."):
+        try:
+            res = cached_backtest(bt_sym, provider_name, strategy, bt_period,
+                                  commission, buy_th, sell_th)
+        except Exception as e:
+            res = None
+            st.error(f"백테스트 실패: {e}")
+
+    if res:
+        m = res.metrics
+        beat = m["초과수익률"] >= 0
+        r1 = st.columns(4)
+        r1[0].metric("전략 총수익률", f"{m['총수익률']:+.1f}%",
+                     f"단순보유 대비 {m['초과수익률']:+.1f}%p",
+                     delta_color="normal" if beat else "inverse")
+        r1[1].metric("단순보유 수익률", f"{m['단순보유수익률']:+.1f}%")
+        r1[2].metric("연복리(CAGR)", f"{m['연복리수익률(CAGR)']:+.1f}%")
+        r1[3].metric("최종 자산", f"${m['최종자산']:,.0f}", "초기 $10,000")
+        r2 = st.columns(4)
+        r2[0].metric("최대낙폭(MDD)", f"{m['최대낙폭(MDD)']:.1f}%",
+                     f"보유 {m['단순보유MDD']:.1f}%", delta_color="off")
+        r2[1].metric("샤프지수", f"{m['샤프지수']:.2f}",
+                     help="위험 대비 수익. 1 이상이면 양호")
+        r2[2].metric("승률", f"{m['승률']:.0f}%", f"거래 {m['거래횟수']}회")
+        r2[3].metric("시장 노출", f"{m['시장노출']:.0f}%",
+                     help="기간 중 주식을 보유한 비율")
+
+        # 자산곡선 비교
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=res.equity.index, y=res.equity,
+                      name=f"전략: {strategy}", line=dict(color="#2f6fed",
+                      width=2)))
+        fig.add_trace(go.Scatter(x=res.benchmark.index, y=res.benchmark,
+                      name="단순 보유", line=dict(color="#9aa5b1", width=1.5,
+                      dash="dash")))
+        fig.update_layout(height=380, margin=dict(l=10, r=10, t=30, b=10),
+                          title="자산 성장 곡선 (초기 $10,000)",
+                          legend=dict(orientation="h", y=1.12),
+                          plot_bgcolor="white", paper_bgcolor="white")
+        st.plotly_chart(fig, width='stretch')
+
+        if not beat:
+            st.info("💡 이 전략은 이 종목에서 단순 보유보다 못했습니다. "
+                    "매매 타이밍이 늘 이득은 아니라는 점을 보여줍니다.")
+
+        with st.expander(f"거래 내역 ({len(res.trades)}건)"):
+            if res.trades:
+                tdf = pd.DataFrame([{
+                    "진입일": t.entry_date, "청산일": t.exit_date or "보유중",
+                    "진입가": round(t.entry_price, 2),
+                    "청산가": round(t.exit_price, 2) if t.exit_price else None,
+                    "수익률": round(t.return_pct * 100, 2)
+                    if t.return_pct is not None else None,
+                } for t in res.trades])
+                st.dataframe(
+                    tdf.style.map(ret_bg, subset=["수익률"])
+                    .format({"수익률": fmt("{:+.2f}%")}),
+                    width='stretch', hide_index=True)
+            else:
+                st.write("거래가 없었습니다.")
+        st.caption("⚠️ 과거 성과가 미래 수익을 보장하지 않습니다. 수수료·세금·"
+                   "슬리피지를 단순화한 모델입니다.")
 
 # ============================ 탭 3: 모의매매 ============================
 with tab3:

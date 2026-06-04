@@ -1,0 +1,51 @@
+# ============================================================
+# 미국주식 분석/매매 시스템 설정
+# ============================================================
+
+# 관심종목 (대시보드 기본 목록)
+watchlist:
+  - AAPL
+  - MSFT
+  - NVDA
+  - GOOGL
+  - AMZN
+  - META
+  - TSLA
+  - JPM
+  - V
+  - JNJ
+
+# 데이터 공급자: "yahoo" (실시간, 로컬 권장) 또는 "sample" (오프라인 데모)
+data_provider: yahoo
+
+# 기술적 분석 지표 파라미터
+technical:
+  sma_short: 20        # 단기 이동평균
+  sma_long: 50         # 장기 이동평균
+  ema_period: 20
+  rsi_period: 14
+  rsi_overbought: 70   # 과매수 기준
+  rsi_oversold: 30     # 과매도 기준
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  bb_period: 20        # 볼린저밴드 기간
+  bb_std: 2.0          # 표준편차 배수
+
+# 종합 점수 가중치 (기술적 vs 기본적). 합이 1.0
+weights:
+  technical: 0.5
+  fundamental: 0.5
+
+# 매매 추천 구간 (0~100 종합점수 기준)
+recommendation:
+  strong_buy: 75
+  buy: 60
+  hold: 40
+  sell: 25
+  # 그 미만은 strong_sell
+
+# 모의매매 계좌
+paper_trading:
+  initial_cash: 100000   # 초기 자본 (USD)
+  commission: 0.0        # 거래 수수료 (비율, 예: 0.001 = 0.1%)

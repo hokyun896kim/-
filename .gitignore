@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# 런타임 데이터 (시세 캐시, 모의계좌 상태)
+data/*.json
+data/*.csv
+data/*.parquet
+!data/.gitkeep
+
+# OS / 에디터
+.DS_Store
+.idea/
+.vscode/

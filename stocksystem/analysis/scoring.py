@@ -8,8 +8,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..config import Config
-from ..data.base import DataProvider
+from ..data.base import DataProvider, EarningsRow, UpcomingEvents
 from . import fundamental as fa
+from . import sentiment as se
 from . import technical as ta
 
 # 추천 라벨 (한글/영문)
@@ -32,6 +33,12 @@ class StockAnalysis:
     technical: ta.TechnicalResult | None = None
     fundamental: fa.FundamentalResult | None = None
     reasons: list[str] = field(default_factory=list)
+    # 부가 정보 (comprehensive 분석 시 채워짐)
+    news: se.NewsSentiment | None = None
+    earnings: list[EarningsRow] = field(default_factory=list)
+    events: UpcomingEvents | None = None
+    market_cap: float | None = None
+    sector: str | None = None
 
     def summary_row(self) -> dict:
         """대시보드 표용 한 줄 요약."""
@@ -39,7 +46,7 @@ class StockAnalysis:
         fund = self.fundamental.score if self.fundamental else None
         price = (self.technical.latest.get("close")
                  if self.technical else None)
-        return {
+        row = {
             "종목": self.symbol,
             "이름": self.name,
             "현재가": round(price, 2) if price else None,
@@ -48,6 +55,9 @@ class StockAnalysis:
             "펀더멘털점수": fund,
             "추천": self.recommendation_label,
         }
+        if self.news is not None:
+            row["뉴스분위기"] = self.news.score
+        return row
 
 
 def _classify(score: float, cfg: Config) -> str:
@@ -98,9 +108,13 @@ def analyze_symbol(symbol: str, provider: DataProvider, cfg: Config,
         pass
 
     # 기본적 분석
+    sector = None
+    market_cap = None
     try:
         f = provider.fundamentals(symbol)
         name = f.name or symbol
+        sector = f.sector
+        market_cap = f.market_cap
         fund_res = fa.analyze(f)
     except Exception:
         pass
@@ -127,7 +141,38 @@ def analyze_symbol(symbol: str, provider: DataProvider, cfg: Config,
         technical=tech_res,
         fundamental=fund_res,
         reasons=_build_reasons(tech_res, fund_res),
+        market_cap=market_cap,
+        sector=sector,
     )
+
+
+def analyze_full(symbol: str, provider: DataProvider, cfg: Config,
+                 period: str = "1y") -> StockAnalysis:
+    """종목 상세용 종합 분석: 기술/펀더멘털 + 뉴스 분위기 + 실적 + 이벤트.
+
+    네트워크 비용이 더 들기 때문에 '종목 상세' 화면에서만 사용한다.
+    """
+    res = analyze_symbol(symbol, provider, cfg, period)
+    try:
+        res.news = se.aggregate(provider.news(symbol))
+    except Exception:
+        res.news = se.aggregate([])
+    try:
+        res.earnings = provider.earnings_history(symbol)
+    except Exception:
+        res.earnings = []
+    try:
+        res.events = provider.events(symbol)
+    except Exception:
+        res.events = UpcomingEvents(symbol=symbol.upper())
+
+    # 뉴스 분위기를 판단 근거에 반영
+    if res.news and res.news.n_articles:
+        if res.news.score >= 60:
+            res.reasons.append(f"최근 뉴스 분위기 우호적 ({res.news.label})")
+        elif res.news.score <= 40:
+            res.reasons.append(f"최근 뉴스 분위기 부정적 ({res.news.label})")
+    return res
 
 
 def analyze_watchlist(symbols: list[str], provider: DataProvider,

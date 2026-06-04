@@ -1,11 +1,12 @@
-"""Streamlit 대시보드.
+"""미국주식 분석 대시보드 (Streamlit).
 
 실행:  streamlit run stocksystem/app/dashboard.py
 
 탭 구성:
-  1) 관심종목 스코어보드 — 종합점수/추천 한눈에
-  2) 종목 상세 — 캔들차트 + 지표 + 기술/펀더멘털 분해
-  3) 모의매매 — 매수/매도/포트폴리오 현황
+  1) 스크리너   — 시가총액 상위 기업을 종합점수로 필터/정렬
+  2) 종목 상세  — 차트·점수·실적·이벤트·뉴스 분위기까지 한 화면에
+  3) 모의매매   — 가상 자본으로 매수/매도 연습
+  4) 투자 가이드 — 지표 해설과 체크리스트
 """
 from __future__ import annotations
 
@@ -23,7 +24,8 @@ if str(ROOT) not in sys.path:
 
 from stocksystem.config import load_config
 from stocksystem.data import get_provider
-from stocksystem.analysis import analyze_symbol, analyze_watchlist
+from stocksystem.data.universe import filter_universe, load_universe, sectors
+from stocksystem.analysis import analyze_full, analyze_symbol
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.portfolio import (
     PaperBroker, InsufficientFundsError, InsufficientSharesError,
@@ -35,49 +37,85 @@ st.set_page_config(page_title="미국주식 분석 시스템", layout="wide",
 
 cfg = load_config()
 
-# 추천 → 색상
+# ---- 부드러운 색상 팔레트 (라이트 테마) ----
 RECO_COLOR = {
-    "strong_buy": "#0b7d3e", "buy": "#3aa76d", "hold": "#b9912a",
-    "sell": "#d2603a", "strong_sell": "#b3261e",
+    "strong_buy": "#1f9d63", "buy": "#5cb98a", "hold": "#c9a227",
+    "sell": "#e08a5a", "strong_sell": "#d96a5e",
 }
+# 점수 → 파스텔 배경 (빨강→노랑→초록)
+_PASTEL = [(251, 224, 219), (253, 243, 214), (215, 240, 224)]  # red, amber, green
+
+
+def _lerp(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
 def score_bg(val) -> str:
-    """0~100 점수를 빨강→노랑→초록 배경색으로 (matplotlib 불필요)."""
     if val is None or (isinstance(val, float) and val != val):
         return ""
     v = max(0.0, min(100.0, float(val))) / 100.0
-    if v < 0.5:                       # 빨강 → 노랑
-        r, g = 210, int(60 + 150 * (v / 0.5))
-    else:                             # 노랑 → 초록
-        r, g = int(210 - 200 * ((v - 0.5) / 0.5)), 200
-    return f"background-color: rgb({r},{g},70); color: black;"
+    if v < 0.5:
+        c = _lerp(_PASTEL[0], _PASTEL[1], v / 0.5)
+    else:
+        c = _lerp(_PASTEL[1], _PASTEL[2], (v - 0.5) / 0.5)
+    return f"background-color: rgb{c}; color: #1f2933;"
 
 
 def ret_bg(val) -> str:
-    """수익률(%)을 음수=빨강 / 양수=초록 배경색으로."""
     if val is None or (isinstance(val, float) and val != val):
         return ""
     v = max(-30.0, min(30.0, float(val))) / 30.0
     if v >= 0:
-        return f"background-color: rgba(58,167,109,{0.15 + 0.55*v:.2f});"
-    return f"background-color: rgba(211,38,30,{0.15 + 0.55*abs(v):.2f});"
+        return f"background-color: rgba(92,185,138,{0.12 + 0.45*v:.2f});"
+    return f"background-color: rgba(217,106,94,{0.12 + 0.45*abs(v):.2f});"
+
+
+def fmt(spec):
+    return lambda v: "—" if v is None or (isinstance(v, float) and v != v) \
+        else spec.format(v)
+
+
+def human_cap(v) -> str:
+    if not v:
+        return "—"
+    if v >= 1e12:
+        return f"${v/1e12:.2f}조"
+    if v >= 1e9:
+        return f"${v/1e9:.1f}B"
+    if v >= 1e6:
+        return f"${v/1e6:.0f}M"
+    return f"${v:,.0f}"
+
+
+# ----------------------------- 캐시 -----------------------------
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_screener(symbols, provider_name, period):
+    provider = get_provider(provider_name)
+    rows = []
+    for s in symbols:
+        r = analyze_symbol(s, provider, cfg, period)
+        row = r.summary_row()
+        row["시가총액"] = r.market_cap
+        row["섹터"] = r.sector
+        rows.append(row)
+    return rows
 
 
 @st.cache_data(ttl=600, show_spinner=False)
-def cached_watchlist(symbols, provider_name, period):
+def cached_full(symbol, provider_name, period):
     provider = get_provider(provider_name)
-    results = analyze_watchlist(list(symbols), provider, cfg, period)
-    return [r.summary_row() for r in results], [r.symbol for r in results]
-
-
-@st.cache_data(ttl=600, show_spinner=False)
-def cached_symbol(symbol, provider_name, period):
-    provider = get_provider(provider_name)
-    res = analyze_symbol(symbol, provider, cfg, period)
-    # 차트용 직렬화
+    res = analyze_full(symbol, provider, cfg, period)
     ind = res.technical.indicators if res.technical else pd.DataFrame()
     return res, ind
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def price_of(symbol, provider_name):
+    try:
+        res, _ = cached_full(symbol, provider_name, "6mo")
+        return res.technical.latest.get("close") if res.technical else None
+    except Exception:
+        return None
 
 
 def get_broker() -> PaperBroker:
@@ -95,153 +133,281 @@ st.sidebar.title("📈 미국주식 분석")
 provider_name = st.sidebar.selectbox(
     "데이터 소스", ["yahoo", "sample"],
     index=0 if cfg.data_provider == "yahoo" else 1,
-    help="yahoo=실시간(로컬 권장), sample=오프라인 데모 데이터",
-)
-period = st.sidebar.selectbox("조회 기간", ["6mo", "1y", "2y", "5y"], index=1)
-watch_text = st.sidebar.text_area(
-    "관심종목 (쉼표/줄바꿈 구분)",
-    value=", ".join(cfg.watchlist), height=100,
-)
-watchlist = [s.strip().upper() for s in watch_text.replace("\n", ",").split(",")
-             if s.strip()]
-if st.sidebar.button("🔄 캐시 새로고침"):
+    help="yahoo=실시간(로컬 권장) · sample=오프라인 데모 데이터")
+period = st.sidebar.selectbox("차트 기간", ["6mo", "1y", "2y", "5y"], index=1)
+if st.sidebar.button("🔄 데이터 새로고침", width='stretch'):
     st.cache_data.clear()
     st.rerun()
-
 st.sidebar.caption(
-    "※ 본 시스템은 교육/연구용입니다. 투자 판단과 책임은 본인에게 있습니다.")
+    "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
+    "최종 판단과 책임은 본인에게 있습니다.")
 
-tab1, tab2, tab3 = st.tabs(["📊 스코어보드", "🔍 종목 상세", "💰 모의매매"])
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["📊 스크리너", "🔍 종목 상세", "💰 모의매매", "📖 투자 가이드"])
 
-# ============================ 탭 1: 스코어보드 ============================
+# ============================ 탭 1: 스크리너 ============================
 with tab1:
-    st.subheader("관심종목 스코어보드")
-    if not watchlist:
-        st.info("사이드바에 관심종목을 입력하세요.")
-    else:
-        with st.spinner("분석 중..."):
-            rows, _ = cached_watchlist(tuple(watchlist), provider_name, period)
-        df = pd.DataFrame(rows)
+    st.subheader("시가총액 상위 기업 스크리너")
+    cc = st.columns([1.2, 1.4, 1.2, 1])
+    top_pct = cc[0].select_slider(
+        "시가총액 상위", options=[10, 25, 50, 75, 100], value=50,
+        format_func=lambda x: f"상위 {x}%")
+    sector = cc[1].selectbox("섹터", ["전체"] + sectors())
+    max_n = cc[2].slider("분석 종목 수", 5, 60, 25, step=5,
+                         help="실시간(yahoo) 모드에서 많을수록 느려집니다")
+    sort_by = cc[3].selectbox("정렬", ["종합점수", "시가총액", "기술점수",
+                                       "펀더멘털점수"])
+
+    universe = filter_universe(top_pct=top_pct, sector=sector)
+    symbols = [u.symbol for u in universe][:max_n]
+    st.caption(f"유니버스 {len(universe)}종목 중 시총 상위 {len(symbols)}종목 분석")
+
+    with st.spinner("분석 중..."):
+        rows = cached_screener(tuple(symbols), provider_name, period)
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        df["시가총액"] = df["시가총액"].apply(human_cap)
+        df = df.sort_values(
+            sort_by if sort_by in df else "종합점수", ascending=False)
+        display_cols = ["종목", "이름", "섹터", "현재가", "종합점수",
+                        "기술점수", "펀더멘털점수", "추천"]
+        df = df[[c for c in display_cols if c in df.columns]]
 
         def color_reco(val):
             for key, label in RECO_LABELS.items():
                 if val == label:
-                    return f"background-color: {RECO_COLOR[key]}; color: white;"
+                    return f"background-color:{RECO_COLOR[key]};color:white;"
             return ""
-
-        def fmt(spec):
-            return lambda v: "—" if v is None or (isinstance(v, float) and v != v) else spec.format(v)
 
         styled = (df.style
                   .map(color_reco, subset=["추천"])
-                  .map(score_bg, subset=["종합점수", "기술점수", "펀더멘털점수"])
-                  .format({"현재가": fmt("{:.2f}"), "종합점수": fmt("{:.1f}"),
-                           "기술점수": fmt("{:.1f}"), "펀더멘털점수": fmt("{:.1f}")}))
-        st.dataframe(styled, width='stretch', height=460)
+                  .map(score_bg, subset=[c for c in
+                       ["종합점수", "기술점수", "펀더멘털점수"] if c in df])
+                  .format({"현재가": fmt("${:.2f}"), "종합점수": fmt("{:.0f}"),
+                           "기술점수": fmt("{:.0f}"),
+                           "펀더멘털점수": fmt("{:.0f}")}))
+        st.dataframe(styled, width='stretch', height=520, hide_index=True)
 
-        c1, c2, c3 = st.columns(3)
-        c1.metric("평균 종합점수", f"{df['종합점수'].mean():.1f}")
+        m = st.columns(3)
+        valid = pd.to_numeric(df["종합점수"], errors="coerce")
+        m[0].metric("평균 종합점수", f"{valid.mean():.0f}")
         buys = df["추천"].isin(["적극 매수", "매수"]).sum()
-        c2.metric("매수 추천 종목", f"{buys} / {len(df)}")
-        c3.metric("최고 점수", df.loc[df['종합점수'].idxmax(), '종목'])
+        m[1].metric("매수 추천", f"{buys} / {len(df)}")
+        m[2].metric("최고 점수 종목",
+                    df.loc[valid.idxmax(), "종목"]
+                    if valid.notna().any() else "—")
 
 # ============================ 탭 2: 종목 상세 ============================
 with tab2:
-    sel = st.selectbox("종목 선택", watchlist or ["AAPL"])
-    if sel:
-        with st.spinner(f"{sel} 분석 중..."):
-            res, ind = cached_symbol(sel, provider_name, period)
+    uni_syms = [u.symbol for u in load_universe()]
+    csel = st.columns([2, 3])
+    sel = csel[0].selectbox("유니버스에서 선택", uni_syms)
+    typed = csel[1].text_input("또는 티커 직접 입력", value="").strip().upper()
+    symbol = typed or sel
 
-        head = st.columns([2, 1, 1, 1])
-        head[0].markdown(f"### {res.symbol} — {res.name or ''}")
-        head[1].metric("종합점수", f"{res.total_score:.1f}")
-        head[2].metric("기술", f"{res.technical.score:.1f}"
-                       if res.technical else "—")
-        head[3].metric("펀더멘털", f"{res.fundamental.score:.1f}"
-                       if res.fundamental else "—")
+    if symbol:
+        with st.spinner(f"{symbol} 분석 중..."):
+            res, ind = cached_full(symbol, provider_name, period)
+
+        # ---- 헤더 ----
+        st.markdown(f"### {res.symbol} — {res.name or ''}")
+        meta = []
+        if res.sector:
+            meta.append(f"섹터: {res.sector}")
+        if res.market_cap:
+            meta.append(f"시가총액: {human_cap(res.market_cap)}")
+        if meta:
+            st.caption("  ·  ".join(meta))
+
+        h = st.columns(4)
+        price = res.technical.latest.get("close") if res.technical else None
+        h[0].metric("현재가", f"${price:,.2f}" if price else "—")
+        h[1].metric("종합점수", f"{res.total_score:.0f}")
+        h[2].metric("기술 / 펀더멘털",
+                    f"{res.technical.score:.0f} / {res.fundamental.score:.0f}"
+                    if res.technical and res.fundamental else "—")
+        h[3].metric("뉴스 분위기",
+                    f"{res.news.score:.0f}" if res.news else "—",
+                    res.news.label if res.news else None)
 
         key = res.recommendation
         st.markdown(
-            f"<div style='padding:10px;border-radius:8px;"
+            f"<div style='padding:12px;border-radius:10px;"
             f"background:{RECO_COLOR[key]};color:white;font-size:20px;"
-            f"text-align:center;'><b>추천: {res.recommendation_label}</b></div>",
-            unsafe_allow_html=True,
-        )
+            f"text-align:center;margin:6px 0;'>"
+            f"<b>추천: {res.recommendation_label}</b>  "
+            f"(종합 {res.total_score:.0f}점)</div>",
+            unsafe_allow_html=True)
 
         if res.reasons:
-            with st.expander("📌 판단 근거", expanded=True):
+            with st.expander("📌 이렇게 판단했어요 (근거)", expanded=True):
                 for r in res.reasons:
                     st.write("•", r)
 
-        # ---- 차트 ----
+        # ---- 가격 차트 ----
         if not ind.empty:
             c = cfg.technical
             fig = go.Figure()
             fig.add_trace(go.Candlestick(
                 x=ind.index, open=ind["Open"], high=ind["High"],
-                low=ind["Low"], close=ind["Close"], name="가격"))
-            for col, color in [(f"SMA{c.sma_short}", "#1f77b4"),
-                               (f"SMA{c.sma_long}", "#ff7f0e")]:
+                low=ind["Low"], close=ind["Close"], name="가격",
+                increasing_line_color="#2e9e6b",
+                decreasing_line_color="#d96a5e"))
+            for col, color in [(f"SMA{c.sma_short}", "#2f6fed"),
+                               (f"SMA{c.sma_long}", "#e0883a")]:
                 if col in ind:
-                    fig.add_trace(go.Scatter(
-                        x=ind.index, y=ind[col], name=col,
-                        line=dict(width=1, color=color)))
+                    fig.add_trace(go.Scatter(x=ind.index, y=ind[col], name=col,
+                                  line=dict(width=1.3, color=color)))
             if "bb_upper" in ind:
                 fig.add_trace(go.Scatter(x=ind.index, y=ind["bb_upper"],
-                              name="BB상단", line=dict(width=0.5, color="gray"),
-                              opacity=0.4))
+                              name="볼린저 상단", line=dict(width=0.5,
+                              color="#b8c2cc"), showlegend=False))
                 fig.add_trace(go.Scatter(x=ind.index, y=ind["bb_lower"],
-                              name="BB하단", line=dict(width=0.5, color="gray"),
-                              fill="tonexty", opacity=0.4))
+                              name="볼린저 밴드", line=dict(width=0.5,
+                              color="#b8c2cc"), fill="tonexty",
+                              fillcolor="rgba(184,194,204,0.18)"))
             fig.update_layout(height=420, xaxis_rangeslider_visible=False,
-                              margin=dict(l=10, r=10, t=30, b=10),
-                              legend=dict(orientation="h"))
+                              margin=dict(l=10, r=10, t=10, b=10),
+                              legend=dict(orientation="h", y=1.05),
+                              plot_bgcolor="white", paper_bgcolor="white")
             st.plotly_chart(fig, width='stretch')
 
-            # RSI + MACD
             cc1, cc2 = st.columns(2)
             with cc1:
-                rfig = go.Figure()
-                rfig.add_trace(go.Scatter(x=ind.index, y=ind["RSI"], name="RSI"))
-                rfig.add_hline(y=c.rsi_overbought, line_dash="dash",
-                               line_color="red")
-                rfig.add_hline(y=c.rsi_oversold, line_dash="dash",
-                               line_color="green")
-                rfig.update_layout(title="RSI", height=250,
-                                   margin=dict(l=10, r=10, t=30, b=10))
-                st.plotly_chart(rfig, width='stretch')
+                rf = go.Figure()
+                rf.add_trace(go.Scatter(x=ind.index, y=ind["RSI"], name="RSI",
+                             line=dict(color="#7b5cd6")))
+                rf.add_hline(y=c.rsi_overbought, line_dash="dash",
+                             line_color="#d96a5e",
+                             annotation_text="과매수")
+                rf.add_hline(y=c.rsi_oversold, line_dash="dash",
+                             line_color="#2e9e6b", annotation_text="과매도")
+                rf.update_layout(title="RSI (상대강도)", height=240,
+                                 margin=dict(l=10, r=10, t=34, b=10),
+                                 plot_bgcolor="white", paper_bgcolor="white")
+                st.plotly_chart(rf, width='stretch')
             with cc2:
-                mfig = go.Figure()
-                mfig.add_trace(go.Bar(x=ind.index, y=ind["hist"], name="히스토그램"))
-                mfig.add_trace(go.Scatter(x=ind.index, y=ind["macd"], name="MACD"))
-                mfig.add_trace(go.Scatter(x=ind.index, y=ind["signal"],
-                               name="시그널"))
-                mfig.update_layout(title="MACD", height=250,
-                                   margin=dict(l=10, r=10, t=30, b=10))
-                st.plotly_chart(mfig, width='stretch')
+                mf = go.Figure()
+                colors = ["#2e9e6b" if v >= 0 else "#d96a5e"
+                          for v in ind["hist"].fillna(0)]
+                mf.add_trace(go.Bar(x=ind.index, y=ind["hist"], name="히스토그램",
+                             marker_color=colors))
+                mf.add_trace(go.Scatter(x=ind.index, y=ind["macd"], name="MACD",
+                             line=dict(color="#2f6fed")))
+                mf.add_trace(go.Scatter(x=ind.index, y=ind["signal"],
+                             name="시그널", line=dict(color="#e0883a")))
+                mf.update_layout(title="MACD (추세 전환)", height=240,
+                                 margin=dict(l=10, r=10, t=34, b=10),
+                                 plot_bgcolor="white", paper_bgcolor="white")
+                st.plotly_chart(mf, width='stretch')
 
-        # ---- 펀더멘털 분해 ----
-        if res.fundamental and res.fundamental.metric_scores:
-            st.markdown("#### 펀더멘털 지표 점수")
+        # ---- 핵심 재무 지표 ----
+        if res.fundamental and res.fundamental.fundamentals:
+            st.markdown("#### 💵 핵심 재무 지표")
+            f = res.fundamental.fundamentals
             ms = res.fundamental.metric_scores
-            st.dataframe(pd.DataFrame(
-                {"지표": list(ms.keys()), "점수": list(ms.values())}
-            ).set_index("지표").T, width='stretch')
+            # (표시라벨, 값, 포맷, 설명, metric_scores 키)
+            specs = [
+                ("PER", f.trailing_pe, "{:.1f}", "주가수익비율 (낮을수록 저평가)", "PER"),
+                ("PBR", f.price_to_book, "{:.1f}", "주가순자산비율", "PBR"),
+                ("ROE", f.return_on_equity, "{:.1%}", "자기자본이익률 (높을수록 우량)", "ROE"),
+                ("순이익률", f.profit_margin, "{:.1%}", "매출 대비 순이익", "순이익률"),
+                ("매출성장", f.revenue_growth, "{:+.1%}", "전년 대비 매출 성장", "매출성장"),
+                ("이익성장", f.earnings_growth, "{:+.1%}", "전년 대비 이익 성장", "이익성장"),
+                ("부채비율", f.debt_to_equity, "{:.0f}", "부채/자본 (낮을수록 안정)", "부채비율"),
+                ("배당수익률", f.dividend_yield, "{:.2%}", "연 배당 / 주가", "배당"),
+            ]
+            frows = []
+            for label, val, vfmt, desc, key in specs:
+                frows.append({
+                    "지표": label,
+                    "값": vfmt.format(val) if val is not None else "—",
+                    "점수": ms.get(key),
+                    "설명": desc,
+                })
+            fdf = pd.DataFrame(frows)
+            st.dataframe(
+                fdf.style.map(score_bg, subset=["점수"])
+                .format({"점수": fmt("{:.0f}")}),
+                width='stretch', hide_index=True)
+
+        # ---- 최근 실적 & 이벤트 ----
+        ec1, ec2 = st.columns([1.3, 1])
+        with ec1:
+            st.markdown("#### 📑 최근 실적 (분기 EPS)")
+            if res.earnings:
+                erows = []
+                for e in res.earnings:
+                    erows.append({
+                        "발표일": e.period,
+                        "예상 EPS": e.eps_estimate,
+                        "실제 EPS": e.eps_actual,
+                        "서프라이즈": e.surprise_pct,
+                        "매출": human_cap(e.revenue) if e.revenue else "—",
+                    })
+                edf = pd.DataFrame(erows)
+
+                def surp_bg(v):
+                    if v is None or (isinstance(v, float) and v != v):
+                        return ""
+                    return ("background-color:rgba(92,185,138,0.25);"
+                            if v >= 0 else
+                            "background-color:rgba(217,106,94,0.25);")
+                st.dataframe(
+                    edf.style.map(surp_bg, subset=["서프라이즈"])
+                    .format({"예상 EPS": fmt("{:.2f}"),
+                             "실제 EPS": fmt("{:.2f}"),
+                             "서프라이즈": fmt("{:+.1f}%")}),
+                    width='stretch', hide_index=True)
+                st.caption("서프라이즈 = (실제−예상)/예상. 양수면 시장 기대치 상회.")
+            else:
+                st.info("실적 데이터가 없습니다.")
+        with ec2:
+            st.markdown("#### 📅 다가오는 이벤트")
+            ev = res.events
+            today = pd.Timestamp.today().normalize()
+            if ev and ev.next_earnings_date:
+                try:
+                    d = pd.Timestamp(ev.next_earnings_date).normalize()
+                    dday = (d - today).days
+                    st.metric("다음 실적 발표", ev.next_earnings_date,
+                              f"D-{dday}" if dday >= 0 else "발표 완료")
+                except Exception:
+                    st.write("다음 실적 발표:", ev.next_earnings_date)
+            if ev and ev.ex_dividend_date:
+                st.write(f"💰 배당락일: **{ev.ex_dividend_date}**"
+                         + (f" (주당 ${ev.dividend_amount})"
+                            if ev.dividend_amount else ""))
+            if not ev or (not ev.next_earnings_date and not ev.ex_dividend_date):
+                st.info("예정된 이벤트 정보가 없습니다.")
+            st.caption("⚠️ 실적 발표 전후로는 주가 변동성이 커집니다.")
+
+        # ---- 뉴스 분위기 ----
+        st.markdown("#### 📰 해외 뉴스 분위기")
+        if res.news and res.news.n_articles:
+            nc = st.columns([1, 3])
+            nc[0].metric("종합 분위기", res.news.label,
+                         f"{res.news.score:.0f} / 100")
+            nc[0].caption(f"긍정 {res.news.n_positive} · 중립 "
+                          f"{res.news.n_neutral} · 부정 {res.news.n_negative}")
+            with nc[1]:
+                for it in res.news.items:
+                    emo = ("🟢" if (it.sentiment or 0) > 0.05 else
+                           "🔴" if (it.sentiment or 0) < -0.05 else "⚪")
+                    title = it.title
+                    if it.link:
+                        title = f"[{title}]({it.link})"
+                    src = f" · _{it.publisher}_" if it.publisher else ""
+                    when = f" · {it.published}" if it.published else ""
+                    st.markdown(f"{emo} {title}{src}{when}")
+            st.caption("※ 헤드라인 단어 기반 간이 분석입니다. 참고용으로만 보세요.")
+        else:
+            st.info("뉴스 데이터가 없습니다. (실시간 모드에서 더 잘 동작합니다)")
 
 # ============================ 탭 3: 모의매매 ============================
 with tab3:
     broker = get_broker()
     st.subheader("모의매매 계좌")
-
-    # 현재가 수집 (보유종목 + 거래대상)
-    @st.cache_data(ttl=300, show_spinner=False)
-    def price_of(symbol, provider_name):
-        try:
-            res, _ = cached_symbol(symbol, provider_name, "6mo")
-            return res.technical.latest.get("close") if res.technical else None
-        except Exception:
-            return None
-
     held = list(broker.positions.keys())
     prices = {s: price_of(s, provider_name) or broker.positions[s].avg_price
               for s in held}
@@ -249,32 +415,28 @@ with tab3:
     m = st.columns(4)
     m[0].metric("현금", f"${broker.cash:,.0f}")
     m[1].metric("평가금액", f"${broker.position_value(prices):,.0f}")
-    eq = broker.equity(prices)
-    m[2].metric("총자산", f"${eq:,.0f}",
+    m[2].metric("총자산", f"${broker.equity(prices):,.0f}",
                 f"{broker.total_return(prices)*100:+.2f}%")
     m[3].metric("실현손익", f"${broker.realized_pnl():,.0f}")
 
     st.markdown("#### 주문")
     oc = st.columns([1.5, 1, 1, 1, 1])
-    order_sym = oc[0].text_input("종목", value=(watchlist[0] if watchlist else "AAPL")).upper()
+    order_sym = oc[0].text_input("종목", value=(held[0] if held else "AAPL")).upper()
     qty = oc[1].number_input("수량", min_value=0.0, value=10.0, step=1.0)
     live_px = price_of(order_sym, provider_name)
-    default_px = float(live_px) if live_px else 100.0
-    px = oc[2].number_input("가격", min_value=0.0, value=round(default_px, 2),
+    px = oc[2].number_input("가격", min_value=0.0,
+                            value=round(float(live_px), 2) if live_px else 100.0,
                             step=0.01)
-    oc[3].write("")
+    oc[3].write(""); oc[4].write("")
     if oc[3].button("🟢 매수", width='stretch'):
         try:
-            broker.buy(order_sym, qty, px)
-            broker.save()
+            broker.buy(order_sym, qty, px); broker.save()
             st.success(f"{order_sym} {qty}주 매수 @ ${px:.2f}")
         except (InsufficientFundsError, ValueError) as e:
             st.error(str(e))
-    oc[4].write("")
     if oc[4].button("🔴 매도", width='stretch'):
         try:
-            broker.sell(order_sym, qty, px)
-            broker.save()
+            broker.sell(order_sym, qty, px); broker.save()
             st.success(f"{order_sym} {qty}주 매도 @ ${px:.2f}")
         except (InsufficientSharesError, ValueError) as e:
             st.error(str(e))
@@ -282,17 +444,16 @@ with tab3:
     st.markdown("#### 보유 종목")
     holdings = broker.holdings_table(prices)
     if holdings:
-        hdf = pd.DataFrame(holdings)
         st.dataframe(
-            hdf.style.map(ret_bg, subset=["수익률"]),
-            width='stretch')
+            pd.DataFrame(holdings).style.map(ret_bg, subset=["수익률"]),
+            width='stretch', hide_index=True)
     else:
         st.info("보유 종목이 없습니다. 위에서 매수해보세요.")
 
     with st.expander("거래 내역"):
         if broker.trades:
-            tdf = pd.DataFrame([t.__dict__ for t in broker.trades])
-            st.dataframe(tdf, width='stretch')
+            st.dataframe(pd.DataFrame([t.__dict__ for t in broker.trades]),
+                         width='stretch', hide_index=True)
         else:
             st.write("거래 내역이 없습니다.")
 
@@ -301,3 +462,48 @@ with tab3:
             cfg.paper_trading.initial_cash, cfg.paper_trading.commission)
         st.session_state.broker.save()
         st.rerun()
+
+# ============================ 탭 4: 투자 가이드 ============================
+with tab4:
+    st.subheader("📖 개인투자자를 위한 사용 가이드")
+    st.markdown("""
+이 시스템은 **기술적 분석(차트)** 과 **기본적 분석(재무)** 을 합쳐 0~100점
+**종합점수**를 매기고, 매수/보유/매도 의견을 제시합니다. 아래 순서로 쓰면 좋아요.
+
+##### 1️⃣ 스크리너로 후보 찾기
+- **시가총액 상위 50%** 처럼 우량주 위주로 좁히고, 관심 **섹터**를 고릅니다.
+- 종합점수가 높은(초록색) 종목부터 살펴봅니다.
+
+##### 2️⃣ 종목 상세로 검증하기
+- **추천 배너**와 **판단 근거**로 왜 이 점수인지 확인합니다.
+- **차트**(이동평균·RSI·MACD·볼린저)로 추세와 과열 여부를 봅니다.
+- **재무 지표**로 회사가 실제로 돈을 잘 버는지 확인합니다.
+- **최근 실적·이벤트·뉴스 분위기**로 단기 재료를 점검합니다.
+
+##### 3️⃣ 모의매매로 연습하기
+- 실제 돈 없이 매수/매도를 연습하고 수익률을 추적합니다.
+""")
+    with st.expander("📊 지표 한눈에 이해하기", expanded=True):
+        st.markdown("""
+| 지표 | 의미 | 읽는 법 |
+|---|---|---|
+| **이동평균(SMA)** | 일정 기간 평균 가격 | 단기선이 장기선 위 → 상승 추세(골든크로스) |
+| **RSI** | 과매수/과매도 강도 | 70↑ 과열(조정 주의) · 30↓ 과매도(반등 기대) |
+| **MACD** | 추세 전환 신호 | 히스토그램 0 위 → 상승 모멘텀 |
+| **볼린저밴드** | 변동성 범위 | 하단 근접 → 저평가 · 상단 근접 → 고평가 |
+| **PER** | 이익 대비 주가 | 낮을수록 저평가 (업종별 비교 필수) |
+| **PBR** | 자산 대비 주가 | 1 근처면 자산가치 수준 |
+| **ROE** | 자기자본이익률 | 15%↑면 우량 |
+| **부채비율** | 재무 안정성 | 100%↓ 권장 |
+""")
+    with st.expander("✅ 매수 전 체크리스트"):
+        st.markdown("""
+- [ ] 종합점수가 60점 이상인가?
+- [ ] 기술·펀더멘털 점수가 한쪽만 치우치지 않았나?
+- [ ] 곧 **실적 발표**가 있나? (변동성 ↑ → 분할매수 고려)
+- [ ] 뉴스 분위기에 큰 악재(소송·규제)는 없나?
+- [ ] 한 종목에 자산을 몰지 않고 **분산**했나?
+- [ ] **손절 기준**(예: -8%)을 미리 정했나?
+""")
+    st.warning("⚠️ 모든 점수와 추천은 참고 지표일 뿐 투자 자문이 아닙니다. "
+               "최종 투자 판단과 그 결과의 책임은 전적으로 본인에게 있습니다.")

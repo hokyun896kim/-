@@ -1,0 +1,126 @@
+symbol,name,sector,market_cap_b
+AAPL,Apple Inc.,Technology,3300
+MSFT,Microsoft Corp.,Technology,3100
+NVDA,NVIDIA Corp.,Technology,3000
+GOOGL,Alphabet Inc.,Communication Services,2100
+AMZN,Amazon.com Inc.,Consumer Cyclical,2000
+META,Meta Platforms Inc.,Communication Services,1300
+AVGO,Broadcom Inc.,Technology,800
+TSLA,Tesla Inc.,Consumer Cyclical,780
+BRK-B,Berkshire Hathaway Inc.,Financial Services,920
+JPM,JPMorgan Chase & Co.,Financial Services,650
+WMT,Walmart Inc.,Consumer Defensive,580
+LLY,Eli Lilly and Co.,Healthcare,720
+V,Visa Inc.,Financial Services,560
+MA,Mastercard Inc.,Financial Services,440
+ORCL,Oracle Corp.,Technology,400
+UNH,UnitedHealth Group Inc.,Healthcare,470
+XOM,Exxon Mobil Corp.,Energy,520
+COST,Costco Wholesale Corp.,Consumer Defensive,400
+HD,Home Depot Inc.,Consumer Cyclical,400
+PG,Procter & Gamble Co.,Consumer Defensive,390
+JNJ,Johnson & Johnson,Healthcare,360
+NFLX,Netflix Inc.,Communication Services,380
+BAC,Bank of America Corp.,Financial Services,330
+ABBV,AbbVie Inc.,Healthcare,330
+CRM,Salesforce Inc.,Technology,300
+CVX,Chevron Corp.,Energy,290
+KO,Coca-Cola Co.,Consumer Defensive,290
+AMD,Advanced Micro Devices Inc.,Technology,260
+PEP,PepsiCo Inc.,Consumer Defensive,230
+TMO,Thermo Fisher Scientific Inc.,Healthcare,210
+LIN,Linde plc,Basic Materials,220
+ADBE,Adobe Inc.,Technology,200
+WFC,Wells Fargo & Co.,Financial Services,240
+MCD,McDonald's Corp.,Consumer Cyclical,210
+CSCO,Cisco Systems Inc.,Technology,230
+ACN,Accenture plc,Technology,210
+ABT,Abbott Laboratories,Healthcare,200
+GE,GE Aerospace,Industrials,200
+DHR,Danaher Corp.,Healthcare,180
+INTU,Intuit Inc.,Technology,180
+QCOM,Qualcomm Inc.,Technology,180
+TXN,Texas Instruments Inc.,Technology,180
+IBM,International Business Machines,Technology,200
+AMGN,Amgen Inc.,Healthcare,150
+PM,Philip Morris International,Consumer Defensive,180
+NOW,ServiceNow Inc.,Technology,200
+CAT,Caterpillar Inc.,Industrials,170
+VZ,Verizon Communications Inc.,Communication Services,180
+GS,Goldman Sachs Group Inc.,Financial Services,160
+INTC,Intel Corp.,Technology,130
+DIS,Walt Disney Co.,Communication Services,170
+MS,Morgan Stanley,Financial Services,160
+T,AT&T Inc.,Communication Services,160
+RTX,RTX Corp.,Industrials,160
+PFE,Pfizer Inc.,Healthcare,150
+SPGI,S&P Global Inc.,Financial Services,150
+AXP,American Express Co.,Financial Services,170
+NEE,NextEra Energy Inc.,Utilities,150
+HON,Honeywell International Inc.,Industrials,140
+UNP,Union Pacific Corp.,Industrials,140
+LOW,Lowe's Companies Inc.,Consumer Cyclical,140
+BKNG,Booking Holdings Inc.,Consumer Cyclical,160
+ISRG,Intuitive Surgical Inc.,Healthcare,170
+COP,ConocoPhillips,Energy,130
+ETN,Eaton Corp. plc,Industrials,130
+BA,Boeing Co.,Industrials,110
+ELV,Elevance Health Inc.,Healthcare,100
+SYK,Stryker Corp.,Healthcare,140
+VRTX,Vertex Pharmaceuticals Inc.,Healthcare,120
+PLD,Prologis Inc.,Real Estate,110
+TJX,TJX Companies Inc.,Consumer Cyclical,130
+REGN,Regeneron Pharmaceuticals Inc.,Healthcare,90
+PANW,Palo Alto Networks Inc.,Technology,120
+SCHW,Charles Schwab Corp.,Financial Services,130
+BLK,BlackRock Inc.,Financial Services,140
+C,Citigroup Inc.,Financial Services,130
+MDT,Medtronic plc,Healthcare,110
+ADP,Automatic Data Processing,Industrials,120
+BSX,Boston Scientific Corp.,Healthcare,130
+MU,Micron Technology Inc.,Technology,110
+LRCX,Lam Research Corp.,Technology,100
+KLAC,KLA Corp.,Technology,100
+AMAT,Applied Materials Inc.,Technology,150
+GILD,Gilead Sciences Inc.,Healthcare,110
+CB,Chubb Ltd.,Financial Services,110
+MMC,Marsh & McLennan Companies,Financial Services,110
+SBUX,Starbucks Corp.,Consumer Cyclical,100
+MDLZ,Mondelez International Inc.,Consumer Defensive,90
+ADI,Analog Devices Inc.,Technology,110
+PGR,Progressive Corp.,Financial Services,140
+CI,Cigna Group,Healthcare,90
+SO,Southern Co.,Utilities,90
+DE,Deere & Co.,Industrials,110
+DUK,Duke Energy Corp.,Utilities,80
+ZTS,Zoetis Inc.,Healthcare,80
+TMUS,T-Mobile US Inc.,Communication Services,200
+FI,Fiserv Inc.,Technology,90
+BDX,Becton Dickinson and Co.,Healthcare,70
+CL,Colgate-Palmolive Co.,Consumer Defensive,75
+EOG,EOG Resources Inc.,Energy,70
+APD,Air Products and Chemicals,Basic Materials,65
+NKE,Nike Inc.,Consumer Cyclical,110
+MO,Altria Group Inc.,Consumer Defensive,90
+WM,Waste Management Inc.,Industrials,85
+ITW,Illinois Tool Works Inc.,Industrials,75
+SLB,Schlumberger Ltd.,Energy,60
+EQIX,Equinix Inc.,Real Estate,85
+MCK,McKesson Corp.,Healthcare,75
+SHW,Sherwin-Williams Co.,Basic Materials,90
+GD,General Dynamics Corp.,Industrials,75
+NOC,Northrop Grumman Corp.,Industrials,70
+FCX,Freeport-McMoRan Inc.,Basic Materials,65
+CME,CME Group Inc.,Financial Services,80
+USB,U.S. Bancorp,Financial Services,75
+PNC,PNC Financial Services Group,Financial Services,75
+TGT,Target Corp.,Consumer Defensive,65
+HCA,HCA Healthcare Inc.,Healthcare,90
+MAR,Marriott International Inc.,Consumer Cyclical,75
+CSX,CSX Corp.,Industrials,65
+EMR,Emerson Electric Co.,Industrials,65
+GM,General Motors Co.,Consumer Cyclical,55
+F,Ford Motor Co.,Consumer Cyclical,45
+AON,Aon plc,Financial Services,75
+FDX,FedEx Corp.,Industrials,65
+ORLY,O'Reilly Automotive Inc.,Consumer Cyclical,70

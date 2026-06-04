@@ -8,9 +8,12 @@
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 import pandas as pd
 
-from .base import DataProvider, Fundamentals
+from .base import (DataProvider, EarningsRow, Fundamentals, NewsItem,
+                   UpcomingEvents)
 
 
 class YahooProvider(DataProvider):
@@ -64,3 +67,95 @@ class YahooProvider(DataProvider):
             dividend_yield=g("dividendYield"),
             current_price=g("currentPrice", "regularMarketPrice"),
         )
+
+    def news(self, symbol: str, limit: int = 8) -> list[NewsItem]:
+        import yfinance as yf
+
+        items: list[NewsItem] = []
+        try:
+            raw = yf.Ticker(symbol).news or []
+        except Exception:
+            raw = []
+
+        for n in raw[:limit]:
+            # yfinance 버전에 따라 평면형 또는 {'content': {...}} 형태
+            content = n.get("content", n) if isinstance(n, dict) else {}
+            title = content.get("title") or n.get("title")
+            if not title:
+                continue
+            pub = (content.get("provider", {}) or {}).get("displayName") \
+                or n.get("publisher")
+            link = n.get("link")
+            if not link:
+                link = (content.get("canonicalUrl", {}) or {}).get("url")
+            published = content.get("pubDate") or _epoch_to_iso(
+                n.get("providerPublishTime"))
+            summary = content.get("summary") or content.get("description")
+            items.append(NewsItem(title=title, publisher=pub, link=link,
+                                  published=published, summary=summary))
+        return items
+
+    def earnings_history(self, symbol: str, limit: int = 4) -> list[EarningsRow]:
+        import yfinance as yf
+
+        rows: list[EarningsRow] = []
+        try:
+            df = yf.Ticker(symbol).get_earnings_dates(limit=limit * 3)
+        except Exception:
+            df = None
+        if df is None or df.empty:
+            return rows
+
+        # 이미 실적이 발표된(=과거) 행만, 최신 limit개
+        now = pd.Timestamp.now(tz=df.index.tz) if df.index.tz else pd.Timestamp.now()
+        past = df[df.index <= now].head(limit)
+        for ts, r in past.iloc[::-1].iterrows():     # 오래된→최신
+            rows.append(EarningsRow(
+                period=ts.strftime("%Y-%m-%d"),
+                eps_estimate=_num(r.get("EPS Estimate")),
+                eps_actual=_num(r.get("Reported EPS")),
+            ))
+        return rows
+
+    def events(self, symbol: str) -> UpcomingEvents:
+        import yfinance as yf
+
+        ev = UpcomingEvents(symbol=symbol.upper())
+        t = yf.Ticker(symbol)
+        try:
+            cal = t.calendar or {}
+        except Exception:
+            cal = {}
+        if isinstance(cal, dict):
+            ed = cal.get("Earnings Date")
+            if isinstance(ed, (list, tuple)) and ed:
+                ev.next_earnings_date = str(ed[0])
+            elif ed:
+                ev.next_earnings_date = str(ed)
+            exd = cal.get("Ex-Dividend Date")
+            if exd:
+                ev.ex_dividend_date = str(exd)
+        try:
+            info = t.info or {}
+            ev.dividend_amount = info.get("dividendRate")
+        except Exception:
+            pass
+        return ev
+
+
+def _epoch_to_iso(ts) -> str | None:
+    if not ts:
+        return None
+    try:
+        return datetime.fromtimestamp(int(ts), tz=timezone.utc).strftime("%Y-%m-%d")
+    except (ValueError, OSError, TypeError):
+        return None
+
+
+def _num(v):
+    try:
+        if v is None or pd.isna(v):
+            return None
+        return float(v)
+    except (TypeError, ValueError):
+        return None

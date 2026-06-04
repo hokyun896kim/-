@@ -40,6 +40,48 @@ class Fundamentals:
         return asdict(self)
 
 
+@dataclass
+class NewsItem:
+    """뉴스 헤드라인 한 건."""
+    title: str
+    publisher: Optional[str] = None
+    link: Optional[str] = None
+    published: Optional[str] = None      # ISO 날짜 문자열
+    summary: Optional[str] = None
+    sentiment: Optional[float] = None    # -1(부정) ~ +1(긍정), 분석 후 채워짐
+
+
+@dataclass
+class EarningsRow:
+    """분기 실적 한 줄."""
+    period: str                          # 예: "2025Q2"
+    eps_estimate: Optional[float] = None # 시장 예상 EPS
+    eps_actual: Optional[float] = None   # 실제 발표 EPS
+    revenue: Optional[float] = None      # 매출 (USD)
+
+    @property
+    def surprise_pct(self) -> Optional[float]:
+        """EPS 서프라이즈(%) = (실제-예상)/|예상|."""
+        if self.eps_actual is None or self.eps_estimate in (None, 0):
+            return None
+        return (self.eps_actual - self.eps_estimate) / abs(self.eps_estimate) * 100
+
+
+@dataclass
+class UpcomingEvents:
+    """다가오는 일정."""
+    symbol: str
+    next_earnings_date: Optional[str] = None    # 다음 실적발표 예정일
+    ex_dividend_date: Optional[str] = None       # 배당락일
+    dividend_amount: Optional[float] = None      # 주당 배당금
+    last_split_date: Optional[str] = None
+    notes: list[str] = None
+
+    def __post_init__(self):
+        if self.notes is None:
+            self.notes = []
+
+
 class DataProvider(ABC):
     """시세/재무 데이터 공급자 추상 클래스."""
 
@@ -56,6 +98,19 @@ class DataProvider(ABC):
     def fundamentals(self, symbol: str) -> Fundamentals:
         """재무 지표를 반환한다."""
         raise NotImplementedError
+
+    # --- 선택 기능 (기본은 빈 값; 공급자별로 재정의) ---
+    def news(self, symbol: str, limit: int = 8) -> list["NewsItem"]:
+        """최근 뉴스 헤드라인 목록."""
+        return []
+
+    def earnings_history(self, symbol: str, limit: int = 4) -> list["EarningsRow"]:
+        """최근 분기 실적 (오래된→최신)."""
+        return []
+
+    def events(self, symbol: str) -> "UpcomingEvents":
+        """다가오는 일정(실적/배당)."""
+        return UpcomingEvents(symbol=symbol.upper())
 
     # --- 공통 유틸 ---
     @staticmethod

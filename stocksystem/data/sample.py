@@ -9,11 +9,13 @@
 from __future__ import annotations
 
 import hashlib
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
 
-from .base import DataProvider, Fundamentals
+from .base import (DataProvider, EarningsRow, Fundamentals, NewsItem,
+                   UpcomingEvents)
 
 # 데모용 종목 메타데이터 (실제와 무관한 합성 값)
 _META = {
@@ -79,11 +81,25 @@ class SampleProvider(DataProvider):
         name, sector, price, vol = _META.get(
             symbol.upper(), ("Sample Co.", "Unknown", 100.0, 0.25))
 
+        # 유니버스 스냅샷에 있으면 이름/섹터/시총을 맞춰 일관성 유지
+        mcap = None
+        try:
+            from .universe import load_universe
+            for u in load_universe():
+                if u.symbol == symbol.upper():
+                    name, sector = u.name, u.sector
+                    mcap = u.market_cap_b * 1e9
+                    break
+        except Exception:
+            pass
+        if mcap is None:
+            mcap = float(price * rng.integers(1_000, 16_000) * 1e6)
+
         return Fundamentals(
             symbol=symbol.upper(),
             name=name,
             sector=sector,
-            market_cap=float(price * rng.integers(1_000, 16_000) * 1e6),
+            market_cap=mcap,
             trailing_pe=round(float(rng.uniform(12, 45)), 1),
             forward_pe=round(float(rng.uniform(10, 38)), 1),
             price_to_book=round(float(rng.uniform(2, 18)), 1),
@@ -95,3 +111,66 @@ class SampleProvider(DataProvider):
             dividend_yield=round(float(rng.uniform(0, 0.03)), 4),
             current_price=round(float(price), 2),
         )
+
+    def news(self, symbol: str, limit: int = 8) -> list[NewsItem]:
+        rng = np.random.default_rng(_seed(symbol) + 2)
+        name = _META.get(symbol.upper(), ("Sample Co.",))[0]
+        templates = [
+            (f"{name} beats quarterly earnings estimates on strong demand", 1),
+            (f"Analysts upgrade {symbol.upper()} citing robust growth momentum", 1),
+            (f"{name} announces new product, shares rally", 1),
+            (f"{name} raises full-year guidance after record revenue", 1),
+            (f"{name} stock jumps as profit tops forecasts", 1),
+            (f"{name} faces lawsuit over alleged practices, shares fall", -1),
+            (f"Analysts downgrade {symbol.upper()} on margin pressure concerns", -1),
+            (f"{name} misses revenue estimates, guidance disappoints", -1),
+            (f"Regulatory probe weighs on {name} outlook", -1),
+            (f"{name} holds steady as market awaits earnings", 0),
+            (f"{name} in focus ahead of upcoming product event", 0),
+        ]
+        publishers = ["Reuters", "Bloomberg", "CNBC", "MarketWatch",
+                      "Yahoo Finance", "Barron's"]
+        idx = rng.permutation(len(templates))[:limit]
+        today = pd.Timestamp.today().normalize()
+        items: list[NewsItem] = []
+        for i, j in enumerate(idx):
+            title = templates[j][0]
+            items.append(NewsItem(
+                title=title,
+                publisher=str(rng.choice(publishers)),
+                link="https://finance.example.com/news",
+                published=(today - timedelta(days=int(i))).strftime("%Y-%m-%d"),
+                summary=None,
+            ))
+        return items
+
+    def earnings_history(self, symbol: str, limit: int = 4) -> list[EarningsRow]:
+        rng = np.random.default_rng(_seed(symbol) + 3)
+        rows: list[EarningsRow] = []
+        base_eps = float(rng.uniform(0.8, 3.5))
+        base_rev = float(rng.uniform(5, 90)) * 1e9
+        today = pd.Timestamp.today().normalize()
+        for q in range(limit, 0, -1):
+            est = round(base_eps * (1 + 0.03 * (limit - q)), 2)
+            actual = round(est * (1 + float(rng.uniform(-0.08, 0.12))), 2)
+            rev = round(base_rev * (1 + 0.02 * (limit - q)), 0)
+            date = today - timedelta(days=90 * q)
+            rows.append(EarningsRow(period=date.strftime("%Y-%m-%d"),
+                                    eps_estimate=est, eps_actual=actual,
+                                    revenue=rev))
+        return rows
+
+    def events(self, symbol: str) -> UpcomingEvents:
+        rng = np.random.default_rng(_seed(symbol) + 4)
+        today = pd.Timestamp.today().normalize()
+        next_earn = today + timedelta(days=int(rng.integers(5, 60)))
+        has_div = bool(rng.random() > 0.4)
+        ev = UpcomingEvents(
+            symbol=symbol.upper(),
+            next_earnings_date=next_earn.strftime("%Y-%m-%d"),
+        )
+        if has_div:
+            ev.ex_dividend_date = (today + timedelta(
+                days=int(rng.integers(3, 45)))).strftime("%Y-%m-%d")
+            ev.dividend_amount = round(float(rng.uniform(0.2, 1.2)), 2)
+        return ev

@@ -3,6 +3,9 @@ yfinance>=0.2.40        # 무료 미국주식 시세/재무 데이터 (로컬 �
 pandas>=2.0
 numpy>=1.24
 
+# 뉴스 감성 분석 (규칙 기반, 사전 내장 → 오프라인 동작)
+vaderSentiment>=3.3.2
+
 # 대시보드
 streamlit>=1.30
 plotly>=5.18

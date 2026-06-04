@@ -390,6 +390,8 @@ with tab2:
                          f"{res.news.score:.0f} / 100")
             nc[0].caption(f"긍정 {res.news.n_positive} · 중립 "
                           f"{res.news.n_neutral} · 부정 {res.news.n_negative}")
+            nc[0].caption(f"신뢰도: **{res.news.confidence}**  ·  "
+                          f"엔진: {res.news.engine}")
             with nc[1]:
                 for it in res.news.items:
                     emo = ("🟢" if (it.sentiment or 0) > 0.05 else
@@ -400,7 +402,8 @@ with tab2:
                     src = f" · _{it.publisher}_" if it.publisher else ""
                     when = f" · {it.published}" if it.published else ""
                     st.markdown(f"{emo} {title}{src}{when}")
-            st.caption("※ 헤드라인 단어 기반 간이 분석입니다. 참고용으로만 보세요.")
+            st.caption("※ VADER 규칙기반 엔진 + 금융 전용 사전으로 분석합니다. "
+                       "최신 기사일수록 비중이 높습니다. 참고용으로만 보세요.")
         else:
             st.info("뉴스 데이터가 없습니다. (실시간 모드에서 더 잘 동작합니다)")
 

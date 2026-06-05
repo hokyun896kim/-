@@ -32,8 +32,11 @@ from stocksystem.analysis import analyze_full, analyze_symbol
 from stocksystem.analysis import technical as ta
 from stocksystem.analysis import market as mk
 from stocksystem.analysis import sentiment as se
+from stocksystem.analysis import factors as fct
+from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
+from stocksystem.portfolio.analytics import analyze_portfolio
 from stocksystem.portfolio import (
     PaperBroker, InsufficientFundsError, InsufficientSharesError,
 )
@@ -226,6 +229,32 @@ def cached_market(symbol, name, provider_name):
 
 
 @st.cache_data(ttl=900, show_spinner=False)
+def cached_fear_greed(provider_name):
+    return mk.fear_greed(get_provider(provider_name), cfg.technical)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_factors(symbols, provider_name):
+    return fct.compare(list(symbols), get_provider(provider_name), cfg)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_sim(symbol, provider_name, horizon, n_sims, target):
+    provider = get_provider(provider_name)
+    df = provider.price_history(symbol, period="2y")
+    sim = mcarlo.simulate(df, horizon_days=horizon, n_sims=n_sims,
+                          target=target)
+    return sim
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_past(symbol, provider_name, amount, start):
+    provider = get_provider(provider_name)
+    df = provider.price_history(symbol, period="5y")
+    return mcarlo.past_investment(df, amount, start)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
 def cached_index_quote(symbol, provider_name):
     """지수 간단 시세: (현재가, 일간 변동률%)."""
     try:
@@ -396,9 +425,9 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-tab0, tab1, tab2, tab5, tab3, tab4 = st.tabs(
-    ["🌎 시장", "📊 스크리너", "🔍 종목 상세", "🧪 백테스트",
-     "💰 모의매매", "📖 투자 가이드"])
+tab0, tab1, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc, tab4 = st.tabs(
+    ["🌎 시장", "📊 스크리너", "🔍 종목 상세", "🎯 비교", "🧪 백테스트",
+     "🔮 시뮬레이터", "💰 모의매매", "🩺 포트폴리오 닥터", "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
 with tab0:
@@ -421,6 +450,41 @@ with tab0:
         else:
             vlab = "안정 😌"
         qc[-1].metric("VIX 공포지수", f"{vix_px:.1f}", vlab, delta_color="off")
+
+    # 공포·탐욕 지수 게이지
+    fg = cached_fear_greed(provider_name)
+    gc = st.columns([1.1, 1.9])
+    with gc[0]:
+        gfig = go.Figure(go.Indicator(
+            mode="gauge+number", value=fg.score,
+            number={"font": {"size": 44, "color": "#f0f3fa"}},
+            title={"text": f"공포·탐욕 지수<br><b>{fg.label}</b>",
+                   "font": {"size": 16}},
+            gauge={
+                "axis": {"range": [0, 100], "tickcolor": "#8b93a7"},
+                "bar": {"color": "rgba(0,0,0,0)"},
+                "steps": [
+                    {"range": [0, 25], "color": "#7f1d1d"},
+                    {"range": [25, 45], "color": "#b45309"},
+                    {"range": [45, 60], "color": "#a16207"},
+                    {"range": [60, 75], "color": "#15803d"},
+                    {"range": [75, 100], "color": "#14532d"}],
+                "threshold": {"line": {"color": C_ACCENT, "width": 5},
+                              "value": fg.score}}))
+        gfig.update_layout(height=240, margin=dict(l=20, r=20, t=50, b=10),
+                           paper_bgcolor=C_PANEL,
+                           font={"color": "#d1d4dc"})
+        st.plotly_chart(gfig, width='stretch')
+    with gc[1]:
+        st.markdown("##### 지수 구성 요소")
+        if fg.components:
+            fdf = pd.DataFrame({"항목": list(fg.components.keys()),
+                                "점수": list(fg.components.values())})
+            st.dataframe(fdf.style.map(score_bg, subset=["점수"])
+                         .format({"점수": "{:.0f}"}),
+                         width='stretch', hide_index=True)
+        st.caption("0=극단적 공포(저가 매수 기회일 수도) · 100=극단적 탐욕"
+                   "(과열 주의). 역발상 참고 지표입니다.")
 
     st.divider()
     sel = st.radio("심층 분석할 지수", [f"{n} ({s})" for s, n in INDICES],
@@ -872,6 +936,198 @@ with tab3:
             cfg.paper_trading.initial_cash, cfg.paper_trading.commission)
         st.session_state.broker.save()
         st.rerun()
+
+# ============================ 탭: 종목 비교 레이더 ============================
+with tab_cmp:
+    st.subheader("종목 비교 — 투자 DNA 레이더")
+    st.caption("여러 종목의 가치·성장·수익성·모멘텀·안정성을 5각형으로 한눈에 비교합니다.")
+    uni = [u.symbol for u in load_universe()]
+    picks = st.multiselect("비교할 종목 (2~4개 권장)", uni,
+                           default=["AAPL", "MSFT", "NVDA"], max_selections=4)
+    if len(picks) < 2:
+        st.info("2개 이상 선택해주세요.")
+    else:
+        with st.spinner("팩터 분석 중..."):
+            profiles = cached_factors(tuple(picks), provider_name)
+        palette = [C_ACCENT, C_AMBER, "#ef5da8", "#8b5cf6"]
+        rfig = go.Figure()
+        cats = fct.FACTORS + [fct.FACTORS[0]]
+        for i, p in enumerate(profiles):
+            vals = [p.scores[c] for c in fct.FACTORS]
+            vals.append(vals[0])
+            rfig.add_trace(go.Scatterpolar(
+                r=vals, theta=cats, fill="toself", name=p.symbol,
+                line=dict(color=palette[i % len(palette)], width=2),
+                opacity=0.65))
+        rfig.update_layout(
+            height=460, paper_bgcolor=C_PANEL,
+            polar=dict(bgcolor="#0d1119",
+                       radialaxis=dict(range=[0, 100], gridcolor=C_GRID,
+                                       tickfont=dict(color="#8b93a7")),
+                       angularaxis=dict(gridcolor=C_GRID,
+                                        tickfont=dict(color="#d1d4dc",
+                                                      size=13))),
+            legend=dict(orientation="h", y=1.12),
+            margin=dict(l=40, r=40, t=40, b=20))
+        st.plotly_chart(rfig, width='stretch')
+
+        # 비교 표
+        rows = []
+        for p in profiles:
+            row = {"종목": p.symbol, "이름": p.name}
+            row.update(p.scores)
+            row["종합"] = p.overall
+            rows.append(row)
+        cdf = pd.DataFrame(rows)
+        st.dataframe(
+            cdf.style.map(score_bg, subset=fct.FACTORS + ["종합"])
+            .format({c: "{:.0f}" for c in fct.FACTORS + ["종합"]}),
+            width='stretch', hide_index=True)
+        st.caption("점수는 0~100. 가치=저평가, 성장=성장성, 수익성=ROE/마진, "
+                   "모멘텀=주가추세, 안정성=낮은 변동성/부채.")
+
+# ============================ 탭: 몬테카를로 시뮬레이터 ============================
+with tab_sim:
+    st.subheader("🔮 타임머신 & 미래 시뮬레이터")
+
+    st.markdown("#### ⏪ 과거에 투자했다면? (타임머신)")
+    pc = st.columns([1.3, 1, 1])
+    psym = pc[0].selectbox("종목", [u.symbol for u in load_universe()],
+                           key="past_sym")
+    pamt = pc[1].number_input("투자금($)", 100, 1_000_000, 1000, step=100)
+    pyears = pc[2].selectbox("기간", ["1년 전", "2년 전", "3년 전", "5년 전"],
+                             index=1)
+    yrs = {"1년 전": 1, "2년 전": 2, "3년 전": 3, "5년 전": 5}[pyears]
+    start = (pd.Timestamp.today() - pd.DateOffset(years=yrs)).strftime("%Y-%m-%d")
+    try:
+        past = cached_past(psym, provider_name, float(pamt), start)
+        mcol = st.columns(3)
+        mcol[0].metric("현재 가치", f"${past.current_value:,.0f}",
+                       f"{past.total_return_pct:+.1f}%")
+        mcol[1].metric("투자 원금", f"${past.invested:,.0f}")
+        mcol[2].metric("연복리(CAGR)", f"{past.cagr_pct:+.1f}%")
+        efig = go.Figure(go.Scatter(x=past.equity.index, y=past.equity.values,
+                         line=dict(color=C_UP, width=2), fill="tozeroy",
+                         fillcolor="rgba(38,166,154,0.12)"))
+        efig.update_layout(height=240, paper_bgcolor=C_PANEL,
+                           plot_bgcolor=C_PANEL,
+                           margin=dict(l=10, r=10, t=10, b=10),
+                           title=f"{psym} 투자금 가치 추이")
+        st.plotly_chart(efig, width='stretch')
+    except Exception as e:
+        st.warning(f"데이터를 불러오지 못했습니다: {e}")
+
+    st.divider()
+    st.markdown("#### 🔮 미래 확률 시뮬레이션 (몬테카를로)")
+    sc = st.columns([1.3, 1, 1, 1])
+    ssym = sc[0].selectbox("종목", [u.symbol for u in load_universe()],
+                           key="sim_sym")
+    horizon = sc[1].selectbox("예측 기간", ["1개월", "3개월", "6개월", "1년"],
+                              index=2)
+    hd = {"1개월": 21, "3개월": 63, "6개월": 126, "1년": 252}[horizon]
+    n_sims = sc[2].select_slider("시뮬 횟수", [500, 1000, 2000, 5000], 2000)
+    tgt_pct = sc[3].number_input("목표 수익률(%)", -50, 200, 20, step=5)
+    try:
+        cur_px, _ = cached_index_quote(ssym, provider_name)
+        target = cur_px * (1 + tgt_pct / 100) if cur_px else None
+        sim = cached_sim(ssym, provider_name, hd, int(n_sims), target)
+        smc = st.columns(4)
+        smc[0].metric("현재가", f"${sim.start_price:,.2f}")
+        smc[1].metric("중앙 예상", f"${sim.summary['중앙 예상(p50)']:,.2f}",
+                      f"{sim.summary['기대수익률(중앙)']:+.1f}%")
+        smc[2].metric("상승 확률", f"{sim.prob_profit:.0f}%")
+        smc[3].metric(f"목표(+{tgt_pct}%) 도달확률",
+                      f"{sim.prob_target:.0f}%" if sim.prob_target is not None
+                      else "—")
+        # 부채꼴(팬) 차트
+        pdf = sim.percentiles
+        ffig = go.Figure()
+        ffig.add_trace(go.Scatter(x=pdf.index, y=pdf["p95"], line=dict(width=0),
+                       showlegend=False))
+        ffig.add_trace(go.Scatter(x=pdf.index, y=pdf["p5"], line=dict(width=0),
+                       fill="tonexty", fillcolor="rgba(45,212,191,0.10)",
+                       name="5~95% 범위"))
+        ffig.add_trace(go.Scatter(x=pdf.index, y=pdf["p75"], line=dict(width=0),
+                       showlegend=False))
+        ffig.add_trace(go.Scatter(x=pdf.index, y=pdf["p25"], line=dict(width=0),
+                       fill="tonexty", fillcolor="rgba(45,212,191,0.20)",
+                       name="25~75% 범위"))
+        ffig.add_trace(go.Scatter(x=pdf.index, y=pdf["p50"],
+                       line=dict(color=C_AMBER, width=2.5), name="중앙값(p50)"))
+        ffig.update_layout(height=380, paper_bgcolor=C_PANEL,
+                           plot_bgcolor=C_PANEL,
+                           margin=dict(l=10, r=10, t=30, b=10),
+                           title=f"{ssym} 향후 {horizon} 주가 확률 분포",
+                           legend=dict(orientation="h", y=1.1))
+        st.plotly_chart(ffig, width='stretch')
+        st.caption("⚠️ 과거 변동성 기반 통계적 시뮬레이션입니다. 실제 미래를 "
+                   "예측하지 않으며, 돌발 이벤트는 반영되지 않습니다.")
+    except Exception as e:
+        st.warning(f"시뮬레이션 실패: {e}")
+
+# ============================ 탭: 포트폴리오 닥터 ============================
+with tab_doc:
+    st.subheader("🩺 포트폴리오 닥터")
+    st.caption("보유 종목을 입력하면 분산·집중도·리스크를 진단하고 개선점을 제안합니다.")
+
+    broker_doc = get_broker()
+    default_txt = "\n".join(
+        f"{s}, {p.quantity * p.avg_price:.0f}"
+        for s, p in broker_doc.positions.items()) or \
+        "AAPL, 4000\nMSFT, 3000\nNVDA, 2000\nJPM, 1000"
+    txt = st.text_area("보유 종목 (한 줄에 `종목, 평가금액`)", value=default_txt,
+                       height=130)
+    holdings = {}
+    for line in txt.replace(",", " ").split("\n"):
+        parts = line.split()
+        if len(parts) >= 2:
+            try:
+                holdings[parts[0].upper()] = float(parts[1])
+            except ValueError:
+                pass
+
+    if holdings:
+        with st.spinner("진단 중..."):
+            rep = analyze_portfolio(holdings, get_provider(provider_name), cfg)
+        dc = st.columns(4)
+        dc[0].metric("분산 점수", f"{rep.diversification_score:.0f}/100")
+        dc[1].metric("최대 종목 비중", f"{rep.top_weight:.0f}%")
+        dc[2].metric("연 변동성", f"{rep.annual_vol:.0f}%" if rep.annual_vol else "—")
+        dc[3].metric("베타(vs SPY)", f"{rep.beta:.2f}" if rep.beta else "—")
+
+        pcol = st.columns(2)
+        with pcol[0]:
+            st.markdown("#### 종목 비중")
+            wfig = go.Figure(go.Pie(
+                labels=list(rep.weights.keys()),
+                values=list(rep.weights.values()), hole=0.45,
+                textinfo="label+percent"))
+            wfig.update_layout(height=300, paper_bgcolor=C_PANEL,
+                               margin=dict(l=10, r=10, t=10, b=10),
+                               showlegend=False)
+            st.plotly_chart(wfig, width='stretch')
+        with pcol[1]:
+            st.markdown("#### 섹터 분산")
+            sfig = go.Figure(go.Pie(
+                labels=list(rep.sector_weights.keys()),
+                values=list(rep.sector_weights.values()), hole=0.45,
+                textinfo="label+percent"))
+            sfig.update_layout(height=300, paper_bgcolor=C_PANEL,
+                               margin=dict(l=10, r=10, t=10, b=10),
+                               showlegend=False)
+            st.plotly_chart(sfig, width='stretch')
+
+        dgc = st.columns(2)
+        with dgc[0]:
+            st.markdown("#### 🩺 진단")
+            for d in rep.diagnosis:
+                st.markdown(f"- {d}")
+        with dgc[1]:
+            st.markdown("#### 💡 개선 제안")
+            for s in rep.suggestions:
+                st.markdown(f"- {s}")
+    else:
+        st.info("위에 보유 종목을 입력하세요. 예: `AAPL, 5000`")
 
 # ============================ 탭 4: 투자 가이드 ============================
 with tab4:

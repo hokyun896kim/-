@@ -240,3 +240,69 @@ def _build_narrative(name, price, sma50, sma200, rsi, hist, obv_up,
                  f"현금 비중 확대도 선택지입니다.")
 
     return n
+
+
+# ----------------------------- 공포·탐욕 지수 -----------------------------
+@dataclass
+class FearGreed:
+    score: float                  # 0(극공포) ~ 100(극탐욕)
+    label: str
+    components: dict = field(default_factory=dict)   # 항목→0~100
+
+
+def _fg_label(score: float) -> str:
+    if score >= 75:
+        return "극단적 탐욕 🤑"
+    if score >= 60:
+        return "탐욕 😋"
+    if score >= 45:
+        return "중립 😐"
+    if score >= 25:
+        return "공포 😨"
+    return "극단적 공포 😱"
+
+
+def fear_greed(provider, cfg, market_symbol: str = "SPY") -> FearGreed:
+    """여러 신호를 합쳐 시장 공포·탐욕 지수(0~100)를 만든다.
+
+    구성: 모멘텀(125일선 대비) · RSI · 신고가 근접도 · 변동성(VIX) ·
+    52주 레인지 내 위치. 높을수록 탐욕(과열), 낮을수록 공포.
+    """
+    comp: dict[str, float] = {}
+    try:
+        df = provider.price_history(market_symbol, period="1y")
+        close = df["Close"].dropna()
+        price = float(close.iloc[-1])
+
+        sma125 = close.rolling(125, min_periods=60).mean().iloc[-1]
+        if pd.notna(sma125) and sma125 > 0:
+            # -8% → 0, +8% → 100
+            comp["모멘텀(125일선)"] = float(np.clip(
+                50 + (price / sma125 - 1) / 0.08 * 50, 0, 100))
+
+        rsi_v = ta.rsi(close, cfg.rsi_period).iloc[-1]
+        if pd.notna(rsi_v):
+            comp["RSI"] = float(np.clip(rsi_v, 0, 100))
+
+        win = min(len(close), 252)
+        high_52 = float(close.iloc[-win:].max())
+        low_52 = float(close.iloc[-win:].min())
+        if high_52 > low_52:
+            comp["52주 레인지 위치"] = float(
+                np.clip((price - low_52) / (high_52 - low_52) * 100, 0, 100))
+        from_high = price / high_52 - 1
+        comp["신고가 근접도"] = float(np.clip(100 + from_high / 0.20 * 100, 0, 100))
+    except Exception:
+        pass
+
+    # VIX: 낮으면 탐욕, 높으면 공포 (12 → 100, 35 → 0)
+    try:
+        vdf = provider.price_history("^VIX", period="1mo")
+        vix = float(vdf["Close"].dropna().iloc[-1])
+        comp["변동성(VIX)"] = float(np.clip((35 - vix) / (35 - 12) * 100, 0, 100))
+    except Exception:
+        pass
+
+    score = round(float(np.mean(list(comp.values()))), 1) if comp else 50.0
+    return FearGreed(score=score, label=_fg_label(score),
+                     components={k: round(v) for k, v in comp.items()})

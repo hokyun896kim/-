@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+from plotly.subplots import make_subplots
 import streamlit as st
 
 # 패키지 임포트 경로 확보 (streamlit run 직접 실행 대응)
@@ -29,6 +30,8 @@ from stocksystem.data.universe import filter_universe, load_universe, sectors
 from stocksystem.data import marketcap as mcache
 from stocksystem.analysis import analyze_full, analyze_symbol
 from stocksystem.analysis import technical as ta
+from stocksystem.analysis import market as mk
+from stocksystem.analysis import sentiment as se
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio import (
@@ -203,6 +206,38 @@ def render_ticker(symbols, provider_name):
                 unsafe_allow_html=True)
 
 
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_market(symbol, name, provider_name):
+    """지수 심층 분석(2년 데이터) + 관련 뉴스 분위기.
+
+    데이터 수집 실패 시 (None, 빈 뉴스) 를 돌려줘 화면이 죽지 않게 한다.
+    """
+    provider = get_provider(provider_name)
+    try:
+        df = provider.price_history(symbol, period="2y")
+        res = mk.analyze_index(df, cfg.technical, symbol=symbol, name=name)
+    except Exception:
+        return None, se.aggregate([])
+    try:
+        news = se.aggregate(provider.news(symbol))
+    except Exception:
+        news = se.aggregate([])
+    return res, news
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_index_quote(symbol, provider_name):
+    """지수 간단 시세: (현재가, 일간 변동률%)."""
+    try:
+        provider = get_provider(provider_name)
+        df = provider.price_history(symbol, period="1mo")
+        last = float(df["Close"].iloc[-1])
+        prev = float(df["Close"].iloc[-2])
+        return last, (last / prev - 1) * 100 if prev else 0.0
+    except Exception:
+        return None, None
+
+
 @st.cache_data(ttl=600, show_spinner=False)
 def cached_screener(symbols, provider_name, period):
     provider = get_provider(provider_name)
@@ -272,11 +307,136 @@ st.sidebar.caption(
     "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
     "최종 판단과 책임은 본인에게 있습니다.")
 
+def render_index_detail(res, news):
+    """시장 탭의 지수 심층 분석 영역을 그린다 (res 가 유효할 때만 호출)."""
+    # 방향성 헤더
+    hc = st.columns([1.2, 1, 1, 1])
+    hc[0].metric("현재가", f"${res.price:,.2f}", f"{res.change_pct:+.2f}%")
+    hc[1].metric("방향성 점수", f"{res.direction_score:.0f}", res.direction_label,
+                 delta_color="off")
+    hc[2].metric("52주 고점", f"${res.key_levels['52주 고점']:,.0f}")
+    hc[3].metric("52주 저점", f"${res.key_levels['52주 저점']:,.0f}")
+
+    # 차트 (캔들 + 50/200일선 + 거래량 서브차트)
+    ind = res.indicators
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
+                        row_heights=[0.74, 0.26], vertical_spacing=0.03)
+    fig.add_trace(go.Candlestick(
+        x=ind.index, open=ind["Open"], high=ind["High"], low=ind["Low"],
+        close=ind["Close"], name="가격", increasing_line_color=C_UP,
+        decreasing_line_color=C_DOWN), row=1, col=1)
+    if f"SMA{cfg.technical.sma_long}" in ind:
+        fig.add_trace(go.Scatter(x=ind.index, y=ind[f"SMA{cfg.technical.sma_long}"],
+                      name="50일선", line=dict(color=C_ACCENT, width=1.2)),
+                      row=1, col=1)
+    fig.add_trace(go.Scatter(x=ind.index, y=ind["SMA200"], name="200일선",
+                  line=dict(color=C_AMBER, width=1.4)), row=1, col=1)
+    vcol = [C_UP if c >= o else C_DOWN
+            for o, c in zip(ind["Open"], ind["Close"])]
+    fig.add_trace(go.Bar(x=ind.index, y=ind["Volume"], name="거래량",
+                  marker_color=vcol, opacity=0.5), row=2, col=1)
+    fig.update_layout(height=520, xaxis_rangeslider_visible=False,
+                      margin=dict(l=10, r=10, t=10, b=10),
+                      legend=dict(orientation="h", y=1.04),
+                      plot_bgcolor=C_PANEL, paper_bgcolor=C_PANEL,
+                      showlegend=True)
+    fig.update_xaxes(rangeslider_visible=False)
+    st.plotly_chart(fig, width='stretch')
+
+    # 4대 국면 요약
+    sc = st.columns(2)
+    sc[0].markdown(f"**📈 추세**\n\n{res.trend}")
+    sc[0].markdown(f"**⚡ 모멘텀**\n\n{res.momentum}")
+    sc[1].markdown(f"**💰 수급**\n\n{res.supply}")
+    sc[1].markdown(f"**📊 변동성/위치**\n\n{res.volatility}")
+
+    # 자동 시장 해설
+    st.markdown("#### 🧭 시장 진단 & 향후 방향성")
+    for line in res.narrative:
+        st.markdown(f"- {line}")
+
+    # 주요 레벨 + 세부 점수
+    lc = st.columns([1, 1])
+    with lc[0]:
+        st.markdown("#### 주요 지지/저항 레벨")
+        rows = [{"구분": k, "가격": v} for k, v in res.key_levels.items()
+                if v is not None]
+        st.dataframe(pd.DataFrame(rows).style.format({"가격": "${:,.2f}"}),
+                     width='stretch', hide_index=True)
+    with lc[1]:
+        st.markdown("#### 방향성 세부 점수")
+        ss = res.sub_scores
+        sdf = pd.DataFrame({"항목": list(ss.keys()), "점수": list(ss.values())})
+        st.dataframe(sdf.style.map(score_bg, subset=["점수"])
+                     .format({"점수": "{:.0f}"}),
+                     width='stretch', hide_index=True)
+
+    # 해외 아티클
+    st.markdown("#### 📰 해외 시장 아티클")
+    if news and news.n_articles:
+        nc = st.columns([1, 3])
+        nc[0].metric("뉴스 분위기", news.label, f"{news.score:.0f}/100")
+        nc[0].caption(f"긍정 {news.n_positive} · 중립 {news.n_neutral} · "
+                      f"부정 {news.n_negative} · 신뢰도 {news.confidence}")
+        with nc[1]:
+            for it in news.items:
+                emo = ("🟢" if (it.sentiment or 0) > 0.05 else
+                       "🔴" if (it.sentiment or 0) < -0.05 else "⚪")
+                title = f"[{it.title}]({it.link})" if it.link else it.title
+                src = f" · _{it.publisher}_" if it.publisher else ""
+                when = f" · {it.published}" if it.published else ""
+                st.markdown(f"{emo} {title}{src}{when}")
+    else:
+        st.info("뉴스 데이터가 없습니다. (실시간 yahoo 모드에서 더 잘 동작합니다)")
+
+    st.caption("⚠️ 시장 진단은 지표 기반 자동 해설이며 예측이 아닙니다. "
+               "투자 판단의 책임은 본인에게 있습니다.")
+
+
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-tab1, tab2, tab5, tab3, tab4 = st.tabs(
-    ["📊 스크리너", "🔍 종목 상세", "🧪 백테스트", "💰 모의매매", "📖 투자 가이드"])
+tab0, tab1, tab2, tab5, tab3, tab4 = st.tabs(
+    ["🌎 시장", "📊 스크리너", "🔍 종목 상세", "🧪 백테스트",
+     "💰 모의매매", "📖 투자 가이드"])
+
+# ============================ 탭 0: 시장 (지수) ============================
+with tab0:
+    st.subheader("시장 분석 — 나스닥 · S&P 500")
+
+    INDICES = [("SPY", "S&P 500"), ("QQQ", "나스닥 100"), ("DIA", "다우존스")]
+    # 상단: 지수 시세 + 공포지수(VIX)
+    qc = st.columns(len(INDICES) + 1)
+    for i, (sym, nm) in enumerate(INDICES):
+        px, chg = cached_index_quote(sym, provider_name)
+        qc[i].metric(f"{nm} ({sym})",
+                     f"${px:,.2f}" if px else "—",
+                     f"{chg:+.2f}%" if chg is not None else None)
+    vix_px, _ = cached_index_quote("^VIX", provider_name)
+    if vix_px:
+        if vix_px >= 25:
+            vlab = "공포 😨"
+        elif vix_px >= 18:
+            vlab = "경계 ⚠️"
+        else:
+            vlab = "안정 😌"
+        qc[-1].metric("VIX 공포지수", f"{vix_px:.1f}", vlab, delta_color="off")
+
+    st.divider()
+    sel = st.radio("심층 분석할 지수", [f"{n} ({s})" for s, n in INDICES],
+                   horizontal=True, label_visibility="collapsed")
+    sym = sel.split("(")[-1].rstrip(")")
+    name = sel.split(" (")[0]
+
+    with st.spinner(f"{name} 분석 중..."):
+        res, news = cached_market(sym, name, provider_name)
+
+    if res is None:
+        st.warning(f"{name}({sym}) 시세를 불러오지 못했습니다. 사이드바에서 "
+                   "데이터 소스를 'sample'로 바꾸거나, 실시간 yahoo 환경에서 "
+                   "다시 시도해주세요.")
+    else:
+        render_index_detail(res, news)
 
 # ============================ 탭 1: 스크리너 ============================
 with tab1:

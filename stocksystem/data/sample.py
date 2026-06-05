@@ -29,6 +29,13 @@ _META = {
     "JPM": ("JPMorgan Chase & Co.", "Financial Services", 200.0, 0.16),
     "V": ("Visa Inc.", "Financial Services", 280.0, 0.15),
     "JNJ": ("Johnson & Johnson", "Healthcare", 150.0, 0.12),
+    # 지수/ETF (시장 분석 탭 데모용)
+    "SPY": ("SPDR S&P 500 ETF", "Index", 580.0, 0.14),
+    "QQQ": ("Invesco QQQ (Nasdaq 100)", "Index", 500.0, 0.19),
+    "DIA": ("SPDR Dow Jones ETF", "Index", 430.0, 0.12),
+    "^GSPC": ("S&P 500 Index", "Index", 5800.0, 0.14),
+    "^IXIC": ("NASDAQ Composite", "Index", 18500.0, 0.19),
+    "^VIX": ("CBOE Volatility Index", "Index", 16.0, 0.85),
 }
 
 

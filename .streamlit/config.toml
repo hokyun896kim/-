@@ -1,10 +1,10 @@
-# Streamlit 테마 — 밝고 시인성 높은 디자인
+# Streamlit 테마 — 다크 트레이딩 터미널
 [theme]
-base = "light"
-primaryColor = "#2563eb"            # 또렷한 파랑 (포인트)
-backgroundColor = "#ffffff"         # 흰 배경
-secondaryBackgroundColor = "#eef2f8" # 사이드바/카드 연한 회청색
-textColor = "#101828"               # 높은 대비의 짙은 잉크색
+base = "dark"
+primaryColor = "#2dd4bf"             # 시안 (포인트)
+backgroundColor = "#0a0e17"          # 딥 네이비 블랙
+secondaryBackgroundColor = "#131722" # 패널 (TradingView 톤)
+textColor = "#d1d4dc"                # 밝은 회색 텍스트
 font = "sans serif"
 
 [server]

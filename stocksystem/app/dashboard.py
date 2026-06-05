@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 
 # 패키지 임포트 경로 확보 (streamlit run 직접 실행 대응)
@@ -40,68 +41,91 @@ st.set_page_config(page_title="미국주식 분석 시스템", layout="wide",
 
 cfg = load_config()
 
-# ---- 시인성/가독성 강화 CSS ----
-st.markdown("""
+# 차트 기본 템플릿: 다크
+pio.templates.default = "plotly_dark"
+
+# 터미널 팔레트
+C_UP = "#26a69a"       # 상승 (청록 그린)
+C_DOWN = "#f23645"     # 하락 (레드)
+C_PANEL = "#131722"    # 패널 배경
+C_GRID = "#222631"     # 그리드
+C_ACCENT = "#2dd4bf"   # 시안
+C_AMBER = "#f5a623"    # 앰버
+
+MONO = ("'JetBrains Mono','SF Mono','Roboto Mono',"
+        "'DejaVu Sans Mono',Consolas,monospace")
+
+# ---- 다크 트레이딩 터미널 CSS ----
+st.markdown(f"""
 <style>
-/* 본문 기본 글자 키우기 */
-.block-container { padding-top: 2.2rem; max-width: 1500px; }
-html, body, [class*="css"] { font-size: 16px; }
+.block-container {{ padding-top: 1.4rem; max-width: 1560px; }}
+html, body, [class*="css"] {{ font-size: 15px; }}
+.stApp {{ background: #0a0e17; }}
 
-/* 탭: 크고 또렷하게 */
-.stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 2px solid #e3e8ef; }
-.stTabs [data-baseweb="tab"] {
-    font-size: 1.06rem; font-weight: 700; padding: 10px 18px;
-    border-radius: 10px 10px 0 0;
-}
-.stTabs [aria-selected="true"] {
-    background: #eaf1ff; color: #1d4ed8 !important;
-}
+/* 숫자는 모노스페이스 (가격/지표/표) */
+[data-testid="stMetricValue"], [data-testid="stMetricDelta"],
+[data-testid="stDataFrame"], .ticker-tape {{ font-family: {MONO}; }}
 
-/* 지표(metric) 카드화 */
-[data-testid="stMetric"] {
-    background: #ffffff; border: 1px solid #e3e8ef; border-radius: 14px;
-    padding: 14px 16px 12px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
-}
-[data-testid="stMetricValue"] { font-size: 1.85rem; font-weight: 800;
-    color: #0b1324; line-height: 1.1; }
-[data-testid="stMetricLabel"] p { font-size: .95rem; font-weight: 700;
-    color: #475467; }
-[data-testid="stMetricDelta"] { font-weight: 700; }
+/* 탭: 터미널 느낌 */
+.stTabs [data-baseweb="tab-list"] {{ gap: 4px; border-bottom: 1px solid {C_GRID};
+    background: #0d1119; }}
+.stTabs [data-baseweb="tab"] {{
+    font-size: 1.0rem; font-weight: 700; padding: 9px 16px; color: #8b93a7;
+    border-radius: 6px 6px 0 0; letter-spacing: .3px; }}
+.stTabs [aria-selected="true"] {{
+    background: #131722; color: {C_ACCENT} !important;
+    box-shadow: inset 0 -2px 0 {C_ACCENT}; }}
 
-/* 섹션 제목 (마크다운 ####) 강조 — 왼쪽 액센트 바 */
-.main h2 { font-weight: 800; color: #0b1324; }
-.main h3 { font-weight: 800; color: #0b1324; }
-.main h4 {
-    font-size: 1.2rem !important; font-weight: 800; color: #0b1324;
-    margin: 1.0rem 0 .4rem; padding: 4px 0 4px 12px;
-    border-left: 5px solid #2563eb;
-}
+/* 지표(metric) 패널 */
+[data-testid="stMetric"] {{
+    background: linear-gradient(180deg,#161b27,#10141d);
+    border: 1px solid {C_GRID}; border-radius: 8px;
+    padding: 10px 14px 8px; }}
+[data-testid="stMetricValue"] {{ font-size: 1.7rem; font-weight: 800;
+    color: #f0f3fa; line-height: 1.1; }}
+[data-testid="stMetricLabel"] p {{ font-size: .82rem; font-weight: 700;
+    color: #8b93a7; text-transform: uppercase; letter-spacing: .5px; }}
 
-/* 본문 텍스트/리스트 가독성 */
-.main p, .main li { font-size: 1.0rem; line-height: 1.65; color: #1f2937; }
-.main .stCaption, .main small { color: #667085 !important; }
+/* 섹션 제목 — 시안 좌측 바 */
+.main h2, .main h3 {{ font-weight: 800; color: #e8ecf5; letter-spacing: .3px; }}
+.main h4 {{
+    font-size: 1.12rem !important; font-weight: 800; color: #e8ecf5;
+    margin: 1.0rem 0 .4rem; padding: 3px 0 3px 11px;
+    border-left: 4px solid {C_ACCENT}; text-transform: uppercase;
+    letter-spacing: .4px; }}
 
-/* 표 글자 또렷하게 (HTML 표 기준) */
-[data-testid="stTable"] td, [data-testid="stTable"] th { font-size: 1rem; }
-[data-testid="stDataFrame"] { border-radius: 10px; }
+.main p, .main li {{ font-size: .98rem; line-height: 1.6; color: #c2c8d6; }}
+.main small, .main .stCaption {{ color: #6b7280 !important; }}
 
-/* 입력 위젯 라벨 */
+/* 입력 라벨 */
 .stSelectbox label, .stSlider label, .stNumberInput label,
-.stTextInput label, .stToggle label { font-weight: 700; color: #344054; }
+.stTextInput label, .stToggle label {{
+    font-weight: 700; color: #9aa3b8; text-transform: uppercase;
+    font-size: .8rem; letter-spacing: .4px; }}
 
 /* 사이드바 */
-[data-testid="stSidebar"] { border-right: 1px solid #e3e8ef; }
-[data-testid="stSidebar"] h1 { font-size: 1.3rem; }
+[data-testid="stSidebar"] {{ background: #0d1119; border-right: 1px solid {C_GRID}; }}
+
+/* 티커 테이프 */
+.ticker-tape {{
+    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+    background: #0d1119; border: 1px solid {C_GRID}; border-radius: 8px;
+    padding: 8px 14px; margin-bottom: 10px; font-size: .95rem; }}
+.tt-item {{ white-space: nowrap; }}
+.tt-sym {{ color: #e8ecf5; font-weight: 800; }}
+.tt-px {{ color: #c2c8d6; margin: 0 5px; }}
+.tt-up {{ color: {C_UP}; font-weight: 700; }}
+.tt-down {{ color: {C_DOWN}; font-weight: 700; }}
 </style>
 """, unsafe_allow_html=True)
 
-# ---- 색상 팔레트 (라이트 테마, 시인성 강화) ----
+# ---- 추천 색상 (다크 배경용 형광 톤) ----
 RECO_COLOR = {
-    "strong_buy": "#15803d", "buy": "#16a34a", "hold": "#ca8a04",
-    "sell": "#ea7a3c", "strong_sell": "#dc2626",
+    "strong_buy": "#16c784", "buy": "#0fa968", "hold": "#f5a623",
+    "sell": "#ff7043", "strong_sell": "#f23645",
 }
-# 점수 → 배경 (빨강→노랑→초록). 대비를 위해 약간 진하게 + 글자 진하게.
-_GRAD = [(248, 200, 195), (252, 233, 178), (190, 230, 200)]  # red, amber, green
+# 점수 → 다크 셀 배경 (어두운 빨강→앰버→초록) + 밝은 글자
+_GRAD = [(94, 30, 36), (92, 74, 22), (20, 78, 50)]  # dark red, amber, green
 
 
 def _lerp(a, b, t):
@@ -116,7 +140,7 @@ def score_bg(val) -> str:
         c = _lerp(_GRAD[0], _GRAD[1], v / 0.5)
     else:
         c = _lerp(_GRAD[1], _GRAD[2], (v - 0.5) / 0.5)
-    return f"background-color: rgb{c}; color: #0b1324; font-weight: 700;"
+    return f"background-color: rgb{c}; color: #f0f3fa; font-weight: 700;"
 
 
 def ret_bg(val) -> str:
@@ -124,8 +148,8 @@ def ret_bg(val) -> str:
         return ""
     v = max(-30.0, min(30.0, float(val))) / 30.0
     if v >= 0:
-        return f"background-color: rgba(92,185,138,{0.12 + 0.45*v:.2f});"
-    return f"background-color: rgba(217,106,94,{0.12 + 0.45*abs(v):.2f});"
+        return f"background-color: rgba(38,166,154,{0.18 + 0.5*v:.2f}); color:#eafff7;"
+    return f"background-color: rgba(242,54,69,{0.18 + 0.5*abs(v):.2f}); color:#ffecec;"
 
 
 def fmt(spec):
@@ -146,6 +170,39 @@ def human_cap(v) -> str:
 
 
 # ----------------------------- 캐시 -----------------------------
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_ticker(symbols, provider_name):
+    """티커 테이프용: 심볼별 (현재가, 일간 변동률%)."""
+    provider = get_provider(provider_name)
+    out = []
+    for s in symbols:
+        try:
+            df = provider.price_history(s, period="1mo")
+            last = float(df["Close"].iloc[-1])
+            prev = float(df["Close"].iloc[-2])
+            pct = (last / prev - 1) * 100 if prev else 0.0
+            out.append((s, last, pct))
+        except Exception:
+            continue
+    return out
+
+
+def render_ticker(symbols, provider_name):
+    data = cached_ticker(tuple(symbols), provider_name)
+    if not data:
+        return
+    chips = []
+    for sym, px, pct in data:
+        cls = "tt-up" if pct >= 0 else "tt-down"
+        arrow = "▲" if pct >= 0 else "▼"
+        chips.append(
+            f"<span class='tt-item'><span class='tt-sym'>{sym}</span>"
+            f"<span class='tt-px'>{px:,.2f}</span>"
+            f"<span class='{cls}'>{arrow}{pct:+.2f}%</span></span>")
+    st.markdown(f"<div class='ticker-tape'>{''.join(chips)}</div>",
+                unsafe_allow_html=True)
+
+
 @st.cache_data(ttl=600, show_spinner=False)
 def cached_screener(symbols, provider_name, period):
     provider = get_provider(provider_name)
@@ -214,6 +271,9 @@ if st.sidebar.button("🔄 데이터 새로고침", width='stretch'):
 st.sidebar.caption(
     "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
     "최종 판단과 책임은 본인에게 있습니다.")
+
+# 상단 실시간 티커 테이프 (관심종목)
+render_ticker(cfg.watchlist, provider_name)
 
 tab1, tab2, tab5, tab3, tab4 = st.tabs(
     ["📊 스크리너", "🔍 종목 상세", "🧪 백테스트", "💰 모의매매", "📖 투자 가이드"])
@@ -356,8 +416,8 @@ with tab2:
             fig.add_trace(go.Candlestick(
                 x=ind.index, open=ind["Open"], high=ind["High"],
                 low=ind["Low"], close=ind["Close"], name="가격",
-                increasing_line_color="#2e9e6b",
-                decreasing_line_color="#d96a5e"))
+                increasing_line_color=C_UP,
+                decreasing_line_color=C_DOWN))
             for col, color in [(f"SMA{c.sma_short}", "#2f6fed"),
                                (f"SMA{c.sma_long}", "#e0883a")]:
                 if col in ind:
@@ -366,15 +426,15 @@ with tab2:
             if "bb_upper" in ind:
                 fig.add_trace(go.Scatter(x=ind.index, y=ind["bb_upper"],
                               name="볼린저 상단", line=dict(width=0.5,
-                              color="#b8c2cc"), showlegend=False))
+                              color="#3a4150"), showlegend=False))
                 fig.add_trace(go.Scatter(x=ind.index, y=ind["bb_lower"],
                               name="볼린저 밴드", line=dict(width=0.5,
-                              color="#b8c2cc"), fill="tonexty",
-                              fillcolor="rgba(184,194,204,0.18)"))
+                              color="#3a4150"), fill="tonexty",
+                              fillcolor="rgba(120,130,150,0.12)"))
             fig.update_layout(height=420, xaxis_rangeslider_visible=False,
                               margin=dict(l=10, r=10, t=10, b=10),
                               legend=dict(orientation="h", y=1.05),
-                              plot_bgcolor="white", paper_bgcolor="white")
+                              plot_bgcolor=C_PANEL, paper_bgcolor=C_PANEL)
             st.plotly_chart(fig, width='stretch')
 
             cc1, cc2 = st.columns(2)
@@ -383,17 +443,17 @@ with tab2:
                 rf.add_trace(go.Scatter(x=ind.index, y=ind["RSI"], name="RSI",
                              line=dict(color="#7b5cd6")))
                 rf.add_hline(y=c.rsi_overbought, line_dash="dash",
-                             line_color="#d96a5e",
+                             line_color=C_DOWN,
                              annotation_text="과매수")
                 rf.add_hline(y=c.rsi_oversold, line_dash="dash",
-                             line_color="#2e9e6b", annotation_text="과매도")
+                             line_color=C_UP, annotation_text="과매도")
                 rf.update_layout(title="RSI (상대강도)", height=240,
                                  margin=dict(l=10, r=10, t=34, b=10),
-                                 plot_bgcolor="white", paper_bgcolor="white")
+                                 plot_bgcolor=C_PANEL, paper_bgcolor=C_PANEL)
                 st.plotly_chart(rf, width='stretch')
             with cc2:
                 mf = go.Figure()
-                colors = ["#2e9e6b" if v >= 0 else "#d96a5e"
+                colors = [C_UP if v >= 0 else C_DOWN
                           for v in ind["hist"].fillna(0)]
                 mf.add_trace(go.Bar(x=ind.index, y=ind["hist"], name="히스토그램",
                              marker_color=colors))
@@ -403,7 +463,7 @@ with tab2:
                              name="시그널", line=dict(color="#e0883a")))
                 mf.update_layout(title="MACD (추세 전환)", height=240,
                                  margin=dict(l=10, r=10, t=34, b=10),
-                                 plot_bgcolor="white", paper_bgcolor="white")
+                                 plot_bgcolor=C_PANEL, paper_bgcolor=C_PANEL)
                 st.plotly_chart(mf, width='stretch')
 
         # ---- 핵심 재무 지표 ----
@@ -569,7 +629,7 @@ with tab5:
         fig.update_layout(height=380, margin=dict(l=10, r=10, t=30, b=10),
                           title="자산 성장 곡선 (초기 $10,000)",
                           legend=dict(orientation="h", y=1.12),
-                          plot_bgcolor="white", paper_bgcolor="white")
+                          plot_bgcolor=C_PANEL, paper_bgcolor=C_PANEL)
         st.plotly_chart(fig, width='stretch')
 
         if not beat:

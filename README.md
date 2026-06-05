@@ -54,6 +54,24 @@ python cli.py analyze AAPL MSFT --provider sample
 
 ---
 
+## 🌐 웹으로 배포하기 (무료, Streamlit Community Cloud)
+
+GitHub 저장소만 있으면 클릭 몇 번으로 어디서나 접속 가능한 웹앱이 됩니다.
+(클라우드에서는 Yahoo 접속 제한이 없어 **실시간 데이터**가 동작합니다.)
+
+1. <https://share.streamlit.io> 접속 → GitHub 계정으로 로그인
+2. **Create app → Deploy a public app from GitHub** 선택
+3. 배포 정보 입력
+   - **Repository**: `hokyun896kim/-`
+   - **Branch**: `claude/us-stock-analysis-system-0q8e2`
+   - **Main file path**: `streamlit_app.py`  (루트 진입점)
+4. **Deploy** 클릭 → 1~2분 후 `https://<앱이름>.streamlit.app` 주소 생성
+
+> 참고: 클라우드 파일시스템은 임시라 모의매매 계좌·시총 캐시는 앱 재시작 시
+> 초기화될 수 있습니다. 영구 저장이 필요하면 DB 연동으로 확장하면 됩니다.
+
+---
+
 ## ⚙️ 설정 (`config.yaml`)
 
 ```yaml

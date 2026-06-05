@@ -12,8 +12,8 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from .base import (DataProvider, EarningsRow, Fundamentals, NewsItem,
-                   UpcomingEvents)
+from .base import (DataProvider, EarningsRow, Financials, Fundamentals,
+                   NewsItem, UpcomingEvents)
 
 
 class YahooProvider(DataProvider):
@@ -84,6 +84,43 @@ class YahooProvider(DataProvider):
             return float((t.info or {}).get("marketCap"))
         except (TypeError, ValueError, Exception):
             return None
+
+    def income_statement(self, symbol: str) -> Financials:
+        import yfinance as yf
+
+        t = yf.Ticker(symbol)
+
+        def _row(df, names):
+            if df is None or getattr(df, "empty", True):
+                return None
+            for n in names:
+                if n in df.index:
+                    # 컬럼=날짜(최신순) → 오름차순 Series 로
+                    s = df.loc[n].dropna()
+                    if len(s):
+                        s.index = pd.to_datetime(s.index)
+                        return s.sort_index()
+            return None
+
+        rev_names = ["Total Revenue", "TotalRevenue", "Operating Revenue"]
+        op_names = ["Operating Income", "OperatingIncome",
+                    "Total Operating Income As Reported", "EBIT"]
+        try:
+            a = t.income_stmt
+        except Exception:
+            a = None
+        try:
+            q = t.quarterly_income_stmt
+        except Exception:
+            q = None
+
+        return Financials(
+            symbol=symbol.upper(),
+            annual_revenue=_row(a, rev_names),
+            annual_op_income=_row(a, op_names),
+            quarterly_revenue=_row(q, rev_names),
+            quarterly_op_income=_row(q, op_names),
+        )
 
     def news(self, symbol: str, limit: int = 8) -> list[NewsItem]:
         import yfinance as yf

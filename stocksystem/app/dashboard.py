@@ -34,6 +34,7 @@ from stocksystem.analysis import market as mk
 from stocksystem.analysis import sentiment as se
 from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
+from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
@@ -149,6 +150,16 @@ def score_bg(val) -> str:
     return f"background-color: rgb{c}; color: #f0f3fa; font-weight: 700;"
 
 
+def score_bg_pp(val) -> str:
+    """스프레드(p, 0 중심) 색: 음수=빨강, 양수=초록. ±30p 기준 채도."""
+    if val is None or (isinstance(val, float) and val != val):
+        return ""
+    v = max(-30.0, min(30.0, float(val))) / 30.0
+    if v >= 0:
+        return f"background-color: rgba(38,166,154,{0.15 + 0.5*v:.2f}); color:#eafff7; font-weight:700;"
+    return f"background-color: rgba(242,54,69,{0.15 + 0.5*abs(v):.2f}); color:#ffecec; font-weight:700;"
+
+
 def ret_bg(val) -> str:
     if val is None or (isinstance(val, float) and val != val):
         return ""
@@ -236,6 +247,16 @@ def cached_fear_greed(provider_name):
 @st.cache_data(ttl=900, show_spinner=False)
 def cached_factors(symbols, provider_name):
     return fct.compare(list(symbols), get_provider(provider_name), cfg)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def cached_hegemony_one(symbol, provider_name):
+    return hg.analyze_symbol(symbol, get_provider(provider_name))
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def cached_hegemony_rank(symbols, provider_name):
+    return hg.rank(list(symbols), get_provider(provider_name))
 
 
 @st.cache_data(ttl=900, show_spinner=False)
@@ -425,9 +446,11 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-tab0, tab1, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc, tab4 = st.tabs(
-    ["🌎 시장", "📊 스크리너", "🔍 종목 상세", "🎯 비교", "🧪 백테스트",
-     "🔮 시뮬레이터", "💰 모의매매", "🩺 포트폴리오 닥터", "📖 투자 가이드"])
+(tab0, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
+ tab4) = st.tabs(
+    ["🌎 시장", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세", "🎯 비교",
+     "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매", "🩺 포트폴리오 닥터",
+     "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
 with tab0:
@@ -936,6 +959,86 @@ with tab3:
             cfg.paper_trading.initial_cash, cfg.paper_trading.commission)
         st.session_state.broker.save()
         st.rerun()
+
+# ============================ 탭: 헤게모니 스프레드 ============================
+with tab_heg:
+    st.subheader("👑 헤게모니 스프레드 — 이익 레버리지 발굴")
+    st.markdown(
+        "**헤게모니 스프레드 = 영업이익 증가율(YoY) − 매출 증가율(YoY)**. "
+        "매출보다 이익이 빠르게 늘면(+) 가격결정력·고정비 레버리지가 작동한다는 "
+        "신호입니다. **연간 vs 분기TTM** 차이로 가속/피크아웃을 봅니다.")
+
+    hsub = st.columns([1.5, 1])
+    hsym = hsub[0].selectbox("종목", [u.symbol for u in load_universe()],
+                             key="heg_sym")
+    with st.spinner("재무제표 분석 중..."):
+        r = cached_hegemony_one(hsym, provider_name)
+
+    if r.annual_spread is None:
+        st.warning("이 종목의 손익 데이터를 불러오지 못했습니다 "
+                   "(은행·일부 특수섹터는 영업이익 태그가 없을 수 있어요).")
+    else:
+        hm = st.columns(4)
+        hm[0].metric("연간 스프레드", f"{r.annual_spread:+.1f}p",
+                     f"매출 {r.annual_rev_yoy:+.0f}% / 영익 {r.annual_op_yoy:+.0f}%"
+                     if r.annual_rev_yoy is not None else None, delta_color="off")
+        hm[1].metric("분기 TTM 스프레드",
+                     f"{r.ttm_spread:+.1f}p" if r.ttm_spread is not None else "—")
+        hm[2].metric("가속(분기−연간)",
+                     f"{r.accel:+.1f}p" if r.accel is not None else "—",
+                     "기저효과" if r.base_effect else None, delta_color="off")
+        hm[3].metric("판정", r.verdict)
+
+        # 매출 vs 영업이익 증가율 막대 비교
+        bfig = go.Figure()
+        cats, rev_v, op_v = [], [], []
+        if r.annual_rev_yoy is not None:
+            cats.append("연간"); rev_v.append(r.annual_rev_yoy); op_v.append(r.annual_op_yoy)
+        if r.ttm_rev_yoy is not None:
+            cats.append("분기TTM"); rev_v.append(r.ttm_rev_yoy); op_v.append(r.ttm_op_yoy)
+        if cats:
+            bfig.add_trace(go.Bar(x=cats, y=rev_v, name="매출 YoY",
+                           marker_color="#5b6b86"))
+            bfig.add_trace(go.Bar(x=cats, y=op_v, name="영업이익 YoY",
+                           marker_color=C_AMBER))
+            bfig.update_layout(height=300, barmode="group", paper_bgcolor=C_PANEL,
+                               plot_bgcolor=C_PANEL,
+                               margin=dict(l=10, r=10, t=30, b=10),
+                               title="매출 vs 영업이익 증가율 (영익 막대가 더 높으면 헤게모니)",
+                               legend=dict(orientation="h", y=1.12))
+            st.plotly_chart(bfig, width='stretch')
+
+        if r.note:
+            st.info(f"📌 {r.note}")
+        st.caption("해석: 연간(+) & 분기TTM이 연간보다↑(가속) & 매출도 +성장 이면 "
+                   "이상적. 분기가 연간보다 꺾이면 피크아웃 의심.")
+
+    st.divider()
+    st.markdown("#### 🏆 헤게모니 랭킹")
+    rc = st.columns([2, 1])
+    rank_src = rc[0].radio("대상", ["관심종목", "시총 상위 15"], horizontal=True,
+                           label_visibility="collapsed")
+    if rank_src == "관심종목":
+        rank_syms = cfg.watchlist
+    else:
+        rank_syms = [u.symbol for u in load_universe()][:15]
+    if st.button("📊 랭킹 계산", key="heg_rank_btn") or provider_name == "sample":
+        with st.spinner("재무 분석 중... (실시간은 다소 걸립니다)"):
+            ranked = cached_hegemony_rank(tuple(rank_syms), provider_name)
+        rows = [{
+            "종목": x.symbol,
+            "연간": x.annual_spread, "분기TTM": x.ttm_spread,
+            "가속": x.accel, "매출YoY": x.annual_rev_yoy,
+            "영익YoY": x.annual_op_yoy, "판정": x.verdict,
+        } for x in ranked]
+        hdf = pd.DataFrame(rows)
+        st.dataframe(
+            hdf.style.map(score_bg_pp, subset=["연간", "분기TTM", "가속"])
+            .format({c: fmt("{:+.1f}") for c in
+                     ["연간", "분기TTM", "가속", "매출YoY", "영익YoY"]}),
+            width='stretch', hide_index=True, height=440)
+    st.caption("⚠️ 스냅샷 아님 — yfinance 손익계산서로 매번 새로 계산합니다. "
+               "분기TTM은 8분기 확보 시에만(무료 데이터 한계로 일부 —).")
 
 # ============================ 탭: 종목 비교 레이더 ============================
 with tab_cmp:

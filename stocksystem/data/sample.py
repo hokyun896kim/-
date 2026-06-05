@@ -14,8 +14,8 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 
-from .base import (DataProvider, EarningsRow, Fundamentals, NewsItem,
-                   UpcomingEvents)
+from .base import (DataProvider, EarningsRow, Financials, Fundamentals,
+                   NewsItem, UpcomingEvents)
 
 # 데모용 종목 메타데이터 (실제와 무관한 합성 값)
 _META = {
@@ -175,6 +175,39 @@ class SampleProvider(DataProvider):
                                     eps_estimate=est, eps_actual=actual,
                                     revenue=rev))
         return rows
+
+    def income_statement(self, symbol: str) -> Financials:
+        rng = np.random.default_rng(_seed(symbol) + 6)
+        base_rev = float(rng.uniform(5, 120)) * 1e9
+        rev_g = float(rng.uniform(-0.05, 0.30))        # 매출 성장률
+        # 영업이익 마진이 매년 변하며 레버리지(+/-) 발생
+        margin0 = float(rng.uniform(0.08, 0.30))
+        margin_drift = float(rng.uniform(-0.02, 0.04)) # +면 이익이 매출보다 빨리
+
+        # 연간 4개 (과거→최신)
+        a_idx = pd.to_datetime([f"{y}-12-31" for y in range(2021, 2025)])
+        a_rev, a_op = [], []
+        for i in range(4):
+            rev = base_rev * (1 + rev_g) ** i
+            margin = max(0.01, margin0 + margin_drift * i)
+            a_rev.append(rev)
+            a_op.append(rev * margin)
+        # 분기 8개 (과거→최신), 연간 흐름과 정합
+        q_idx = pd.date_range("2023-03-31", periods=8, freq="QE")
+        q_rev, q_op = [], []
+        for i in range(8):
+            rev = base_rev / 4 * (1 + rev_g / 4) ** i
+            margin = max(0.01, margin0 + margin_drift * (i / 4))
+            q_rev.append(rev)
+            q_op.append(rev * margin)
+
+        return Financials(
+            symbol=symbol.upper(),
+            annual_revenue=pd.Series(a_rev, index=a_idx),
+            annual_op_income=pd.Series(a_op, index=a_idx),
+            quarterly_revenue=pd.Series(q_rev, index=q_idx),
+            quarterly_op_income=pd.Series(q_op, index=q_idx),
+        )
 
     def events(self, symbol: str) -> UpcomingEvents:
         rng = np.random.default_rng(_seed(symbol) + 4)

@@ -82,6 +82,19 @@ class UpcomingEvents:
             self.notes = []
 
 
+@dataclass
+class Financials:
+    """손익계산서 시계열 (헤게모니 스프레드 계산용).
+
+    각 Series 는 날짜 오름차순(과거→최신) 인덱스, 값은 USD.
+    """
+    symbol: str
+    annual_revenue: "pd.Series | None" = None
+    annual_op_income: "pd.Series | None" = None
+    quarterly_revenue: "pd.Series | None" = None
+    quarterly_op_income: "pd.Series | None" = None
+
+
 class DataProvider(ABC):
     """시세/재무 데이터 공급자 추상 클래스."""
 
@@ -121,6 +134,10 @@ class DataProvider(ABC):
     def events(self, symbol: str) -> "UpcomingEvents":
         """다가오는 일정(실적/배당)."""
         return UpcomingEvents(symbol=symbol.upper())
+
+    def income_statement(self, symbol: str) -> "Financials":
+        """연간·분기 손익계산서(매출/영업이익)를 반환한다."""
+        return Financials(symbol=symbol.upper())
 
     # --- 공통 유틸 ---
     @staticmethod

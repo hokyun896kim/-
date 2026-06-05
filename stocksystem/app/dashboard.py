@@ -35,6 +35,7 @@ from stocksystem.analysis import sentiment as se
 from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
+from stocksystem.analysis import earlybird as eb
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
@@ -260,6 +261,11 @@ def cached_hegemony_rank(symbols, provider_name):
 
 
 @st.cache_data(ttl=900, show_spinner=False)
+def cached_earlybird_rank(symbols, provider_name):
+    return eb.rank(list(symbols), get_provider(provider_name), cfg)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
 def cached_sim(symbol, provider_name, horizon, n_sims, target):
     provider = get_provider(provider_name)
     df = provider.price_history(symbol, period="2y")
@@ -446,11 +452,11 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-(tab0, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
+(tab0, tab_eb, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
  tab4) = st.tabs(
-    ["🌎 시장", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세", "🎯 비교",
-     "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매", "🩺 포트폴리오 닥터",
-     "📖 투자 가이드"])
+    ["🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
+     "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
+     "🩺 포트폴리오 닥터", "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
 with tab0:
@@ -959,6 +965,58 @@ with tab3:
             cfg.paper_trading.initial_cash, cfg.paper_trading.commission)
         st.session_state.broker.save()
         st.rerun()
+
+# ============================ 탭: 선취매 레이더 ============================
+with tab_eb:
+    st.subheader("🐦 선취매 레이더 — 남보다 먼저, 느긋하게")
+    st.markdown(
+        "대부분의 화면은 *이미 오른* 종목을 보여줘 늦게 사게 만듭니다. 이 레이더는 "
+        "반대로 **아직 시장이 안 깨운, 조용히 매집되는 초기 단계** 종목을 찾습니다.\n\n"
+        "🤫 조용한 매집(OBV↑·주가 횡보) · 🌱 상승 여력(고점 대비 눌림) · "
+        "📈 변곡 시작(RSI 반등·MACD 전환) · 😌 낮은 변동성(느긋한 보유) · "
+        "⛔ 이미 과열·신고가·급등은 감점")
+
+    ec = st.columns([2, 1.4, 1])
+    eb_src = ec[0].radio("대상", ["관심종목", "시총 상위 25", "시총 상위 50"],
+                         horizontal=True, label_visibility="collapsed")
+    only_early = ec[1].toggle("잠복·초기만 보기", value=True,
+                              help="과열/추세이탈 종목을 숨깁니다")
+    if eb_src == "관심종목":
+        eb_syms = cfg.watchlist
+    elif eb_src == "시총 상위 25":
+        eb_syms = [u.symbol for u in load_universe()][:25]
+    else:
+        eb_syms = [u.symbol for u in load_universe()][:50]
+
+    run_eb = st.button("🔍 선취매 후보 스캔", key="eb_btn") or provider_name == "sample"
+    if run_eb:
+        with st.spinner("매집·변곡 신호 스캔 중..."):
+            ranked = cached_earlybird_rank(tuple(eb_syms), provider_name)
+        if only_early:
+            ranked = [r for r in ranked
+                      if ("잠복" in r.stage or "초기" in r.stage)]
+        if not ranked:
+            st.info("조건에 맞는 잠복·초기 단계 종목이 없습니다. "
+                    "'잠복·초기만 보기'를 꺼보세요.")
+        # 상위 카드
+        for i, r in enumerate(ranked[:8], 1):
+            sc_color = ("#16c784" if r.score >= 65 else
+                        "#f5a623" if r.score >= 45 else "#5b6b86")
+            m = r.metrics
+            with st.container(border=True):
+                hc = st.columns([2.4, 1, 1, 1, 1])
+                hc[0].markdown(f"**{i}. {r.symbol}** · {r.name}  \n"
+                               f"<span style='color:{sc_color};font-weight:800'>"
+                               f"{r.stage}</span>", unsafe_allow_html=True)
+                hc[1].metric("선취매점수", f"{r.score:.0f}")
+                hc[2].metric("현재가", f"${m.get('현재가', 0):,.2f}")
+                hc[3].metric("RSI", f"{m['RSI']:.0f}" if m.get('RSI') else "—")
+                hc[4].metric("고점比", f"{m.get('52주고점比', 0):.0f}%")
+                if r.reasons:
+                    st.caption("  ·  ".join(r.reasons[:4]))
+        st.caption("⚠️ 선취매 = 초기 진입이라 '아직 안 간' 만큼 더 기다릴 수도, "
+                   "틀릴 수도 있습니다. 분할매수 + 손절 기준과 함께 쓰세요. "
+                   "잠복주는 8-K·뉴스로 '왜 조용한지' 확인이 핵심입니다.")
 
 # ============================ 탭: 헤게모니 스프레드 ============================
 with tab_heg:

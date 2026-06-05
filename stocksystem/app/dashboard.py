@@ -40,13 +40,68 @@ st.set_page_config(page_title="미국주식 분석 시스템", layout="wide",
 
 cfg = load_config()
 
-# ---- 부드러운 색상 팔레트 (라이트 테마) ----
-RECO_COLOR = {
-    "strong_buy": "#1f9d63", "buy": "#5cb98a", "hold": "#c9a227",
-    "sell": "#e08a5a", "strong_sell": "#d96a5e",
+# ---- 시인성/가독성 강화 CSS ----
+st.markdown("""
+<style>
+/* 본문 기본 글자 키우기 */
+.block-container { padding-top: 2.2rem; max-width: 1500px; }
+html, body, [class*="css"] { font-size: 16px; }
+
+/* 탭: 크고 또렷하게 */
+.stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 2px solid #e3e8ef; }
+.stTabs [data-baseweb="tab"] {
+    font-size: 1.06rem; font-weight: 700; padding: 10px 18px;
+    border-radius: 10px 10px 0 0;
 }
-# 점수 → 파스텔 배경 (빨강→노랑→초록)
-_PASTEL = [(251, 224, 219), (253, 243, 214), (215, 240, 224)]  # red, amber, green
+.stTabs [aria-selected="true"] {
+    background: #eaf1ff; color: #1d4ed8 !important;
+}
+
+/* 지표(metric) 카드화 */
+[data-testid="stMetric"] {
+    background: #ffffff; border: 1px solid #e3e8ef; border-radius: 14px;
+    padding: 14px 16px 12px; box-shadow: 0 1px 3px rgba(16,24,40,.06);
+}
+[data-testid="stMetricValue"] { font-size: 1.85rem; font-weight: 800;
+    color: #0b1324; line-height: 1.1; }
+[data-testid="stMetricLabel"] p { font-size: .95rem; font-weight: 700;
+    color: #475467; }
+[data-testid="stMetricDelta"] { font-weight: 700; }
+
+/* 섹션 제목 (마크다운 ####) 강조 — 왼쪽 액센트 바 */
+.main h2 { font-weight: 800; color: #0b1324; }
+.main h3 { font-weight: 800; color: #0b1324; }
+.main h4 {
+    font-size: 1.2rem !important; font-weight: 800; color: #0b1324;
+    margin: 1.0rem 0 .4rem; padding: 4px 0 4px 12px;
+    border-left: 5px solid #2563eb;
+}
+
+/* 본문 텍스트/리스트 가독성 */
+.main p, .main li { font-size: 1.0rem; line-height: 1.65; color: #1f2937; }
+.main .stCaption, .main small { color: #667085 !important; }
+
+/* 표 글자 또렷하게 (HTML 표 기준) */
+[data-testid="stTable"] td, [data-testid="stTable"] th { font-size: 1rem; }
+[data-testid="stDataFrame"] { border-radius: 10px; }
+
+/* 입력 위젯 라벨 */
+.stSelectbox label, .stSlider label, .stNumberInput label,
+.stTextInput label, .stToggle label { font-weight: 700; color: #344054; }
+
+/* 사이드바 */
+[data-testid="stSidebar"] { border-right: 1px solid #e3e8ef; }
+[data-testid="stSidebar"] h1 { font-size: 1.3rem; }
+</style>
+""", unsafe_allow_html=True)
+
+# ---- 색상 팔레트 (라이트 테마, 시인성 강화) ----
+RECO_COLOR = {
+    "strong_buy": "#15803d", "buy": "#16a34a", "hold": "#ca8a04",
+    "sell": "#ea7a3c", "strong_sell": "#dc2626",
+}
+# 점수 → 배경 (빨강→노랑→초록). 대비를 위해 약간 진하게 + 글자 진하게.
+_GRAD = [(248, 200, 195), (252, 233, 178), (190, 230, 200)]  # red, amber, green
 
 
 def _lerp(a, b, t):
@@ -58,10 +113,10 @@ def score_bg(val) -> str:
         return ""
     v = max(0.0, min(100.0, float(val))) / 100.0
     if v < 0.5:
-        c = _lerp(_PASTEL[0], _PASTEL[1], v / 0.5)
+        c = _lerp(_GRAD[0], _GRAD[1], v / 0.5)
     else:
-        c = _lerp(_PASTEL[1], _PASTEL[2], (v - 0.5) / 0.5)
-    return f"background-color: rgb{c}; color: #1f2933;"
+        c = _lerp(_GRAD[1], _GRAD[2], (v - 0.5) / 0.5)
+    return f"background-color: rgb{c}; color: #0b1324; font-weight: 700;"
 
 
 def ret_bg(val) -> str:
@@ -280,11 +335,13 @@ with tab2:
 
         key = res.recommendation
         st.markdown(
-            f"<div style='padding:12px;border-radius:10px;"
-            f"background:{RECO_COLOR[key]};color:white;font-size:20px;"
-            f"text-align:center;margin:6px 0;'>"
-            f"<b>추천: {res.recommendation_label}</b>  "
-            f"(종합 {res.total_score:.0f}점)</div>",
+            f"<div style='padding:16px;border-radius:14px;"
+            f"background:{RECO_COLOR[key]};color:white;font-size:24px;"
+            f"text-align:center;margin:10px 0;letter-spacing:.3px;"
+            f"box-shadow:0 2px 8px rgba(16,24,40,.15);'>"
+            f"<b>추천: {res.recommendation_label}</b>"
+            f"<span style='font-size:17px;opacity:.92;'>"
+            f"&nbsp;&nbsp;· 종합 {res.total_score:.0f}점</span></div>",
             unsafe_allow_html=True)
 
         if res.reasons:

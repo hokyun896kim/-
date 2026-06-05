@@ -1,10 +1,10 @@
-# Streamlit 테마 — 밝고 눈에 편한 디자인
+# Streamlit 테마 — 밝고 시인성 높은 디자인
 [theme]
 base = "light"
-primaryColor = "#2f6fed"            # 차분한 파랑 (포인트)
+primaryColor = "#2563eb"            # 또렷한 파랑 (포인트)
 backgroundColor = "#ffffff"         # 흰 배경
-secondaryBackgroundColor = "#f4f7fb" # 사이드바/카드 연한 회청색
-textColor = "#1f2933"               # 부드러운 짙은 회색 (순흑 대신)
+secondaryBackgroundColor = "#eef2f8" # 사이드바/카드 연한 회청색
+textColor = "#101828"               # 높은 대비의 짙은 잉크색
 font = "sans serif"
 
 [server]

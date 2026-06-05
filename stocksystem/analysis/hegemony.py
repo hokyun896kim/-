@@ -64,16 +64,21 @@ class HegemonyResult:
     ttm_spread: float | None = None         # 분기 TTM 스프레드
     accel: float | None = None              # ttm_spread − annual_spread
     base_effect: bool = False               # 기저효과(신뢰 낮음)
+    turnaround: bool = False                 # 흑자전환(전년 영업이익 ≤ 0)
+    quality: str = "—"                       # 스프레드의 질
+    reliable: bool = True                    # 기저효과/흑자전환 아니면 True
     note: str = ""
 
     @property
     def verdict(self) -> str:
-        """간단 판정: 가속/유지/피크아웃/마진압박/데이터부족."""
+        """간단 판정: 기저효과/가속/유지/피크아웃/마진압박/데이터부족."""
         if self.annual_spread is None:
             return "데이터 부족"
+        if not self.reliable:
+            return "기저효과 ⚠️"
         if self.annual_spread <= 0:
             return "마진 압박"
-        if self.accel is not None and not self.base_effect:
+        if self.accel is not None:
             if self.accel >= 5:
                 return "가속 🟢"
             if self.accel <= -10:
@@ -99,11 +104,39 @@ def compute(fin: Financials) -> HegemonyResult:
         ttm_spread is not None and annual_spread is not None) else None
     base_effect = accel is not None and abs(accel) > BASE_EFFECT_CAP
 
+    # 흑자전환 감지: 전년(직전) 영업이익이 0 이하면 YoY% 가 급등(산수 착시)
+    turnaround = False
+    for series in (fin.annual_op_income, fin.quarterly_op_income):
+        if series is None:
+            continue
+        s = series.dropna()
+        idx = -2 if series is fin.annual_op_income else -5  # 연간 직전 / 분기 동기
+        if len(s) >= abs(idx) and float(s.iloc[idx]) <= 0:
+            turnaround = True
+            break
+
+    reliable = not (base_effect or turnaround)
+
+    # 스프레드의 질 분류
+    if annual_spread is None:
+        quality = "—"
+    elif not reliable:
+        quality = "기저효과(흑자전환·이익 급반등)"
+    elif annual_spread <= 0:
+        quality = "마진 압박"
+    elif a_rev is not None and a_rev >= 5:
+        quality = "고품질(매출+이익 동반성장)"
+    elif a_rev is not None and a_rev < 0:
+        quality = "저품질(매출 역성장 + 비용절감형)"
+    else:
+        quality = "보통(매출 정체)"
+
     note = ""
-    if annual_spread is not None and a_rev is not None and a_rev < 0:
-        note = "매출 역성장 중 — 스프레드 양수여도 주도주 아닐 수 있음"
-    elif base_effect:
-        note = "전년 이익이 0 근처 → 가속 비율 폭발(기저효과). 신뢰 낮음"
+    if not reliable:
+        note = ("전년 영업이익이 적자/0 → 증가율(가속) 급등은 흑자전환 착시. "
+                "다음 분기부터 정상화될 수 있어 '진짜 체력'은 기저 제거 후 판단 필요")
+    elif a_rev is not None and a_rev < 0:
+        note = "매출 역성장 중 — 비용절감 기반 스프레드라 지속성 의심"
 
     return HegemonyResult(
         symbol=fin.symbol.upper(),
@@ -112,7 +145,8 @@ def compute(fin: Financials) -> HegemonyResult:
         ttm_rev_yoy=_round(t_rev), ttm_op_yoy=_round(t_op),
         ttm_spread=_round(ttm_spread),
         accel=None if base_effect else _round(accel),
-        base_effect=base_effect, note=note)
+        base_effect=base_effect, turnaround=turnaround,
+        quality=quality, reliable=reliable, note=note)
 
 
 def analyze_symbol(symbol: str, provider: DataProvider) -> HegemonyResult:
@@ -124,8 +158,14 @@ def analyze_symbol(symbol: str, provider: DataProvider) -> HegemonyResult:
 
 
 def rank(symbols: list[str], provider: DataProvider) -> list[HegemonyResult]:
-    """여러 종목을 연간 스프레드 내림차순으로 정렬."""
+    """여러 종목 정렬. 신뢰 가능한(기저효과 아닌) 종목을 먼저, 그 안에서 스프레드순.
+
+    → 흑자전환·기저효과로 스프레드가 뻥튀기된 종목이 '가짜 1등'으로 올라오지
+       않도록 신뢰도를 1순위 키로 둔다.
+    """
     out = [analyze_symbol(s, provider) for s in symbols]
-    out.sort(key=lambda r: (r.annual_spread if r.annual_spread is not None
-                            else -9999), reverse=True)
+    out.sort(key=lambda r: (
+        r.reliable and r.annual_spread is not None,            # 신뢰+데이터 있음 먼저
+        r.annual_spread if r.annual_spread is not None else -9999),
+        reverse=True)
     return out

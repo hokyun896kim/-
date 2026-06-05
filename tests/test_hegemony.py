@@ -76,3 +76,43 @@ def test_rank_sorted_desc():
     res = hg.rank(["AAPL", "NVDA", "JPM", "KO"], SampleProvider())
     spreads = [r.annual_spread for r in res if r.annual_spread is not None]
     assert spreads == sorted(spreads, reverse=True)
+
+
+def test_turnaround_flagged_unreliable():
+    # 전년 영업이익 적자 → 흑자전환 = 기저효과, 신뢰 불가
+    r = hg.compute(_fin([100, 110], [-5, 10],
+                        [25, 25, 25, 25, 26, 26, 26, 26],
+                        [-1, 5, 5, 5, 2, 6, 6, 6]))
+    assert r.turnaround is True
+    assert r.reliable is False
+    assert "기저효과" in r.quality
+    assert r.verdict == "기저효과 ⚠️"
+
+
+def test_high_quality_spread():
+    # 매출 +15%, 영업이익 +30%, 전년 흑자 → 고품질
+    r = hg.compute(_fin([100, 115], [20, 26]))
+    assert r.reliable is True
+    assert "고품질" in r.quality
+
+
+def test_cost_cutting_low_quality():
+    # 매출 역성장인데 이익 덜 감소 → 저품질
+    r = hg.compute(_fin([120, 100], [18, 17]))
+    assert "저품질" in r.quality
+
+
+def test_rank_demotes_turnaround():
+    # 흑자전환(스프레드 높아 보임)이 신뢰 종목보다 아래로
+    good = _fin([100, 115], [20, 28]); good.symbol = "GOOD"
+    fake = _fin([100, 110], [-2, 12],
+                [25, 25, 25, 25, 26, 26, 26, 26],
+                [-1, 5, 5, 5, 3, 6, 6, 6]); fake.symbol = "FAKE"
+    fins = {"GOOD": good, "FAKE": fake}
+
+    class P:
+        def income_statement(self, s):
+            return fins[s]
+    ranked = hg.rank(["FAKE", "GOOD"], P())
+    assert ranked[0].symbol == "GOOD"      # 신뢰 종목이 1등
+    assert ranked[-1].symbol == "FAKE"

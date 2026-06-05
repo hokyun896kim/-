@@ -989,6 +989,22 @@ with tab_heg:
                      "기저효과" if r.base_effect else None, delta_color="off")
         hm[3].metric("판정", r.verdict)
 
+        # 스프레드 품질 배지
+        qcolor = ("#f23645" if not r.reliable else
+                  "#16c784" if "고품질" in r.quality else
+                  "#f5a623" if "보통" in r.quality else
+                  "#ff7043" if "저품질" in r.quality or "마진" in r.quality else "#5b6b86")
+        st.markdown(
+            f"<div style='display:inline-block;padding:6px 14px;border-radius:8px;"
+            f"background:{qcolor};color:#0a0e17;font-weight:800;margin:4px 0 2px;'>"
+            f"스프레드 품질: {r.quality}</div>", unsafe_allow_html=True)
+        if not r.reliable:
+            st.markdown(
+                "<span style='color:#ff9b9b;font-size:13px'>⚠️ 이 종목의 높은 "
+                "스프레드는 <b>흑자전환/기저효과(산수)</b>가 섞여 있어 과대표시일 수 "
+                "있습니다. 다음 분기 정상화 후 '진짜 체력'을 다시 보세요.</span>",
+                unsafe_allow_html=True)
+
         # 매출 vs 영업이익 증가율 막대 비교
         bfig = go.Figure()
         cats, rev_v, op_v = [], [], []
@@ -1029,7 +1045,13 @@ with tab_heg:
             "종목": x.symbol,
             "연간": x.annual_spread, "분기TTM": x.ttm_spread,
             "가속": x.accel, "매출YoY": x.annual_rev_yoy,
-            "영익YoY": x.annual_op_yoy, "판정": x.verdict,
+            "영익YoY": x.annual_op_yoy,
+            "품질": ("⚠️기저효과" if not x.reliable else
+                   "🟢고품질" if "고품질" in x.quality else
+                   "🟡보통" if "보통" in x.quality else
+                   "🔴저품질" if "저품질" in x.quality else
+                   "🔴마진압박" if "마진" in x.quality else "—"),
+            "판정": x.verdict,
         } for x in ranked]
         hdf = pd.DataFrame(rows)
         st.dataframe(

@@ -58,7 +58,7 @@ MONO = ("'JetBrains Mono','SF Mono','Roboto Mono',"
 # ---- 다크 트레이딩 터미널 CSS ----
 st.markdown(f"""
 <style>
-.block-container {{ padding-top: 1.4rem; max-width: 1560px; }}
+.block-container {{ padding-top: 4rem; max-width: 1560px; }}
 html, body, [class*="css"] {{ font-size: 15px; }}
 .stApp {{ background: #0a0e17; }}
 
@@ -110,7 +110,7 @@ html, body, [class*="css"] {{ font-size: 15px; }}
 .ticker-tape {{
     display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
     background: #0d1119; border: 1px solid {C_GRID}; border-radius: 8px;
-    padding: 8px 14px; margin-bottom: 10px; font-size: .95rem; }}
+    padding: 8px 14px; margin: 4px 0 12px; font-size: .95rem; }}
 .tt-item {{ white-space: nowrap; }}
 .tt-sym {{ color: #e8ecf5; font-weight: 800; }}
 .tt-px {{ color: #c2c8d6; margin: 0 5px; }}

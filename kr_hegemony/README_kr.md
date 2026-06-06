@@ -45,20 +45,22 @@ DART 연결손익계산서에서 매출·영업이익을 직접 받아 헤게모
 ```bash
 # 1) 무료 API 키 발급: https://opendart.fss.or.kr → 인증키 신청·관리
 export DART_API_KEY="발급받은_40자리_키"     # Windows: set DART_API_KEY=...
-pip install yfinance
+pip install yfinance pykrx
 cd kr_hegemony
 python build_tree_kr.py --dart       # DART(재무) + yfinance(시세·PER)
 python -m http.server 8899
 ```
 - **연간 스프레드**: DART 사업보고서의 당기/전기 매출·영업이익으로 정확 산출(연결 우선).
-- **분기**: 최신 분기보고서의 누적 YoY 를 `q_op`·`q_spread` 근사치로 사용
-  (완전한 4분기 TTM 은 아님 — 추세 파악용).
+- **분기 TTM**: DART 누적공시를 분기 단독으로 역산(Q4=연간−9M누적)해 **미국판과
+  동일한 정밀 4분기 롤링 TTM** 산출(8분기 연속 확보 시). 부족하면 누적 YoY 근사치로 폴백.
 - **GitHub Actions** 로 매주 자동 갱신하려면 `DART_API_KEY` 를 레포 Secret 으로
   등록하고 위 명령을 워크플로에 넣으면 됩니다.
 
 > DART 모듈(`dart.py`)의 파싱·스프레드 로직은 `test_dart.py` 로 오프라인 검증됨.
 
-### 3) 배포 (Netlify)
+**수급(외국인·기관) 자동 포함**: `--dart`/기본 모드에서 `pip install pykrx` 가 있으면 최근 20거래일 외국인·기관 순매수와 외국인 지분율을 자동으로 받아 tree.json 에 넣고, 트레이드 카드·AI 프롬프트에 "🟢쌍끌이 매집 / 🔴외국인 이탈" 신호로 표시합니다. (pykrx 미설치 시 자동 생략)
+
+### 4) 배포 (Netlify)
 `kr_hegemony` 폴더(= `index.html` + `data/tree_kr.json`)를 통째로 드래그&드롭.
 
 ---
@@ -70,7 +72,9 @@ kr_hegemony/
 ├── data/tree_kr.json     # 데이터 (build_tree_kr.py 로 생성)
 ├── build_tree_kr.py      # 빌더 (--demo 합성 / 기본 yfinance / --dart DART연동)
 ├── dart.py               # DART OpenAPI 백엔드 (연결재무 → 스프레드)
+├── supply.py             # 수급 백엔드 (pykrx: 외국인·기관 순매수·지분율)
 ├── test_dart.py          # DART 파싱·스프레드 오프라인 테스트
+├── test_supply.py        # 수급 집계·라벨 오프라인 테스트
 └── README_kr.md
 ```
 
@@ -80,9 +84,10 @@ kr_hegemony/
 
 ## 🧱 한계 & 메모
 - **연간 스프레드**는 DART 연동 시 매우 정확합니다(연결 손익 직접 사용).
-- **분기 q_op/q_spread**는 DART 분기보고서의 *누적* YoY 근사치입니다. 정밀한
-  4분기 롤링 TTM 이 필요하면 분기별 단독 영업이익을 누적값에서 역산하는 로직을
-  `dart.quarter_spread` 에 추가하면 됩니다(미국판 파이프라인과 동일 아이디어).
+- **분기 q_op/q_spread**는 DART 누적 역산으로 정밀 4분기 TTM 을 씁니다(8분기 미확보
+  시 누적 근사치 폴백). `dart.ttm_yoy` / `test_dart.py` 참고.
+- **수급**은 pykrx 로 외국인·기관 순매수·지분율을 받아 표시(가격 반영도/선취매 판정과
+  함께 보면 "선취매 권역인데 외국인 매집" 같은 강한 초기 신호를 잡습니다).
 - **PER·시세**는 yfinance 의존(한국 PER 일부 결측 가능) → 스코어러가 forward PER
   폴백 후 결측이면 가벼운 검증 플래그(-4)로 처리.
 - 스코어 로직은 **미국판 v1.2와 동일하게 동결** — n=작은 사후검증에 과적합하지

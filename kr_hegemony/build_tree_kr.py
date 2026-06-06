@@ -95,11 +95,18 @@ def _member_synth(tk: str, nm: str) -> dict:
     pe = None if rng.random() < 0.2 else round(float(rng.uniform(6, 40)), 1)
     fpe = None if pe is None or rng.random() < 0.3 else round(pe * 0.9, 1)
     from_high = round(float(rng.uniform(-45, -1)), 1)   # 52주 고점 대비(데모)
+    # 수급(데모 합성): 외국인·기관 순매수(억), 외국인 지분율
+    fnet = round(float(rng.uniform(-400, 600)), 1)
+    inet = round(float(rng.uniform(-300, 400)), 1)
+    fpct = round(float(rng.uniform(3, 55)), 1)
+    import supply as _sup
     days = int(rng.integers(-30, 70))
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
         "accel": accel, "rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
         "from_high": from_high,
+        "foreign_net": fnet, "inst_net": inet, "foreign_pct": fpct,
+        "supply": _sup.supply_label(fnet, inet),
         "op": op, "rev": rev, "q_op": q_op, "pe": pe, "fpe": fpe, "peg": None,
         "q_note": "정상", "d_until": days,
         "ir": {"date": "2026-05", "docs": [
@@ -310,6 +317,19 @@ def build(mode: str) -> dict:
         corp = dartmod.corp_map(dart_key)
         print(f"  → {len(corp)}개 매핑 확보")
 
+    # 수급(pykrx) — 외국인 지분율 맵 1회 로드 (설치/네트워크 실패 시 생략)
+    sup = None
+    fpct_map = {}
+    if mode != "demo":
+        try:
+            import supply as sup
+            print("· 외국인 지분율 맵 로드 중(pykrx)...")
+            fpct_map = sup.foreign_pct_map()
+            print(f"  → {len(fpct_map)}종목")
+        except Exception as e:
+            print(f"  (수급 생략: {e})")
+            sup = None
+
     # 세부산업별 멤버 구성
     subs_map: dict[str, dict] = {}
     for i, (tk, nm, gics, sub_ko, sub_code) in enumerate(UNIVERSE, 1):
@@ -320,6 +340,12 @@ def build(mode: str) -> dict:
             m = _member_dart(dart_key, tk, nm, corp, bench)
         else:
             m = _member_yf(tk, nm, bench)
+        # 수급 보강 (외국인·기관 순매수 + 외국인 지분율)
+        if sup is not None:
+            try:
+                m.update(sup.supply_member(tk.split(".")[0], 20, fpct_map))
+            except Exception:
+                pass
         subs_map.setdefault(sub_code, {"sic": sub_code, "ko": sub_ko,
                                        "desc": sub_code, "gics": gics,
                                        "members": []})

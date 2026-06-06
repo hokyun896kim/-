@@ -496,13 +496,22 @@ def build(mode: str) -> dict:
         except Exception as e:
             print(f"  (시세 생략: {e})")
         try:
+            import contextlib
+            import io as _io
             import supply as _sup
             print("· PER·수급·지분율 일괄 로드(pykrx)…")
-            per_m = _sup.per_map()
-            fnet_m, inet_m = _sup.net_flow_maps(20)
-            fpct_map = _sup.foreign_pct_map()
-            print(f"  → PER {len(per_m)} · 외국인순매수 {len(fnet_m)} · "
-                  f"기관순매수 {len(inet_m)} · 지분율 {len(fpct_map)}")
+            # pykrx 는 KRX 응답이 비면 "Expecting value…" 를 종목마다 stdout 으로
+            # 쏟아낸다(해외 IP 차단 시 전부 빈 응답). 로그 오염 방지로 캡처.
+            with contextlib.redirect_stdout(_io.StringIO()):
+                per_m = _sup.per_map()
+                fnet_m, inet_m = _sup.net_flow_maps(20)
+                fpct_map = _sup.foreign_pct_map()
+            if per_m or fnet_m or fpct_map:
+                print(f"  → PER {len(per_m)} · 외국인순매수 {len(fnet_m)} · "
+                      f"기관순매수 {len(inet_m)} · 지분율 {len(fpct_map)}")
+            else:
+                print("  ⚠ KRX(pykrx) 응답 없음 — 해외(Actions) IP 차단 가능. "
+                      "수급·PER 생략(DART 재무·랭킹은 정상).")
         except Exception as e:
             print(f"  (pykrx 생략: {e})")
 

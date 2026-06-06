@@ -243,6 +243,12 @@ UNIVERSE = [
 ]
 
 
+# 벤치마크: ^KS11(코스피 지수)은 Yahoo 시세가 가끔 튀어 RS 를 오염시킴.
+# KODEX 200 ETF(069500)는 KOSPI200 을 추종하는 깨끗한 시세라 RS 기준으로 사용
+# (헤더의 "벤치마크 KOSPI200" 라벨과도 일치).
+BENCH_SYM = "069500.KS"
+
+
 def _seed(s: str) -> int:
     return int(hashlib.md5(s.encode()).hexdigest(), 16) % (2**32)
 
@@ -463,7 +469,7 @@ def build(mode: str) -> dict:
     if mode != "demo":
         import yfinance as yf
         try:
-            bench = yf.Ticker("^KS11").history(period="7mo")["Close"].dropna()
+            bench = yf.Ticker(BENCH_SYM).history(period="10mo")["Close"].dropna()
         except Exception:
             bench = None
     if mode == "dart":
@@ -575,7 +581,7 @@ def build(mode: str) -> dict:
         import yfinance as yf
         def chg(sym, n):
             try:
-                c = yf.Ticker(sym).history(period="7mo")["Close"].dropna()
+                c = yf.Ticker(sym).history(period="10mo")["Close"].dropna()
                 return round((c.iloc[-1] / c.iloc[-n] - 1) * 100, 1)
             except Exception:
                 return None
@@ -585,7 +591,7 @@ def build(mode: str) -> dict:
         except Exception:
             pass
         market = {"vix": 18.5, "vix_state": "—",
-                  "spy3": chg("^KS11", 63), "spy6": chg("^KS11", 126)}
+                  "spy3": chg(BENCH_SYM, 63), "spy6": chg(BENCH_SYM, 126)}
 
     return {"updated": date.today().isoformat(), "demo": (mode == "demo"),
             "market": market, "sectors": sectors, "subs": subs}

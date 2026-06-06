@@ -78,3 +78,10 @@ def test_netmap_fallback_to_any_net_column():
 def test_netmap_empty_when_no_net_column():
     df = pd.DataFrame({"매수": [1], "매도": [2]}, index=["005930"])
     assert supply._netmap_from_df(df) == {}
+
+
+def test_candidate_dates_walks_backward_from_base():
+    # 2026-06-06(토·현충일)에서 직전 거래일(금 6/5)로 후퇴할 수 있어야
+    days = list(supply._candidate_dates("20260606", span=4))
+    assert days == ["20260606", "20260605", "20260604", "20260603"]
+    assert len(list(supply._candidate_dates("20260606", span=10))) == 10

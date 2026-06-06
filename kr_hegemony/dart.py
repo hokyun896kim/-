@@ -43,8 +43,12 @@ REPRT_ANNUAL = "11011"          # 사업보고서(연간)
 REPRT_QUARTERS = ["11014", "11012", "11013"]  # 3분기 · 반기 · 1분기
 
 
-def _get(url: str, timeout: int = 30, retries: int = 3) -> bytes:
-    """일시적 네트워크/throttle 실패를 backoff 로 재시도. 데이터 결측을 줄인다."""
+def _get(url: str, timeout: int = 20, retries: int = 2) -> bytes:
+    """일시적 네트워크/throttle 실패를 가벼운 backoff 로 재시도.
+
+    재시도/대기를 짧게(2회·0.6s) 둬서 opendart throttle 시 sleep 누적으로
+    전체 빌드가 길어지는 것을 막는다. 마지막 시도엔 sleep 없음.
+    """
     last = None
     for i in range(retries):
         try:
@@ -53,7 +57,8 @@ def _get(url: str, timeout: int = 30, retries: int = 3) -> bytes:
                 return r.read()
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(1.2 * (i + 1))
+            if i < retries - 1:
+                time.sleep(0.6)
     raise last
 
 

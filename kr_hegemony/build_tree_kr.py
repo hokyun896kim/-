@@ -187,6 +187,80 @@ def _member_yf(tk: str, nm: str, bench) -> dict:
     }
 
 
+def _price_info_yf(tk: str, bench) -> dict:
+    """yfinance 로 시세 RS/갭 + PER 만 가져온다 (DART 모드의 가격축)."""
+    import yfinance as yf
+    rs3 = rs6 = gap = pe = fpe = peg = None
+    gaplvl = "M"
+    t = yf.Ticker(tk)
+    try:
+        h = t.history(period="7mo", auto_adjust=True)
+        c = h["Close"].dropna()
+        if len(c) > 130 and bench is not None and len(bench) > 130:
+            def ret(s, n):
+                return (s.iloc[-1] / s.iloc[-n] - 1) * 100
+            rs3 = round(ret(c, 63) - ret(bench, 63), 1)
+            rs6 = round(ret(c, 126) - ret(bench, 126), 1)
+        o, pc = h["Open"], h["Close"].shift(1)
+        g = ((o - pc).abs() / pc * 100).dropna().iloc[-60:]
+        if len(g):
+            gap = round(float(g.max()), 1)
+            gaplvl = "H" if gap > 8 else "L" if gap < 4 else "M"
+    except Exception:
+        pass
+    try:
+        info = t.info or {}
+        pe, fpe, peg = (info.get("trailingPE"), info.get("forwardPE"),
+                        info.get("trailingPegRatio"))
+    except Exception:
+        pass
+    return {"rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
+            "pe": pe, "fpe": fpe, "peg": peg}
+
+
+def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
+    """DART 연결재무(스프레드) + yfinance(시세·PER) 하이브리드."""
+    import dart
+    code6 = tk.split(".")[0]
+    cc = corp_map.get(code6)
+    rev = op = spread = q_spread = q_op = accel = None
+    q_note = "정상"
+    if cc:
+        yr = date.today().year
+        ann = None
+        for y in (yr - 1, yr - 2):           # 최근 사업보고서
+            ann = dart.annual_spread(key, cc, y)
+            if ann:
+                break
+        if ann:
+            rev, op, spread = ann["rev"], ann["op"], ann["spread"]
+        q = None
+        for y in (yr, yr - 1):               # 최근 분기보고서
+            q = dart.quarter_spread(key, cc, y)
+            if q:
+                break
+        if q:
+            q_spread, q_op = q["spread"], q["op"]
+            if spread is not None:
+                accel = round(q_spread - spread, 1)
+        else:
+            q_note = "분기 미확인"
+    else:
+        q_note = "DART 코드 매핑 실패"
+
+    pinfo = _price_info_yf(tk, bench)
+    return {
+        "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
+        "accel": accel, "rs3": pinfo["rs3"], "rs6": pinfo["rs6"],
+        "gap": pinfo["gap"], "gaplvl": pinfo["gaplvl"],
+        "op": op, "rev": rev, "q_op": q_op, "pe": pinfo["pe"],
+        "fpe": pinfo["fpe"], "peg": pinfo["peg"],
+        "q_note": q_note, "d_until": None,
+        "ir": {"date": datetime.today().strftime("%Y-%m"), "docs": [
+            {"label": "DART 사업·분기보고서", "url": _dart_url(tk)}]},
+    }
+
+
 def _median(xs):
     xs = sorted(x for x in xs if x is not None)
     if not xs:
@@ -195,19 +269,39 @@ def _median(xs):
     return round(xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2, 1)
 
 
-def build(demo: bool) -> dict:
+def build(mode: str) -> dict:
+    """mode: 'demo'(합성) / 'yf'(yfinance) / 'dart'(DART+yfinance 하이브리드)."""
+    import os
     bench = None
-    if not demo:
+    dart_key = None
+    corp = {}
+    if mode == "dart":   # 키부터 확인 (네트워크 낭비 방지)
+        dart_key = os.environ.get("DART_API_KEY")
+        if not dart_key:
+            raise SystemExit("환경변수 DART_API_KEY 가 필요합니다. "
+                             "https://opendart.fss.or.kr 에서 무료 발급.")
+    if mode != "demo":
         import yfinance as yf
         try:
             bench = yf.Ticker("^KS11").history(period="7mo")["Close"].dropna()
         except Exception:
             bench = None
+    if mode == "dart":
+        import dart as dartmod
+        print("· DART 종목코드 매핑 다운로드 중...")
+        corp = dartmod.corp_map(dart_key)
+        print(f"  → {len(corp)}개 매핑 확보")
 
     # 세부산업별 멤버 구성
     subs_map: dict[str, dict] = {}
-    for tk, nm, gics, sub_ko, sub_code in UNIVERSE:
-        m = _member_synth(tk, nm) if demo else _member_yf(tk, nm, bench)
+    for i, (tk, nm, gics, sub_ko, sub_code) in enumerate(UNIVERSE, 1):
+        if mode == "demo":
+            m = _member_synth(tk, nm)
+        elif mode == "dart":
+            print(f"  [{i}/{len(UNIVERSE)}] {nm} ({tk}) DART…")
+            m = _member_dart(dart_key, tk, nm, corp, bench)
+        else:
+            m = _member_yf(tk, nm, bench)
         subs_map.setdefault(sub_code, {"sic": sub_code, "ko": sub_ko,
                                        "desc": sub_code, "gics": gics,
                                        "members": []})
@@ -232,7 +326,7 @@ def build(demo: bool) -> dict:
     sectors.sort(key=lambda x: x["med"], reverse=True)
 
     # 시장 배지 (코스피 기준) — 데모는 합성, 실시간은 yfinance
-    if demo:
+    if mode == "demo":
         market = {"vix": 18.5, "vix_state": "경계", "spy3": 4.2, "spy6": 7.8}
     else:
         import yfinance as yf
@@ -255,18 +349,22 @@ def build(demo: bool) -> dict:
 
 
 def main():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="한국판 헤게모니 트리 데이터 빌더")
     ap.add_argument("--demo", action="store_true", help="오프라인 합성 데모")
+    ap.add_argument("--dart", action="store_true",
+                    help="DART 연결재무 + yfinance 시세 (DART_API_KEY 필요)")
     ap.add_argument("--out", default="data/tree_kr.json")
     args = ap.parse_args()
-    tree = build(args.demo)
+    mode = "demo" if args.demo else "dart" if args.dart else "yf"
+    tree = build(mode)
     out = Path(__file__).resolve().parent / args.out
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(tree, f, ensure_ascii=False, indent=1)
     n = sum(len(s["members"]) for s in tree["subs"])
+    label = {"demo": "데모", "dart": "DART+시세", "yf": "yfinance"}[mode]
     print(f"✅ {out} 생성 — 섹터 {len(tree['sectors'])} · 세부산업 "
-          f"{len(tree['subs'])} · 종목 {n} ({'데모' if args.demo else '실시간'})")
+          f"{len(tree['subs'])} · 종목 {n} ({label})")
 
 
 if __name__ == "__main__":

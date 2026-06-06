@@ -388,8 +388,8 @@ def build(mode: str) -> dict:
         market = {"vix": 18.5, "vix_state": "—",
                   "spy3": chg("^KS11", 63), "spy6": chg("^KS11", 126)}
 
-    return {"updated": date.today().isoformat(), "market": market,
-            "sectors": sectors, "subs": subs}
+    return {"updated": date.today().isoformat(), "demo": (mode == "demo"),
+            "market": market, "sectors": sectors, "subs": subs}
 
 
 def main():

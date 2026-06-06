@@ -349,6 +349,13 @@ async function loadData(){
   D.subs.forEach(s=>s.members.forEach(m=>{TKINDEX[m.tk]={...m,sec:s.ko||s.desc};}));
   // 갱신일 표시
   const up=document.getElementById('updTag'); if(up&&D.updated)up.textContent='데이터 갱신: '+D.updated;
+  // ★ 데모(합성) 데이터 경고 배너 — 실수급/실재무 아님
+  if(D.demo){
+    const b=document.createElement('div');
+    b.style.cssText='margin:6px 0 14px;padding:10px 14px;border-radius:10px;background:#2a2410;border:1px solid #4a4220;color:#f0d27a;font-size:12px;line-height:1.55';
+    b.innerHTML='⚠️ <b>데모(합성) 데이터입니다 — 실제 재무·수급 아님.</b> 수급·스프레드·PER 모두 무작위 예시값입니다. 실데이터는 <code>python build_tree_kr.py --dart</code>(DART+pykrx)로 생성하세요.';
+    const mkt=document.getElementById('mkt'); mkt.parentNode.insertBefore(b, mkt);
+  }
   // 시장 배지 + 첫 화면
   initMarket(); renderTop5(); renderTree(); loadWatch();
  }catch(e){

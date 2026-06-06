@@ -94,10 +94,12 @@ def _member_synth(tk: str, nm: str) -> dict:
     gaplvl = "H" if gap > 8 else "L" if gap < 4 else "M"
     pe = None if rng.random() < 0.2 else round(float(rng.uniform(6, 40)), 1)
     fpe = None if pe is None or rng.random() < 0.3 else round(pe * 0.9, 1)
+    from_high = round(float(rng.uniform(-45, -1)), 1)   # 52주 고점 대비(데모)
     days = int(rng.integers(-30, 70))
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
         "accel": accel, "rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
+        "from_high": from_high,
         "op": op, "rev": rev, "q_op": q_op, "pe": pe, "fpe": fpe, "peg": None,
         "q_note": "정상", "d_until": days,
         "ir": {"date": "2026-05", "docs": [
@@ -151,17 +153,20 @@ def _member_yf(tk: str, nm: str, bench) -> dict:
     q_spread = round(t_op - t_rev, 1) if (t_rev is not None and t_op is not None) else None
     accel = round(q_spread - spread, 1) if (q_spread is not None and spread is not None) else None
 
-    # 시세 RS (KOSPI 대비) + gap
-    rs3 = rs6 = gap = None
+    # 시세 RS (KOSPI 대비) + gap + 52주 고점比
+    rs3 = rs6 = gap = from_high = None
     gaplvl = "M"
     try:
-        h = t.history(period="7mo", auto_adjust=True)
+        h = t.history(period="1y", auto_adjust=True)
         c = h["Close"].dropna()
         if len(c) > 130 and bench is not None and len(bench) > 130:
             def ret(s, n):
                 return (s.iloc[-1] / s.iloc[-n] - 1) * 100
             rs3 = round(ret(c, 63) - ret(bench, 63), 1)
             rs6 = round(ret(c, 126) - ret(bench, 126), 1)
+        if len(c):
+            hi = float(c.iloc[-252:].max())
+            from_high = round((float(c.iloc[-1]) / hi - 1) * 100, 1) if hi else None
         # gap: 최근 60일 전일종가 대비 시가 최대 괴리
         o, pc = h["Open"], h["Close"].shift(1)
         g = ((o - pc).abs() / pc * 100).dropna().iloc[-60:]
@@ -179,6 +184,7 @@ def _member_yf(tk: str, nm: str, bench) -> dict:
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
         "accel": accel, "rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
+        "from_high": from_high,
         "op": op, "rev": rev, "q_op": t_op, "pe": info.get("trailingPE"),
         "fpe": info.get("forwardPE"), "peg": info.get("trailingPegRatio"),
         "q_note": "정상", "d_until": None,
@@ -188,19 +194,22 @@ def _member_yf(tk: str, nm: str, bench) -> dict:
 
 
 def _price_info_yf(tk: str, bench) -> dict:
-    """yfinance 로 시세 RS/갭 + PER 만 가져온다 (DART 모드의 가격축)."""
+    """yfinance 로 시세 RS/갭/52주고점比 + PER 을 가져온다 (DART 모드의 가격축)."""
     import yfinance as yf
-    rs3 = rs6 = gap = pe = fpe = peg = None
+    rs3 = rs6 = gap = from_high = pe = fpe = peg = None
     gaplvl = "M"
     t = yf.Ticker(tk)
     try:
-        h = t.history(period="7mo", auto_adjust=True)
+        h = t.history(period="1y", auto_adjust=True)   # 52주 고점用
         c = h["Close"].dropna()
         if len(c) > 130 and bench is not None and len(bench) > 130:
             def ret(s, n):
                 return (s.iloc[-1] / s.iloc[-n] - 1) * 100
             rs3 = round(ret(c, 63) - ret(bench, 63), 1)
             rs6 = round(ret(c, 126) - ret(bench, 126), 1)
+        if len(c):
+            hi = float(c.iloc[-252:].max())
+            from_high = round((float(c.iloc[-1]) / hi - 1) * 100, 1) if hi else None
         o, pc = h["Open"], h["Close"].shift(1)
         g = ((o - pc).abs() / pc * 100).dropna().iloc[-60:]
         if len(g):
@@ -215,7 +224,7 @@ def _price_info_yf(tk: str, bench) -> dict:
     except Exception:
         pass
     return {"rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
-            "pe": pe, "fpe": fpe, "peg": peg}
+            "from_high": from_high, "pe": pe, "fpe": fpe, "peg": peg}
 
 
 def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
@@ -234,17 +243,25 @@ def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
                 break
         if ann:
             rev, op, spread = ann["rev"], ann["op"], ann["spread"]
-        q = None
-        for y in (yr, yr - 1):               # 최근 분기보고서
-            q = dart.quarter_spread(key, cc, y)
-            if q:
-                break
-        if q:
-            q_spread, q_op = q["spread"], q["op"]
-            if spread is not None:
-                accel = round(q_spread - spread, 1)
+        # ① 정밀 4분기 롤링 TTM (누적공시 역산) — 미국판과 동일
+        ttm = dart.ttm_yoy(key, cc)
+        if ttm:
+            q_spread, q_op = ttm["q_spread"], ttm["q_op"]
+            q_note = "정상"
         else:
-            q_note = "분기 미확인"
+            # ② 폴백: 최신 분기 누적 YoY 근사치
+            q = None
+            for y in (yr, yr - 1):
+                q = dart.quarter_spread(key, cc, y)
+                if q:
+                    break
+            if q:
+                q_spread, q_op = q["spread"], q["op"]
+                q_note = "분기 근사(누적)"
+            else:
+                q_note = "분기 미확인"
+        if spread is not None and q_spread is not None:
+            accel = round(q_spread - spread, 1)
     else:
         q_note = "DART 코드 매핑 실패"
 
@@ -252,6 +269,7 @@ def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
         "accel": accel, "rs3": pinfo["rs3"], "rs6": pinfo["rs6"],
+        "from_high": pinfo["from_high"],
         "gap": pinfo["gap"], "gaplvl": pinfo["gaplvl"],
         "op": op, "rev": rev, "q_op": q_op, "pe": pinfo["pe"],
         "fpe": pinfo["fpe"], "peg": pinfo["peg"],

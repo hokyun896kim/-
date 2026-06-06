@@ -75,3 +75,52 @@ def test_num_parsing():
     assert dart._num(" -5,000 ") == -5000.0
     assert dart._num("") is None
     assert dart._num(None) is None
+
+
+# ---------- 정밀 4분기 롤링 TTM 역산 ----------
+def _cum8(rev_q, op_q, y0=2024):
+    """8분기 단독값(rev_q,op_q) → 누적 dict 2종 (연속 8분기, y0 Q1부터)."""
+    cum_rev, cum_op = {}, {}
+    # (year,q) 순서대로 8개
+    seq = [(y0, 1), (y0, 2), (y0, 3), (y0, 4),
+           (y0 + 1, 1), (y0 + 1, 2), (y0 + 1, 3), (y0 + 1, 4)]
+    accR = {y0: 0, y0 + 1: 0}
+    accO = {y0: 0, y0 + 1: 0}
+    for (y, q), r, o in zip(seq, rev_q, op_q):
+        accR[y] += r; accO[y] += o
+        cum_rev[(y, q)] = accR[y]   # 누적
+        cum_op[(y, q)] = accO[y]
+    return cum_rev, cum_op
+
+
+def test_ttm_basic_yoy():
+    # 직전4분기 매출합 100, 영익 20 / 최근4분기 매출 115(+15%), 영익 26(+30%)
+    rev_q = [25, 25, 25, 25, 28, 29, 29, 29]   # 합 100 → 115
+    op_q = [5, 5, 5, 5, 6, 6.5, 6.75, 6.75]    # 합 20 → 26
+    cr, co = _cum8(rev_q, op_q)
+    r = dart._ttm_from_cumulative(cr, co)
+    assert r["q_rev"] == 15.0
+    assert r["q_op"] == 30.0
+    assert r["q_spread"] == 15.0
+
+
+def test_ttm_standalone_reconstruction():
+    # 누적에서 단독 역산이 맞는지: Q4 단독 = 연간 - 9M
+    cum = {(2024, 1): 10, (2024, 2): 22, (2024, 3): 36, (2024, 4): 52}
+    st = dict(dart._standalone(cum))
+    assert st[(2024, 1)] == 10
+    assert st[(2024, 2)] == 12     # 22-10
+    assert st[(2024, 3)] == 14     # 36-22
+    assert st[(2024, 4)] == 16     # 52-36
+
+
+def test_ttm_insufficient_quarters():
+    cum = {(2024, 1): 10, (2024, 2): 20}   # 4분기 미만
+    assert dart._ttm_from_cumulative(cum, cum) is None
+
+
+def test_ttm_non_contiguous_rejected():
+    # 8개지만 연속이 아니면(중간 빠짐) None
+    cr, co = _cum8([25]*8, [5]*8)
+    del cr[(2024, 3)]; del co[(2024, 3)]   # 한 분기 누락 → 단독 복원 불가/불연속
+    assert dart._ttm_from_cumulative(cr, co) is None

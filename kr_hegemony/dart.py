@@ -143,6 +143,88 @@ def annual_spread(key: str, corp_code: str, year: int) -> dict | None:
     return None
 
 
+# ----------------------------- 정밀 4분기 롤링 TTM -----------------------------
+# DART 누적공시 → 분기 단독 역산 → 최근 4분기 합 vs 직전 4분기 합 YoY (미국판과 동일 개념)
+# 보고서코드 → 분기 인덱스: 1분기(11013)=Q1누적, 반기(11012)=H1누적,
+#                          3분기(11014)=9M누적, 사업보고서(11011)=연간누적
+_REPRT_BY_Q = {1: "11013", 2: "11012", 3: "11014", 4: "11011"}
+
+_CUM_FIELDS = ["thstrm_add_amount", "thstrm_amount"]   # 누적금액 우선
+
+
+def _standalone(cum: dict) -> list:
+    """누적값 dict{(year,q):값} → 분기 단독 [((year,q), 단독값)] 시간순.
+
+    Q1=Q1누적, Qn(n>1)=Qn누적 − Q(n-1)누적. 직전 분기 누적이 없으면 건너뜀.
+    """
+    out = []
+    for (y, q) in sorted(cum):
+        if q == 1:
+            out.append(((y, q), cum[(y, q)]))
+        else:
+            prev = cum.get((y, q - 1))
+            if prev is not None:
+                out.append(((y, q), cum[(y, q)] - prev))
+    return out
+
+
+def _qidx(yq):
+    y, q = yq
+    return y * 4 + (q - 1)
+
+
+def _ttm_from_cumulative(cum_rev: dict, cum_op: dict) -> dict | None:
+    """누적 매출/영업이익 → 정밀 TTM(최근4분기 vs 직전4분기) YoY + 스프레드.
+
+    순수 함수(네트워크 없음) — 오프라인 테스트로 검증.
+    """
+    sr = dict(_standalone(cum_rev))
+    so = dict(_standalone(cum_op))
+    common = sorted((k for k in sr if k in so), key=_qidx)
+    if len(common) < 8:
+        return None
+    last8 = common[-8:]
+    if _qidx(last8[-1]) - _qidx(last8[0]) != 7:    # 8분기가 연속이어야
+        return None
+    cur, prev = last8[-4:], last8[:4]
+    rev_now, rev_prev = sum(sr[k] for k in cur), sum(sr[k] for k in prev)
+    op_now, op_prev = sum(so[k] for k in cur), sum(so[k] for k in prev)
+    rev_yoy, op_yoy = _yoy(rev_now, rev_prev), _yoy(op_now, op_prev)
+    if rev_yoy is None or op_yoy is None:
+        return None
+    return {"q_rev": round(rev_yoy, 1), "q_op": round(op_yoy, 1),
+            "q_spread": round(op_yoy - rev_yoy, 1)}
+
+
+def _cum(key: str, corp_code: str, year: int, reprt: str):
+    """(year, reprt) 의 누적 매출·영업이익 → (rev, op) 또는 None."""
+    for fs in ("CFS", "OFS"):
+        rows = _statement(key, corp_code, year, reprt, fs)
+        if not rows:
+            continue
+        rev = _pick(rows, REV_IDS, REV_NM, _CUM_FIELDS)
+        op = _pick(rows, OP_IDS, OP_NM, _CUM_FIELDS)
+        if rev is not None and op is not None:
+            return rev, op
+    return None
+
+
+def ttm_yoy(key: str, corp_code: str, this_year: int | None = None) -> dict | None:
+    """DART 에서 최근 3개 사업연도의 누적공시를 모아 정밀 TTM 스프레드 계산.
+
+    미래/미공시 분기는 자동으로 건너뛴다(404). 8분기 연속 확보 시에만 산출.
+    """
+    from datetime import date
+    yr = this_year or date.today().year
+    cum_rev, cum_op = {}, {}
+    for y in (yr, yr - 1, yr - 2):
+        for q, reprt in _REPRT_BY_Q.items():
+            cv = _cum(key, corp_code, y, reprt)
+            if cv:
+                cum_rev[(y, q)], cum_op[(y, q)] = cv
+    return _ttm_from_cumulative(cum_rev, cum_op)
+
+
 def quarter_spread(key: str, corp_code: str, year: int) -> dict | None:
     """최신 분기 보고서의 누적 YoY (있을 때). q_op 베이스로 사용.
 

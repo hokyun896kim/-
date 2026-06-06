@@ -33,6 +33,11 @@ OP_IDS = {"dart_OperatingIncomeLoss", "ifrs-full_OperatingIncomeLoss",
           "ifrs-full_ProfitLossFromOperatingActivities"}
 OP_NM = ("영업이익", "영업이익(손실)")
 
+# 기본주당이익(EPS) — PER = 종가 ÷ EPS 계산용 (별도 호출 없이 같은 손익 응답에서 추출)
+EPS_IDS = {"ifrs-full_BasicEarningsLossPerShare", "ifrs_BasicEarningsPerShare",
+           "dart_BasicEarningsLossPerShareKRW"}
+EPS_NM = ("기본주당이익", "기본주당순이익", "기본및희석주당이익", "주당이익")
+
 REPRT_ANNUAL = "11011"          # 사업보고서(연간)
 # 분기 보고서 (최신 우선 시도)
 REPRT_QUARTERS = ["11014", "11012", "11013"]  # 3분기 · 반기 · 1분기
@@ -148,6 +153,7 @@ def annual_spread(key: str, corp_code: str, year: int) -> dict | None:
             continue
         res = _spread_from_rows(rows, ["thstrm_amount"], ["frmtrm_amount"])
         if res:
+            res["eps"] = _pick(rows, EPS_IDS, EPS_NM, ["thstrm_amount"])  # 당기 EPS
             res["fs"] = fs
             return res
     return None

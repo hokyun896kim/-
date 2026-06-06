@@ -124,3 +124,19 @@ def test_ttm_non_contiguous_rejected():
     cr, co = _cum8([25]*8, [5]*8)
     del cr[(2024, 3)]; del co[(2024, 3)]   # 한 분기 누락 → 단독 복원 불가/불연속
     assert dart._ttm_from_cumulative(cr, co) is None
+
+
+def test_eps_extraction_by_account_id():
+    rows = [
+        {"sj_div": "IS", "account_id": "ifrs-full_Revenue",
+         "account_nm": "매출액", "thstrm_amount": "1,000"},
+        {"sj_div": "IS", "account_id": "ifrs-full_BasicEarningsLossPerShare",
+         "account_nm": "기본주당이익", "thstrm_amount": "5,300"},
+    ]
+    assert dart._pick(rows, dart.EPS_IDS, dart.EPS_NM, ["thstrm_amount"]) == 5300.0
+
+
+def test_eps_extraction_by_korean_name():
+    rows = [{"sj_div": "CIS", "account_id": "",
+             "account_nm": "기본주당이익(손실)", "thstrm_amount": "1,234"}]
+    assert dart._pick(rows, set(), dart.EPS_NM, ["thstrm_amount"]) == 1234.0

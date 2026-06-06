@@ -1,0 +1,67 @@
+name: Update KR Hegemony Tree
+
+# 한국 헤게모니 트리 데이터(tree_kr.json) 자동 갱신.
+# 매주 토요일 오전(KST) — 금요일 장 마감·투자자별 수급 정산 후 — 에 DART+pykrx 로
+# 재무·시세·수급을 새로 받아 커밋한다. 수동 실행(workflow_dispatch)도 가능.
+#
+# 사전 준비(딱 한 번):
+#   1) GitHub 레포 → Settings → Secrets and variables → Actions → New repository secret
+#      Name: DART_API_KEY,  Value: https://opendart.fss.or.kr 무료 인증키
+#   2) (선택) Netlify 를 이 GitHub 레포에 연결하면, 커밋될 때마다 사이트 자동 재배포.
+#      Netlify Site settings → Build & deploy → Base directory: kr_hegemony
+#   ※ DART_API_KEY 가 없으면 yfinance 모드로 폴백(재무 커버리지 낮음).
+
+on:
+  schedule:
+    - cron: '0 1 * * 6'      # 매주 토 01:00 UTC = 토 10:00 KST
+  workflow_dispatch: {}        # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kr-tree-update
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --quiet yfinance pykrx pytest pandas
+
+      - name: Test parsing/aggregation logic (offline)
+        working-directory: kr_hegemony
+        run: pytest -q
+
+      - name: Build tree_kr.json
+        working-directory: kr_hegemony
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+        run: |
+          if [ -n "$DART_API_KEY" ]; then
+            echo "▶ DART + pykrx 모드"
+            python build_tree_kr.py --dart || { echo "DART 실패 → yfinance 폴백"; python build_tree_kr.py; }
+          else
+            echo "▶ DART_API_KEY 미설정 → yfinance 모드"
+            python build_tree_kr.py
+          fi
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kr_hegemony/data/tree_kr.json
+          if git diff --staged --quiet; then
+            echo "변경 없음 — 커밋 생략"
+          else
+            git commit -m "chore(kr): 헤게모니 데이터 자동 갱신 ($(date -u +%Y-%m-%d))"
+            git push
+          fi

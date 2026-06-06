@@ -63,6 +63,21 @@ python -m http.server 8899
 ### 4) 배포 (Netlify)
 `kr_hegemony` 폴더(= `index.html` + `data/tree_kr.json`)를 통째로 드래그&드롭.
 
+### 5) 🤖 자동 갱신 (GitHub Actions — 권장)
+매주 자동으로 DART+pykrx 데이터를 새로 받아 `tree_kr.json` 을 갱신·커밋합니다.
+워크플로 파일은 이미 들어있습니다: `.github/workflows/update_kr_tree.yml`
+
+**준비 (딱 한 번):**
+1. GitHub 레포 → **Settings → Secrets and variables → Actions → New repository secret**
+   - Name: `DART_API_KEY` / Value: opendart 무료 인증키
+2. (선택) **Netlify 를 이 GitHub 레포에 연결** → Base directory `kr_hegemony`
+   - 이러면 Actions 가 커밋할 때마다 사이트가 **자동 재배포**됩니다.
+3. 끝. 매주 토요일 오전(KST) 자동 실행되고, **Actions 탭에서 "Run workflow"** 로
+   수동 실행도 가능합니다.
+
+> `DART_API_KEY` 가 없으면 yfinance 모드로 폴백합니다(커버리지 낮음).
+> 워크플로는 빌드 전에 `pytest` 로 파싱 로직을 먼저 검증합니다.
+
 ---
 
 ## 📁 구성

@@ -21,12 +21,6 @@
    "n_co": 25
   },
   {
-   "gics": "IT 서비스",
-   "med": 12.7,
-   "n_sub": 1,
-   "n_co": 4
-  },
-  {
    "gics": "자동차",
    "med": 11.4,
    "n_sub": 2,
@@ -37,6 +31,12 @@
    "med": 11.4,
    "n_sub": 2,
    "n_co": 7
+  },
+  {
+   "gics": "IT 서비스",
+   "med": 11.2,
+   "n_sub": 1,
+   "n_co": 4
   },
   {
    "gics": "바이오·헬스케어",
@@ -1158,148 +1158,6 @@
    "n": 10
   },
   {
-   "sic": "ITSVC",
-   "ko": "IT서비스",
-   "desc": "ITSVC",
-   "gics": "IT 서비스",
-   "members": [
-    {
-     "tk": "022100.KQ",
-     "nm": "포스코DX",
-     "spread": 22.3,
-     "q_spread": 29.1,
-     "accel": 6.8,
-     "rs3": 7.8,
-     "rs6": 15.3,
-     "gap": 3.2,
-     "gaplvl": "L",
-     "from_high": -20.6,
-     "foreign_net": 576.0,
-     "inst_net": 85.5,
-     "foreign_pct": 28.6,
-     "supply": "🟢 쌍끌이 매집(외국인+기관)",
-     "op": 26.4,
-     "rev": 4.1,
-     "q_op": 24.1,
-     "pe": 27.9,
-     "fpe": 25.1,
-     "peg": null,
-     "q_note": "정상",
-     "d_until": 15,
-     "ir": {
-      "date": "2026-05",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=022100"
-       }
-      ]
-     }
-    },
-    {
-     "tk": "018260.KS",
-     "nm": "삼성에스디에스",
-     "spread": 21.3,
-     "q_spread": 12.3,
-     "accel": -9.0,
-     "rs3": 2.7,
-     "rs6": 5.3,
-     "gap": 2.8,
-     "gaplvl": "L",
-     "from_high": -22.8,
-     "foreign_net": 322.1,
-     "inst_net": 69.2,
-     "foreign_pct": 14.3,
-     "supply": "🟢 쌍끌이 매집(외국인+기관)",
-     "op": 23.9,
-     "rev": 2.6,
-     "q_op": 78.3,
-     "pe": 25.0,
-     "fpe": 22.5,
-     "peg": null,
-     "q_note": "정상",
-     "d_until": 20,
-     "ir": {
-      "date": "2026-05",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=018260"
-       }
-      ]
-     }
-    },
-    {
-     "tk": "307950.KS",
-     "nm": "현대오토에버",
-     "spread": 4.0,
-     "q_spread": 9.2,
-     "accel": 5.2,
-     "rs3": 22.2,
-     "rs6": 23.3,
-     "gap": 7.2,
-     "gaplvl": "M",
-     "from_high": -42.9,
-     "foreign_net": 55.7,
-     "inst_net": -212.1,
-     "foreign_pct": 28.8,
-     "supply": "🟢 외국인 매집",
-     "op": 24.7,
-     "rev": 20.7,
-     "q_op": 36.3,
-     "pe": 28.9,
-     "fpe": null,
-     "peg": null,
-     "q_note": "정상",
-     "d_until": -9,
-     "ir": {
-      "date": "2026-05",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=307950"
-       }
-      ]
-     }
-    },
-    {
-     "tk": "030520.KQ",
-     "nm": "한글과컴퓨터",
-     "spread": -9.1,
-     "q_spread": -8.4,
-     "accel": 0.7,
-     "rs3": 19.0,
-     "rs6": 40.2,
-     "gap": 2.0,
-     "gaplvl": "L",
-     "from_high": -10.5,
-     "foreign_net": 92.9,
-     "inst_net": 320.5,
-     "foreign_pct": 37.1,
-     "supply": "🟢 쌍끌이 매집(외국인+기관)",
-     "op": -11.9,
-     "rev": -2.8,
-     "q_op": -10.8,
-     "pe": 22.6,
-     "fpe": 20.3,
-     "peg": null,
-     "q_note": "정상",
-     "d_until": 54,
-     "ir": {
-      "date": "2026-05",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=030520"
-       }
-      ]
-     }
-    }
-   ],
-   "med": 12.7,
-   "n": 4
-  },
-  {
    "sic": "DISP",
    "ko": "디스플레이",
    "desc": "DISP",
@@ -1855,6 +1713,148 @@
     }
    ],
    "med": 11.4,
+   "n": 4
+  },
+  {
+   "sic": "ITSVC",
+   "ko": "IT서비스",
+   "desc": "ITSVC",
+   "gics": "IT 서비스",
+   "members": [
+    {
+     "tk": "018260.KS",
+     "nm": "삼성에스디에스",
+     "spread": 21.3,
+     "q_spread": 12.3,
+     "accel": -9.0,
+     "rs3": 2.7,
+     "rs6": 5.3,
+     "gap": 2.8,
+     "gaplvl": "L",
+     "from_high": -22.8,
+     "foreign_net": 322.1,
+     "inst_net": 69.2,
+     "foreign_pct": 14.3,
+     "supply": "🟢 쌍끌이 매집(외국인+기관)",
+     "op": 23.9,
+     "rev": 2.6,
+     "q_op": 78.3,
+     "pe": 25.0,
+     "fpe": 22.5,
+     "peg": null,
+     "q_note": "정상",
+     "d_until": 20,
+     "ir": {
+      "date": "2026-05",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=018260"
+       }
+      ]
+     }
+    },
+    {
+     "tk": "022100.KS",
+     "nm": "포스코DX",
+     "spread": 18.5,
+     "q_spread": 22.6,
+     "accel": 4.1,
+     "rs3": -0.4,
+     "rs6": -8.5,
+     "gap": 9.9,
+     "gaplvl": "H",
+     "from_high": -38.3,
+     "foreign_net": 121.3,
+     "inst_net": 163.0,
+     "foreign_pct": 15.2,
+     "supply": "🟢 쌍끌이 매집(외국인+기관)",
+     "op": 37.7,
+     "rev": 19.2,
+     "q_op": 36.6,
+     "pe": 39.3,
+     "fpe": 35.4,
+     "peg": null,
+     "q_note": "정상",
+     "d_until": -8,
+     "ir": {
+      "date": "2026-05",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=022100"
+       }
+      ]
+     }
+    },
+    {
+     "tk": "307950.KS",
+     "nm": "현대오토에버",
+     "spread": 4.0,
+     "q_spread": 9.2,
+     "accel": 5.2,
+     "rs3": 22.2,
+     "rs6": 23.3,
+     "gap": 7.2,
+     "gaplvl": "M",
+     "from_high": -42.9,
+     "foreign_net": 55.7,
+     "inst_net": -212.1,
+     "foreign_pct": 28.8,
+     "supply": "🟢 외국인 매집",
+     "op": 24.7,
+     "rev": 20.7,
+     "q_op": 36.3,
+     "pe": 28.9,
+     "fpe": null,
+     "peg": null,
+     "q_note": "정상",
+     "d_until": -9,
+     "ir": {
+      "date": "2026-05",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=307950"
+       }
+      ]
+     }
+    },
+    {
+     "tk": "030520.KQ",
+     "nm": "한글과컴퓨터",
+     "spread": -9.1,
+     "q_spread": -8.4,
+     "accel": 0.7,
+     "rs3": 19.0,
+     "rs6": 40.2,
+     "gap": 2.0,
+     "gaplvl": "L",
+     "from_high": -10.5,
+     "foreign_net": 92.9,
+     "inst_net": 320.5,
+     "foreign_pct": 37.1,
+     "supply": "🟢 쌍끌이 매집(외국인+기관)",
+     "op": -11.9,
+     "rev": -2.8,
+     "q_op": -10.8,
+     "pe": 22.6,
+     "fpe": 20.3,
+     "peg": null,
+     "q_note": "정상",
+     "d_until": 54,
+     "ir": {
+      "date": "2026-05",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=030520"
+       }
+      ]
+     }
+    }
+   ],
+   "med": 11.2,
    "n": 4
   },
   {
@@ -5955,6 +5955,39 @@
      }
     },
     {
+     "tk": "066970.KS",
+     "nm": "엘앤에프",
+     "spread": -3.2,
+     "q_spread": -4.3,
+     "accel": -1.1,
+     "rs3": 8.3,
+     "rs6": 13.1,
+     "gap": 6.7,
+     "gaplvl": "M",
+     "from_high": -29.1,
+     "foreign_net": 537.0,
+     "inst_net": -263.1,
+     "foreign_pct": 40.6,
+     "supply": "🟢 외국인 매집",
+     "op": 10.7,
+     "rev": 13.9,
+     "q_op": 65.4,
+     "pe": 37.4,
+     "fpe": null,
+     "peg": null,
+     "q_note": "정상",
+     "d_until": 7,
+     "ir": {
+      "date": "2026-05",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=066970"
+       }
+      ]
+     }
+    },
+    {
      "tk": "137950.KQ",
      "nm": "대주전자재료",
      "spread": -6.6,
@@ -6016,39 +6049,6 @@
        {
         "label": "DART 사업·분기보고서",
         "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=005070"
-       }
-      ]
-     }
-    },
-    {
-     "tk": "066970.KQ",
-     "nm": "엘앤에프",
-     "spread": -9.4,
-     "q_spread": 1.1,
-     "accel": 10.5,
-     "rs3": 6.9,
-     "rs6": 38.4,
-     "gap": 7.5,
-     "gaplvl": "M",
-     "from_high": -5.7,
-     "foreign_net": -147.6,
-     "inst_net": -231.6,
-     "foreign_pct": 46.8,
-     "supply": "🔴 동반 순매도(이탈)",
-     "op": 9.6,
-     "rev": 19.0,
-     "q_op": 25.4,
-     "pe": null,
-     "fpe": null,
-     "peg": null,
-     "q_note": "정상",
-     "d_until": -12,
-     "ir": {
-      "date": "2026-05",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=066970"
        }
       ]
      }

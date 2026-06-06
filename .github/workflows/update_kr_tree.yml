@@ -45,6 +45,7 @@ jobs:
         working-directory: kr_hegemony
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          PYTHONUNBUFFERED: "1"        # 진행 로그를 실시간으로 출력(버퍼링 해제)
         run: |
           if [ -n "$DART_API_KEY" ]; then
             echo "▶ DART + pykrx 모드"

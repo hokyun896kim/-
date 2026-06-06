@@ -294,9 +294,8 @@ def _member_synth(tk: str, nm: str) -> dict:
     }
 
 
-def _member_yf(tk: str, nm: str, bench) -> dict:
-    """실시간(yfinance) 헤게모니 지표. (인터넷 필요)"""
-    import numpy as np
+def _member_yf(tk: str, nm: str) -> dict:
+    """실시간(yfinance) 재무 기반 스프레드. 시세·PER·수급은 build()에서 일괄 merge."""
     import yfinance as yf
 
     t = yf.Ticker(tk)
@@ -340,82 +339,63 @@ def _member_yf(tk: str, nm: str, bench) -> dict:
     q_spread = round(t_op - t_rev, 1) if (t_rev is not None and t_op is not None) else None
     accel = round(q_spread - spread, 1) if (q_spread is not None and spread is not None) else None
 
-    # 시세 RS (KOSPI 대비) + gap + 52주 고점比
-    rs3 = rs6 = gap = from_high = None
-    gaplvl = "M"
-    try:
-        h = t.history(period="1y", auto_adjust=True)
-        c = h["Close"].dropna()
-        if len(c) > 130 and bench is not None and len(bench) > 130:
-            def ret(s, n):
-                return (s.iloc[-1] / s.iloc[-n] - 1) * 100
-            rs3 = round(ret(c, 63) - ret(bench, 63), 1)
-            rs6 = round(ret(c, 126) - ret(bench, 126), 1)
-        if len(c):
-            hi = float(c.iloc[-252:].max())
-            from_high = round((float(c.iloc[-1]) / hi - 1) * 100, 1) if hi else None
-        # gap: 최근 60일 전일종가 대비 시가 최대 괴리
-        o, pc = h["Open"], h["Close"].shift(1)
-        g = ((o - pc).abs() / pc * 100).dropna().iloc[-60:]
-        if len(g):
-            gap = round(float(g.max()), 1)
-            gaplvl = "H" if gap > 8 else "L" if gap < 4 else "M"
-    except Exception:
-        pass
-
-    info = {}
-    try:
-        info = t.info or {}
-    except Exception:
-        pass
+    # 시세·PER·수급은 build()에서 배치로 일괄 산출 → 여기선 재무(스프레드)만.
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
-        "accel": accel, "rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
-        "from_high": from_high,
-        "op": op, "rev": rev, "q_op": t_op, "pe": info.get("trailingPE"),
-        "fpe": info.get("forwardPE"), "peg": info.get("trailingPegRatio"),
+        "accel": accel, "op": op, "rev": rev, "q_op": t_op,
         "q_note": "정상", "d_until": None,
         "ir": {"date": datetime.today().strftime("%Y-%m"), "docs": [
             {"label": "DART 사업·분기보고서", "url": _dart_url(tk)}]},
     }
 
 
-def _price_info_yf(tk: str, bench) -> dict:
-    """yfinance 로 시세 RS/갭/52주고점比 + PER 을 가져온다 (DART 모드의 가격축)."""
+def _price_maps(tickers: list[str], bench) -> dict:
+    """전 종목 시세를 yf.download 로 '한 번에' 받아 {tk: {rs3,rs6,gap,gaplvl,from_high}}.
+
+    종목별 t.history(196회) 대신 단일 일괄 호출 → throttle 위험·시간 대폭 감소.
+    """
     import yfinance as yf
-    rs3 = rs6 = gap = from_high = pe = fpe = peg = None
-    gaplvl = "M"
-    t = yf.Ticker(tk)
+    out = {tk: {"rs3": None, "rs6": None, "gap": None,
+                "gaplvl": "M", "from_high": None} for tk in tickers}
     try:
-        h = t.history(period="1y", auto_adjust=True)   # 52주 고점用
-        c = h["Close"].dropna()
-        if len(c) > 130 and bench is not None and len(bench) > 130:
-            def ret(s, n):
-                return (s.iloc[-1] / s.iloc[-n] - 1) * 100
-            rs3 = round(ret(c, 63) - ret(bench, 63), 1)
-            rs6 = round(ret(c, 126) - ret(bench, 126), 1)
-        if len(c):
-            hi = float(c.iloc[-252:].max())
-            from_high = round((float(c.iloc[-1]) / hi - 1) * 100, 1) if hi else None
-        o, pc = h["Open"], h["Close"].shift(1)
-        g = ((o - pc).abs() / pc * 100).dropna().iloc[-60:]
-        if len(g):
-            gap = round(float(g.max()), 1)
-            gaplvl = "H" if gap > 8 else "L" if gap < 4 else "M"
+        data = yf.download(tickers, period="1y", auto_adjust=True,
+                           group_by="ticker", threads=True, progress=False)
     except Exception:
-        pass
-    try:
-        info = t.info or {}
-        pe, fpe, peg = (info.get("trailingPE"), info.get("forwardPE"),
-                        info.get("trailingPegRatio"))
-    except Exception:
-        pass
-    return {"rs3": rs3, "rs6": rs6, "gap": gap, "gaplvl": gaplvl,
-            "from_high": from_high, "pe": pe, "fpe": fpe, "peg": peg}
+        return out
+
+    def series(tk, field):
+        try:
+            return data[tk][field].dropna()
+        except Exception:
+            return None
+
+    have_bench = bench is not None and len(bench) > 130
+
+    def ret(s, n):
+        return (s.iloc[-1] / s.iloc[-n] - 1) * 100
+
+    for tk in tickers:
+        c = series(tk, "Close")
+        if c is None or len(c) == 0:
+            continue
+        rec = out[tk]
+        hi = float(c.iloc[-252:].max())
+        rec["from_high"] = round((float(c.iloc[-1]) / hi - 1) * 100, 1) if hi else None
+        if len(c) > 130 and have_bench:
+            rec["rs3"] = round(ret(c, 63) - ret(bench, 63), 1)
+            rec["rs6"] = round(ret(c, 126) - ret(bench, 126), 1)
+        o = series(tk, "Open")
+        if o is not None and len(o):
+            g = ((o - c.shift(1)).abs() / c.shift(1) * 100).dropna().iloc[-60:]
+            if len(g):
+                gap = round(float(g.max()), 1)
+                rec["gap"] = gap
+                rec["gaplvl"] = "H" if gap > 8 else "L" if gap < 4 else "M"
+    return out
 
 
-def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
-    """DART 연결재무(스프레드) + yfinance(시세·PER) 하이브리드."""
+def _member_dart(key: str, tk: str, nm: str, corp_map: dict) -> dict:
+    """DART 연결재무 기반 스프레드. 시세·PER·수급은 build()에서 일괄 merge."""
     import dart
     code6 = tk.split(".")[0]
     cc = corp_map.get(code6)
@@ -452,14 +432,9 @@ def _member_dart(key: str, tk: str, nm: str, corp_map: dict, bench) -> dict:
     else:
         q_note = "DART 코드 매핑 실패"
 
-    pinfo = _price_info_yf(tk, bench)
     return {
         "tk": tk, "nm": nm, "spread": spread, "q_spread": q_spread,
-        "accel": accel, "rs3": pinfo["rs3"], "rs6": pinfo["rs6"],
-        "from_high": pinfo["from_high"],
-        "gap": pinfo["gap"], "gaplvl": pinfo["gaplvl"],
-        "op": op, "rev": rev, "q_op": q_op, "pe": pinfo["pe"],
-        "fpe": pinfo["fpe"], "peg": pinfo["peg"],
+        "accel": accel, "op": op, "rev": rev, "q_op": q_op,
         "q_note": q_note, "d_until": None,
         "ir": {"date": datetime.today().strftime("%Y-%m"), "docs": [
             {"label": "DART 사업·분기보고서", "url": _dart_url(tk)}]},
@@ -497,38 +472,45 @@ def build(mode: str) -> dict:
         corp = dartmod.corp_map(dart_key)
         print(f"  → {len(corp)}개 매핑 확보")
 
-    # 수급(pykrx) — 외국인 지분율 맵 1회 로드 (설치/네트워크 실패 시 생략)
-    sup = None
-    fpct_map = {}
+    # ── 배치 수집(비데모) — 느린 종목별 호출을 일괄 호출로 ──
+    # 시세는 yf.download 1회, PER·수급·지분율은 pykrx 일괄로 받아 나중에 merge.
+    # (종목별 t.info·pykrx 호출이 34종목에서도 30분 타임아웃을 넘긴 주범)
+    tickers = [e[0] for e in UNIVERSE]
+    price_maps: dict = {}
+    per_m: dict = {}
+    fnet_m: dict = {}
+    inet_m: dict = {}
+    fpct_map: dict = {}
     if mode != "demo":
         try:
-            import supply as sup
-            print("· 외국인 지분율 맵 로드 중(pykrx)...")
-            fpct_map = sup.foreign_pct_map()
-            print(f"  → {len(fpct_map)}종목")
+            print("· 시세 일괄 다운로드(yfinance)…")
+            price_maps = _price_maps(tickers, bench)
+            ok = sum(1 for v in price_maps.values() if v.get("rs6") is not None)
+            print(f"  → 시세 {ok}/{len(tickers)}종목")
         except Exception as e:
-            print(f"  (수급 생략: {e})")
-            sup = None
+            print(f"  (시세 생략: {e})")
+        try:
+            import supply as _sup
+            print("· PER·수급·지분율 일괄 로드(pykrx)…")
+            per_m = _sup.per_map()
+            fnet_m, inet_m = _sup.net_flow_maps(20)
+            fpct_map = _sup.foreign_pct_map()
+            print(f"  → PER {len(per_m)} · 외국인순매수 {len(fnet_m)} · "
+                  f"기관순매수 {len(inet_m)} · 지분율 {len(fpct_map)}")
+        except Exception as e:
+            print(f"  (pykrx 생략: {e})")
 
-    # 세부산업별 멤버 구성 — 네트워크 모드는 종목을 병렬로 수집(직렬이면 20분+).
-    # 각 종목 작업은 독립(DART/yfinance/pykrx 호출)이라 I/O 바운드 → 스레드풀로 단축.
+    # 세부산업별 멤버 구성 — 재무(DART/yfinance)는 종목별이라 병렬로 수집.
     def _one(entry):
         tk, nm, gics, sub_ko, sub_code = entry
         if mode == "demo":
             m = _member_synth(tk, nm)
         elif mode == "dart":
-            m = _member_dart(dart_key, tk, nm, corp, bench)
+            m = _member_dart(dart_key, tk, nm, corp)
         else:
-            m = _member_yf(tk, nm, bench)
-        # 수급 보강 (외국인·기관 순매수 + 외국인 지분율)
-        if sup is not None:
-            try:
-                m.update(sup.supply_member(tk.split(".")[0], 20, fpct_map))
-            except Exception:
-                pass
+            m = _member_yf(tk, nm)
         return sub_code, sub_ko, gics, m
 
-    subs_map: dict[str, dict] = {}
     if mode == "demo":
         results = [_one(e) for e in UNIVERSE]          # 합성은 즉시 — 병렬 불필요
     else:
@@ -547,7 +529,22 @@ def build(mode: str) -> dict:
                 except Exception as e:  # noqa: BLE001
                     print(f"  [{done}/{len(UNIVERSE)}] {entry[1]} ({entry[0]}) 실패: {e}")
 
+    # 배치 맵 merge — 비데모 멤버에 시세·PER·수급 채우기 (데모는 이미 보유)
+    import supply as _supmod
+    subs_map: dict[str, dict] = {}
     for sub_code, sub_ko, gics, m in results:
+        if mode != "demo":
+            tk = m["tk"]
+            c6 = tk.split(".")[0]
+            pm = price_maps.get(tk, {})
+            m["rs3"], m["rs6"] = pm.get("rs3"), pm.get("rs6")
+            m["gap"], m["gaplvl"] = pm.get("gap"), pm.get("gaplvl", "M")
+            m["from_high"] = pm.get("from_high")
+            m["pe"], m["fpe"], m["peg"] = per_m.get(c6), None, None
+            fn, ino = fnet_m.get(c6), inet_m.get(c6)
+            m["foreign_net"], m["inst_net"] = fn, ino
+            m["foreign_pct"] = fpct_map.get(c6)
+            m["supply"] = _supmod.supply_label(fn, ino)
         subs_map.setdefault(sub_code, {"sic": sub_code, "ko": sub_ko,
                                        "desc": sub_code, "gics": gics,
                                        "members": []})

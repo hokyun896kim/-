@@ -47,3 +47,34 @@ def test_label_unknown():
 def test_eok_conversion():
     assert supply._eok(35_000_000_000) == 350.0   # 350억
     assert supply._eok(None) is None
+
+
+def test_per_from_df_filters_nonpositive():
+    df = pd.DataFrame({"PER": [12.34, -5.0, 0.0, 8.9]},
+                      index=["005930", "000660", "035720", "68270"])
+    out = supply._per_from_df(df)
+    assert out["005930"] == 12.3            # 반올림
+    assert "000660" not in out             # 적자(-5) 제외
+    assert "035720" not in out             # 0 제외
+    assert "68270" not in out and out["068270"] == 8.9   # 6자리 zero-fill
+
+
+def test_netmap_picks_value_column_and_converts_to_eok():
+    # '순매수거래대금' 우선 선택, 원→억 변환
+    df = pd.DataFrame({"순매수거래량": [10, 20],
+                       "순매수거래대금": [35_000_000_000, -12_000_000_000]},
+                      index=["005930", "000660"])
+    out = supply._netmap_from_df(df)
+    assert out["005930"] == 350.0
+    assert out["000660"] == -120.0
+
+
+def test_netmap_fallback_to_any_net_column():
+    df = pd.DataFrame({"순매수": [50_000_000_000]}, index=["207940"])
+    out = supply._netmap_from_df(df)
+    assert out["207940"] == 500.0
+
+
+def test_netmap_empty_when_no_net_column():
+    df = pd.DataFrame({"매수": [1], "매도": [2]}, index=["005930"])
+    assert supply._netmap_from_df(df) == {}

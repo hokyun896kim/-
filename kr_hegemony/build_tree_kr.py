@@ -330,13 +330,13 @@ def build(mode: str) -> dict:
             print(f"  (수급 생략: {e})")
             sup = None
 
-    # 세부산업별 멤버 구성
-    subs_map: dict[str, dict] = {}
-    for i, (tk, nm, gics, sub_ko, sub_code) in enumerate(UNIVERSE, 1):
+    # 세부산업별 멤버 구성 — 네트워크 모드는 종목을 병렬로 수집(직렬이면 20분+).
+    # 각 종목 작업은 독립(DART/yfinance/pykrx 호출)이라 I/O 바운드 → 스레드풀로 단축.
+    def _one(entry):
+        tk, nm, gics, sub_ko, sub_code = entry
         if mode == "demo":
             m = _member_synth(tk, nm)
         elif mode == "dart":
-            print(f"  [{i}/{len(UNIVERSE)}] {nm} ({tk}) DART…")
             m = _member_dart(dart_key, tk, nm, corp, bench)
         else:
             m = _member_yf(tk, nm, bench)
@@ -346,6 +346,28 @@ def build(mode: str) -> dict:
                 m.update(sup.supply_member(tk.split(".")[0], 20, fpct_map))
             except Exception:
                 pass
+        return sub_code, sub_ko, gics, m
+
+    subs_map: dict[str, dict] = {}
+    if mode == "demo":
+        results = [_one(e) for e in UNIVERSE]          # 합성은 즉시 — 병렬 불필요
+    else:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        workers = 5 if mode == "dart" else 8           # DART 는 throttle 회피로 보수적
+        results = []
+        done = 0
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futs = {ex.submit(_one, e): e for e in UNIVERSE}
+            for fut in as_completed(futs):
+                done += 1
+                entry = futs[fut]
+                try:
+                    results.append(fut.result())
+                    print(f"  [{done}/{len(UNIVERSE)}] {entry[1]} ({entry[0]}) ✓")
+                except Exception as e:  # noqa: BLE001
+                    print(f"  [{done}/{len(UNIVERSE)}] {entry[1]} ({entry[0]}) 실패: {e}")
+
+    for sub_code, sub_ko, gics, m in results:
         subs_map.setdefault(sub_code, {"sic": sub_code, "ko": sub_ko,
                                        "desc": sub_code, "gics": gics,
                                        "members": []})

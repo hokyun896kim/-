@@ -18,9 +18,11 @@ from __future__ import annotations
 
 import io
 import json
+import time
 import urllib.request
 import zipfile
 import xml.etree.ElementTree as ET
+from datetime import date
 
 BASE = "https://opendart.fss.or.kr/api"
 
@@ -36,10 +38,18 @@ REPRT_ANNUAL = "11011"          # 사업보고서(연간)
 REPRT_QUARTERS = ["11014", "11012", "11013"]  # 3분기 · 반기 · 1분기
 
 
-def _get(url: str, timeout: int = 30) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "hegemony-kr"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+def _get(url: str, timeout: int = 30, retries: int = 3) -> bytes:
+    """일시적 네트워크/throttle 실패를 backoff 로 재시도. 데이터 결측을 줄인다."""
+    last = None
+    for i in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "hegemony-kr"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:  # noqa: BLE001
+            last = e
+            time.sleep(1.2 * (i + 1))
+    raise last
 
 
 def _num(s) -> float | None:
@@ -214,11 +224,16 @@ def ttm_yoy(key: str, corp_code: str, this_year: int | None = None) -> dict | No
 
     미래/미공시 분기는 자동으로 건너뛴다(404). 8분기 연속 확보 시에만 산출.
     """
-    from datetime import date
-    yr = this_year or date.today().year
+    today = date.today()
+    yr = this_year or today.year
     cum_rev, cum_op = {}, {}
     for y in (yr, yr - 1, yr - 2):
         for q, reprt in _REPRT_BY_Q.items():
+            # 아직 공시될 수 없는 미래 분기는 건너뜀(분기말+~45일 공시 마감 전).
+            # 분기 q 의 마감월 ≈ 3q, 공시는 그 ~45일 뒤 → 보수적으로 분기말이
+            # 지나지 않았으면 호출 생략(불필요한 네트워크 라운드트립 제거).
+            if y > today.year or (y == today.year and 3 * q > today.month):
+                continue
             cv = _cum(key, corp_code, y, reprt)
             if cv:
                 cum_rev[(y, q)], cum_op[(y, q)] = cv

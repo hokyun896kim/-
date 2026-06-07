@@ -1,0 +1,115 @@
+/* 미리보기(PDF) ― Word(book.docx)와 동일 콘텐츠/디자인의 시각 확인용. 신국판 152×225 */
+:root{--paper:#FBF9F4;--ink:#232020;--navy:#163B4E;--navy2:#21566E;--accent:#C0894B;
+ --accentd:#9C6B33;--tint:#EEF3F2;--tint2:#F6F1E7;--muted:#6E6A63;--line:#DED8CC;
+ --danger:#A6433B;--good:#2F6F5E;--goodbg:#EAF1ED;--badbg:#F7EEE8;}
+@page{size:152mm 225mm;margin:20mm 18mm;
+ @bottom-center{content:counter(page);font-family:"Noto Sans CJK KR";font-size:8.5pt;color:#9a948a;}
+ @top-center{content:string(ct);font-family:"Noto Sans CJK KR";font-size:8pt;color:#b3ada2;}}
+@page:first{@top-center{content:none}@bottom-center{content:none}}
+@page cover{margin:0;@top-center{content:none}@bottom-center{content:none}}
+*{box-sizing:border-box}
+html{font-size:10.5pt}
+body{font-family:"Noto Serif CJK KR",serif;color:var(--ink);background:var(--paper);
+ line-height:1.6;margin:0;word-break:keep-all;overflow-wrap:anywhere}
+p{margin:0 0 .5em;text-align:justify}
+strong{color:var(--navy);font-weight:700}
+em{font-style:normal;background:linear-gradient(transparent 62%,#F4E3C2 62%)}
+
+.cover{page:cover;height:225mm;width:152mm;background:linear-gradient(160deg,#122F3E,#163B4E 55%,#21566E);
+ color:#fff;position:relative;overflow:hidden;page-break-after:always}
+.cover::before{content:"";position:absolute;right:-40mm;top:-30mm;width:120mm;height:120mm;border-radius:50%;
+ background:radial-gradient(circle,rgba(192,137,75,.35),transparent 70%)}
+.cover .inner{position:absolute;inset:0;padding:24mm 18mm;display:flex;flex-direction:column}
+.cover .eyebrow{font-family:"Noto Sans CJK KR";letter-spacing:.35em;font-size:9pt;color:#C0894B;margin-bottom:auto}
+.cover h1{font-family:"Noto Sans CJK KR";font-weight:800;font-size:27pt;line-height:1.34;margin:0 0 6mm}
+.cover .rule{width:24mm;height:3px;background:var(--accent);margin-bottom:8mm}
+.cover .sub{font-size:11.5pt;color:#D9E4E8;margin-bottom:10mm}
+.cover .key{font-style:italic;font-size:11pt;color:#EBD6B4;line-height:1.7}
+.cover .foot{margin-top:auto;font-family:"Noto Sans CJK KR";font-size:9.5pt;color:#9FB4BC}
+
+.frontmatter{page-break-after:always;padding-top:6mm}
+h2.plain{font-family:"Noto Sans CJK KR";color:var(--navy);font-size:14pt;border-bottom:2px solid var(--accent);
+ padding-bottom:2mm;margin:0 0 6mm}
+.disclaimer{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;background:#fff;
+ padding:6mm;font-size:9.8pt;color:#48433d;line-height:1.7}
+.disclaimer .tag{font-family:"Noto Sans CJK KR";font-size:8.5pt;letter-spacing:.18em;color:var(--accentd);display:block;margin-bottom:3mm}
+
+.toc{page-break-after:always}
+.toc ol{list-style:none;padding:0;margin:0}
+.toc .tpart{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:5mm 0 1.5mm;font-size:11.5pt}
+.toc .tpart .pno{color:var(--accent);margin-right:2mm}
+.toc li{font-size:10pt;padding:1mm 0;list-style:none}
+.toc li a{display:flex;align-items:baseline;color:#3c3833}
+.toc li .dots{flex:1;border-bottom:1px dotted #cfc8ba;margin:0 2mm;transform:translateY(-2px)}
+.toc li a::after{content:target-counter(attr(href),page);font-family:"Noto Sans CJK KR";color:var(--muted)}
+
+h1.part{string-set:ct "";page-break-before:always;page-break-after:always;text-align:center;
+ padding:78mm 12mm 0;margin:0;font-family:"Noto Sans CJK KR";font-weight:800;font-size:19pt;color:var(--navy);line-height:1.5}
+h1.part .pno{display:block;font-size:13pt;color:var(--accent);letter-spacing:.2em;margin-bottom:6mm}
+h2.chapter{string-set:ct content();page-break-before:always;font-family:"Noto Sans CJK KR";font-weight:800;
+ font-size:16pt;color:var(--navy);line-height:1.38;margin:0 0 0;padding:0 0 3mm}
+h2.chapter::after{content:"";display:block;width:13mm;height:3px;background:var(--accent);margin-top:3.5mm}
+h3{font-family:"Noto Sans CJK KR";color:var(--navy2);font-size:12pt;margin:6mm 0 2mm}
+
+.keybox{background:var(--tint2);border-left:4px solid var(--accent);border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
+.keybox .klabel{font-family:"Noto Sans CJK KR";font-size:8.5pt;font-weight:800;color:var(--accentd);display:block;margin-bottom:1.5mm}
+.keybox p{margin:0;font-family:"Noto Sans CJK KR";font-size:11pt;font-weight:700;color:var(--navy);line-height:1.45;text-align:left}
+
+.callout{border:1px solid var(--line);border-left:4px solid var(--navy);background:#fff;border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
+.callout .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:10pt;margin:0 0 2mm}
+.callout .ctitle::before{content:"● ";color:var(--accent);font-size:8pt}
+.callout p:last-child{margin:0}
+
+table{width:100%;border-collapse:collapse;margin:5mm 0;font-size:9.4pt;page-break-inside:avoid;line-height:1.45}
+thead th{background:var(--navy);color:#fff;font-family:"Noto Sans CJK KR";font-weight:700;text-align:left;padding:2.4mm 2.6mm;font-size:9.4pt}
+tbody td,tbody th{border-bottom:1px solid var(--line);padding:2.4mm 2.6mm;vertical-align:top;text-align:left}
+tbody th{font-family:"Noto Sans CJK KR";color:var(--navy);font-weight:700;background:#F3F0E9;white-space:nowrap}
+table.compare td{width:42%}
+table.compare .col-good{background:var(--goodbg)}
+table.compare .col-bad{background:var(--badbg)}
+
+.cardgrid{margin:5mm 0;font-size:0}
+.card{display:inline-block;width:48%;vertical-align:top;font-size:10.5pt;border:1px solid var(--line);border-radius:8px;
+ background:#FCFBF8;padding:3.2mm 3.6mm;margin:0 0 2.5mm;page-break-inside:avoid}
+.card:nth-child(odd){margin-right:3%}
+.card .cidx{font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;color:#fff;background:var(--accent);
+ border-radius:20px;padding:.3mm 2.3mm;display:inline-block;margin-bottom:1.5mm}
+.card h4{font-family:"Noto Sans CJK KR";color:var(--navy);margin:0 0 1mm;font-size:10.5pt}
+.card p{margin:0;font-size:9pt;color:#3A3631;line-height:1.4}
+
+.modebar{margin:5mm 0;font-size:0;page-break-inside:avoid}
+.modebar .mode{display:inline-block;width:18.5%;margin-right:1.5%;vertical-align:top;text-align:center;
+ border:1px solid var(--line);border-radius:6px;padding:2.6mm .6mm;background:#F3F0E9;font-family:"Noto Sans CJK KR";font-size:8pt;color:var(--navy)}
+.modebar .mode:last-child{margin-right:0}
+.modebar .mode b{display:block;font-size:9.5pt;color:#fff;background:var(--navy);margin:-2.6mm -.6mm 1.6mm;padding:1.4mm 0;border-radius:6px 6px 0 0}
+
+.flow{margin:5mm 0}
+.flow .step{display:flex;gap:3mm;align-items:flex-start;position:relative;padding:0 0 3.5mm}
+.flow .step:not(:last-child)::before{content:"";position:absolute;left:4.1mm;top:8mm;bottom:0;width:2px;background:var(--line)}
+.flow .dot{flex:0 0 auto;width:8.2mm;height:8.2mm;border-radius:50%;background:var(--navy);color:#fff;
+ font-family:"Noto Sans CJK KR";font-weight:800;font-size:9pt;display:flex;align-items:center;justify-content:center;z-index:1}
+.flow .body h4{font-family:"Noto Sans CJK KR";color:var(--navy);margin:0 0 1mm;font-size:10.5pt}
+.flow .body p{margin:0;font-size:9.3pt;color:#3A3631}
+
+.dont,.do{border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid;font-size:9.8pt}
+.dont{background:var(--badbg);border:1px solid #E6CFC4;border-left:4px solid var(--danger)}
+.do{background:var(--goodbg);border:1px solid #CFE0D6;border-left:4px solid var(--good)}
+.dont .lbl,.do .lbl{font-family:"Noto Sans CJK KR";font-weight:800;display:block;margin-bottom:2mm}
+.dont .lbl{color:var(--danger)}.do .lbl{color:var(--good)}
+.checklist{list-style:none;padding:0;margin:0}
+.checklist li{padding:1.4mm 0;font-size:9.6pt;line-height:1.4}
+.checklist .qnum{font-family:"Noto Sans CJK KR";font-weight:800;margin-right:1.5mm}
+.dont .qnum{color:var(--danger)}.do .qnum{color:var(--good)}
+.fillline{color:var(--muted);font-size:9pt;font-family:"Noto Sans CJK KR"}
+
+.apx-cat{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:11.5pt;margin:7mm 0 3mm;
+ padding-bottom:1.5mm;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:2.5mm}
+.apx-cat span{flex:0 0 auto;width:6mm;height:6mm;border-radius:50%;background:var(--navy);color:#fff;font-size:8.5pt;
+ display:flex;align-items:center;justify-content:center}
+.apx-q{font-family:"Noto Sans CJK KR";font-weight:700;color:var(--ink);font-size:10.5pt;margin:4mm 0 1.5mm;line-height:1.45}
+.apx-q .qnum{color:var(--accentd);font-weight:800;margin-right:1.5mm}
+.prompt{background:var(--tint);border:1px solid #D7E2DF;border-radius:8px;padding:3.2mm 4mm;margin:0 0 3mm;font-size:9.4pt;color:#33433f;line-height:1.6;page-break-inside:avoid}
+.prompt .ptag{display:block;font-family:"Noto Sans CJK KR";font-size:7.6pt;letter-spacing:.1em;color:var(--navy2);margin-bottom:1.5mm}
+ul.bullets{margin:1mm 0 3mm;padding-left:5mm}ul.bullets li{font-size:9.6pt;padding:.5mm 0}
+ol.numlist{margin:2mm 0 3mm;padding-left:6mm}ol.numlist li{font-size:9.8pt;padding:.6mm 0}
+.fillrule{border:0;border-bottom:1px dotted var(--line);margin:1.5mm 0;height:0}

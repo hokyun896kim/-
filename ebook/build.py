@@ -75,6 +75,9 @@ def register_components():
     chapter_components[13] = comp_surge_types()
     chapter_components[16] = comp_dont_ask()
     chapter_components[17] = comp_do_ask()
+    chapter_components[7]  = comp_answer_vs_committee()
+    chapter_components[10] = comp_cash_roles()
+    chapter_components[14] = comp_decline_types()
 
 body_lines = body_md.split("\n")
 processed = []
@@ -205,7 +208,59 @@ def comp_do_ask():
 <ul class="checklist" style="margin:0">{body}</ul></div>
 '''
 
-register_components()
+def comp_answer_vs_committee():
+    rows = [
+        ("AI의 역할", "정답을 내려주는 점쟁이", "관점을 넓혀주는 회의 참석자"),
+        ("내가 하는 일", "결정을 떠넘기고 따른다", "근거를 받아 내가 결정한다"),
+        ("질문 형태", "“살까요, 팔까요?”", "“이 판단의 약점은 무엇인가?”"),
+        ("틀렸을 때", "AI 탓을 하게 된다", "내 기준을 다시 점검한다"),
+    ]
+    body = "".join(
+        f'<tr><th>{r[0]}</th><td class="col-bad">{r[1]}</td><td class="col-good">{r[2]}</td></tr>'
+        for r in rows)
+    return f'''
+<div class="callout"><p class="ctitle">이 장을 한눈에 — AI는 정답지가 아니라 회의실</p>
+<p>AI에게 결정을 맡기면 점쟁이가 되지만, 관점을 물으면 투자위원회가 됩니다. 결정의 주체는 끝까지 ‘나’입니다.</p></div>
+<table class="compare">
+<thead><tr><th></th><th>정답지로 쓸 때</th><th>회의실로 쓸 때</th></tr></thead>
+<tbody>{body}</tbody></table>
+'''
+
+def comp_cash_roles():
+    cards = [
+        ("방어", "하락장에서 계좌를 지키는 완충재."),
+        ("선택권", "좋은 기회가 왔을 때 살 수 있는 권리."),
+        ("심리 안정", "흔들릴 때 버틸 수 있게 하는 여유."),
+        ("교체 재원", "더 나은 종목으로 갈아탈 실탄."),
+    ]
+    body = "".join(
+        f'<div class="card"><span class="cidx">{i+1}</span>'
+        f'<h4>{c[0]}</h4><p>{c[1]}</p></div>'
+        for i, c in enumerate(cards))
+    return f'''
+<div class="callout"><p class="ctitle">이 장을 한눈에 — 현금은 노는 돈이 아니라 선택권</p>
+<p>현금을 ‘놀고 있는 돈’으로 보면 조급해집니다. 현금이 가진 네 가지 역할을 알면, 비워 두는 것도 전략이 됩니다.</p></div>
+<div class="cardgrid">{body}</div>
+'''
+
+def comp_decline_types():
+    cards = [
+        ("단순 조정", "추세 안에서의 일시적 되돌림. 보유 논리 유지."),
+        ("섹터 약화", "섹터 전체가 식어가는 신호. 비중 점검 필요."),
+        ("종목 고유 문제", "그 기업만의 악재. 보유 근거 재검토."),
+        ("시장 위험회피", "시장 전체가 위험을 줄이는 국면. 현금·방어 우선."),
+    ]
+    body = "".join(
+        f'<div class="card"><span class="cidx">{i+1}</span>'
+        f'<h4>{c[0]}</h4><p>{c[1]}</p></div>'
+        for i, c in enumerate(cards))
+    return f'''
+<div class="callout"><p class="ctitle">하락 분류 — “이 하락은 단순 조정인가, 위험 신호인가?”</p>
+<p>가격이 빠졌다는 사실만 보지 않습니다. 하락의 성격을 네 유형으로 나누면, 버틸지 줄일지 현금을 들지가 보입니다.</p></div>
+<div class="cardgrid">{body}</div>
+'''
+
+register_components()  # 컴포넌트 매핑 확정
 for n, comp in chapter_components.items():
     body_md = body_md.replace(f"<!--COMP{n}-->", comp)
 # 남은 자리표시 제거

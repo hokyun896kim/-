@@ -22,8 +22,8 @@
 
 /* ---------- 페이지 (PDF) ---------- */
 @page {
-  size: 140mm 210mm;            /* B6 근접: 전자책/소책자 판형 */
-  margin: 20mm 18mm 22mm 18mm;
+  size: 148mm 210mm;            /* A5 판형 */
+  margin: 16mm 15mm 16mm 15mm;
   @bottom-center {
     content: counter(page);
     font-family: "Noto Sans CJK KR", sans-serif;
@@ -43,18 +43,18 @@
 
 /* ---------- 기본 타이포 ---------- */
 * { box-sizing: border-box; }
-html { font-size: 11pt; }
+html { font-size: 9.4pt; }
 body {
   font-family: "Noto Serif CJK KR", serif;
   color: var(--ink);
   background: var(--paper);
-  line-height: 1.85;
+  line-height: 1.5;
   margin: 0;
   -webkit-font-smoothing: antialiased;
   word-break: keep-all;          /* 한글 단어 단위 줄바꿈 */
   overflow-wrap: anywhere;
 }
-p { margin: 0 0 .85em; text-align: justify; }
+p { margin: 0 0 .34em; text-align: justify; }
 strong { color: var(--navy); font-weight: 700; }
 em { font-style: normal; background: linear-gradient(transparent 62%, #F4E3C2 62%); }
 a { color: var(--navy-2); text-decoration: none; }
@@ -113,10 +113,11 @@ a { color: var(--navy-2); text-decoration: none; }
 
 /* ---------- 부(部) 표제지 ---------- */
 h1.part {
+  string-set: chaptertitle "";   /* 부 표제지에는 러닝헤더 비움 */
   page-break-before: always; page-break-after: always;
-  text-align:center; padding:80mm 12mm 0; margin:0; border:0;
+  text-align:center; padding:78mm 12mm 0; margin:0; border:0;
   font-family:"Noto Sans CJK KR",sans-serif; font-weight:800;
-  font-size:20pt; color:var(--navy); line-height:1.5;
+  font-size:19pt; color:var(--navy); line-height:1.5;
 }
 /* '1부.' 부분을 골드 포인트로 (앞 토큰만 색 분리는 어려우므로 상단 장식선) */
 h1.part::before {
@@ -129,14 +130,14 @@ h2.chapter {
   string-set: chaptertitle content();
   page-break-before: always;
   font-family:"Noto Sans CJK KR",sans-serif; font-weight:800;
-  font-size:18pt; color:var(--navy); line-height:1.4;
-  margin:4mm 0 0; padding:0 0 4mm; border:0; position:relative;
+  font-size:16pt; color:var(--navy); line-height:1.38;
+  margin:0 0 0; padding:0 0 3mm; border:0; position:relative;
 }
 h2.chapter .cnum {
   display:block; font-size:10pt; letter-spacing:.25em; color:var(--accent);
   margin-bottom:3mm; font-weight:800;
 }
-h2.chapter::after { content:""; display:block; width:14mm; height:3px; background:var(--accent); margin-top:5mm; }
+h2.chapter::after { content:""; display:block; width:13mm; height:3px; background:var(--accent); margin-top:3.5mm; }
 h2.prologue { string-set: chaptertitle "프롤로그"; }
 
 /* 일반 소제목 (본문 내 **굵게** 단독행은 pandoc이 <p><strong> 처리하므로 별도) */
@@ -171,7 +172,7 @@ blockquote p { text-align:left; }
 /* 핵심 요약 박스 */
 .callout {
   border:1px solid var(--line); border-left:4px solid var(--navy);
-  background:#fff; border-radius:8px; padding:5mm 6mm; margin:6mm 0;
+  background:#fff; border-radius:8px; padding:3.5mm 4.5mm; margin:4mm 0;
   page-break-inside:avoid;
 }
 .callout .ctitle {
@@ -2094,6 +2095,75 @@ AI 하나로 누구나 쉽게 투자에 성공할 수 있다는 이야기도 아
 </blockquote>
 <h1 class="part" id="part3">3부. AI를 투자위원회로 만들기 시작하다</h1>
 <h2 class="chapter" id="ch7">7장. AI는 정답지가 아니라 회의실이었다</h2>
+<div class="callout">
+<p class="ctitle">
+이 장을 한눈에 — AI는 정답지가 아니라 회의실
+</p>
+<p>
+AI에게 결정을 맡기면 점쟁이가 되지만, 관점을 물으면 투자위원회가 됩니다.
+결정의 주체는 끝까지 ’나’입니다.
+</p>
+</div>
+<table class="compare">
+<thead>
+<tr>
+<th>
+</th>
+<th>
+정답지로 쓸 때
+</th>
+<th>
+회의실로 쓸 때
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>
+AI의 역할
+</th>
+<td class="col-bad">
+정답을 내려주는 점쟁이
+</td>
+<td class="col-good">
+관점을 넓혀주는 회의 참석자
+</td>
+</tr>
+<tr>
+<th>
+내가 하는 일
+</th>
+<td class="col-bad">
+결정을 떠넘기고 따른다
+</td>
+<td class="col-good">
+근거를 받아 내가 결정한다
+</td>
+</tr>
+<tr>
+<th>
+질문 형태
+</th>
+<td class="col-bad">
+“살까요, 팔까요?”
+</td>
+<td class="col-good">
+“이 판단의 약점은 무엇인가?”
+</td>
+</tr>
+<tr>
+<th>
+틀렸을 때
+</th>
+<td class="col-bad">
+AI 탓을 하게 된다
+</td>
+<td class="col-good">
+내 기준을 다시 점검한다
+</td>
+</tr>
+</tbody>
+</table>
 <p>처음에는 AI를 정답지처럼 쓰고 싶었습니다.</p>
 <p>종목명을 넣으면 답이 나오고, 불안한 마음을 넣으면 확신이 나오고,
 복잡한 시장을 넣으면 깔끔한 결론이 나오길 바랐습니다.</p>
@@ -3097,6 +3167,53 @@ AI는 제 투자위원회가 되기 시작했습니다.
 아니었다</h1>
 <h2 class="chapter" id="ch10">10장. 현금은 놀고 있는 돈이 아니라
 선택권이었다</h2>
+<div class="callout">
+<p class="ctitle">
+이 장을 한눈에 — 현금은 노는 돈이 아니라 선택권
+</p>
+<p>
+현금을 ’놀고 있는 돈’으로 보면 조급해집니다. 현금이 가진 네 가지 역할을
+알면, 비워 두는 것도 전략이 됩니다.
+</p>
+</div>
+<div class="cardgrid">
+<div class="card">
+<span class="cidx">1</span>
+<h4>
+방어
+</h4>
+<p>
+하락장에서 계좌를 지키는 완충재.
+</p>
+</div>
+<div class="card">
+<span class="cidx">2</span>
+<h4>
+선택권
+</h4>
+<p>
+좋은 기회가 왔을 때 살 수 있는 권리.
+</p>
+</div>
+<div class="card">
+<span class="cidx">3</span>
+<h4>
+심리 안정
+</h4>
+<p>
+흔들릴 때 버틸 수 있게 하는 여유.
+</p>
+</div>
+<div class="card">
+<span class="cidx">4</span>
+<h4>
+교체 재원
+</h4>
+<p>
+더 나은 종목으로 갈아탈 실탄.
+</p>
+</div>
+</div>
 <p>주식투자를 하다 보면 이상한 감정이 생깁니다.</p>
 <p>현금이 있으면 불안합니다.</p>
 <p>계좌에 돈이 놀고 있는 것 같습니다. 남들은 수익을 내고 있는데 나만
@@ -4504,6 +4621,53 @@ AI는 제 투자위원회가 되기 시작했습니다.
 </p>
 </blockquote>
 <h2 class="chapter" id="ch14">14장. 하락장을 대하는 태도가 바뀌었다</h2>
+<div class="callout">
+<p class="ctitle">
+하락 분류 — “이 하락은 단순 조정인가, 위험 신호인가?”
+</p>
+<p>
+가격이 빠졌다는 사실만 보지 않습니다. 하락의 성격을 네 유형으로 나누면,
+버틸지 줄일지 현금을 들지가 보입니다.
+</p>
+</div>
+<div class="cardgrid">
+<div class="card">
+<span class="cidx">1</span>
+<h4>
+단순 조정
+</h4>
+<p>
+추세 안에서의 일시적 되돌림. 보유 논리 유지.
+</p>
+</div>
+<div class="card">
+<span class="cidx">2</span>
+<h4>
+섹터 약화
+</h4>
+<p>
+섹터 전체가 식어가는 신호. 비중 점검 필요.
+</p>
+</div>
+<div class="card">
+<span class="cidx">3</span>
+<h4>
+종목 고유 문제
+</h4>
+<p>
+그 기업만의 악재. 보유 근거 재검토.
+</p>
+</div>
+<div class="card">
+<span class="cidx">4</span>
+<h4>
+시장 위험회피
+</h4>
+<p>
+시장 전체가 위험을 줄이는 국면. 현금·방어 우선.
+</p>
+</div>
+</div>
 <p>하락장은 사람을 작게 만듭니다.</p>
 <p>장이 좋을 때는 누구나 자신감이 있습니다. 제 종목이 오르면 판단이 맞은
 것 같고, 계좌가 빨개지면 실력이 늘어난 것 같습니다. 시장이 제 편에 서

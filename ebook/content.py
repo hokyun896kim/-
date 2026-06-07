@@ -40,6 +40,12 @@ PROLOGUE=[
 ]
 PROLOGUE_KEY="AI에게 종목을 묻는 순간, 저는 정답이 아니라 허락을 찾고 있었습니다."
 
+# 장/부 주제 아이콘 (build/img/*.png)
+CH_ICON={1:"heart",2:"seed",3:"chat_q",4:"gear",5:"scale",6:"cycle",7:"table",8:"sunrise",
+ 9:"notebook",10:"coins",11:"hourglass",12:"compass",13:"surge",14:"umbrella",15:"docmag",
+ 16:"chat_x",17:"chat_check",18:"clipboard",19:"moon"}
+PART_ICON={"1":"part_heart","2":"part_gear","3":"part_table","4":"part_coins","5":"part_surge","6":"part_clipboard"}
+
 # 장별 그래픽 (요소 목록). 핵심 박스 직후에 삽입된다.
 def graphics_for(n):
     G={
@@ -130,8 +136,10 @@ def parse():
     E.append(('toc',))
     # 프롤로그
     E.append(('h1big','prologue','프롤로그  나는 AI에게 종목을 묻지 않기로 했습니다'))
-    E.append(('keysentence', PROLOGUE_KEY))
-    for p in PROLOGUE: E.append(('para', p))
+    E.append(('keysentence', PROLOGUE_KEY, 'chat_q'))
+    E.append(('ornament',))
+    for i,p in enumerate(PROLOGUE):
+        E.append(('para', p, i==0))
     # 본문
     E += parse_body(body_md)
     # 부록
@@ -139,28 +147,32 @@ def parse():
     return E
 
 def parse_body(md):
-    E=[]; buf=[]; cur=None
+    E=[]; buf=[]; cur=None; need_dropcap=[False]
     def flush():
         nonlocal buf
         if buf:
             txt=" ".join(buf).strip()
-            if txt: E.append(('para', txt))
+            if txt:
+                E.append(('para', txt, need_dropcap[0]))
+                need_dropcap[0]=False
             buf=[]
     for blk in split_blocks(md):
         raw=blk.strip()
         if not raw: continue
         m=re.match(r'^# (\d)부\. (.+)$', raw, re.S)
-        if m: flush(); E.append(('part', m.group(1), clean(m.group(2)))); cur=None; continue
+        if m: flush(); E.append(('part', m.group(1), clean(m.group(2)), PART_ICON.get(m.group(1),''))); cur=None; continue
         m=re.match(r'^# 에필로그\. (.+)$', raw, re.S)
-        if m: flush(); E.append(('h1big','epilogue','에필로그  '+clean(m.group(1)))); cur=None; continue
+        if m: flush(); E.append(('h1big','epilogue','에필로그  '+clean(m.group(1)))); cur=None; need_dropcap[0]=True; continue
         m=re.match(r'^## (\d+)장\. (.+)$', raw, re.S)
         if m:
-            flush(); cur=int(m.group(1)); E.append(('chapter', cur, clean(m.group(2)))); continue
+            flush(); cur=int(m.group(1)); E.append(('chapter', cur, clean(m.group(2)), CH_ICON.get(cur,''))); continue
         if raw.startswith("핵심 문장"):
             flush()
             ks=re.sub(r'^핵심\s*문장\s*\|\s*','', clean(raw))  # 정제 후 접두어 제거
-            E.append(('keysentence', ks))
+            E.append(('keysentence', ks, CH_ICON.get(cur,'')))
             for g in graphics_for(cur): E.append(g)
+            E.append(('ornament',))
+            need_dropcap[0]=True
             continue
         if re.match(r'^\*\*[^*]+\*\*$', raw):
             flush(); E.append(('h3', raw.strip('*'))); continue
@@ -203,5 +215,5 @@ def parse_appendix_body(content, letter):
             if items: E.append(('numlist', [clean(x) for x in items])); continue
         text=clean(p)
         if pending: E.append(('prompt', text)); pending=False
-        else: E.append(('para', text))
+        else: E.append(('para', text, False))
     return E

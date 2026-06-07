@@ -16,6 +16,8 @@ TOC=[]
 def esc(s): return html.escape(s)
 
 def render():
+    if not (BUILD/"img"/"heart.png").exists():
+        import make_assets; make_assets.build()
     parts=[]
     for el in C.parse():
         t=el[0]
@@ -34,7 +36,10 @@ def render():
             parts.append("<!--TOC-->")
         elif t=='part':
             anchor=f"part{el[1]}"; TOC.append(("part",anchor,f"{el[1]}부. {el[2]}"))
-            parts.append(f'<h1 class="part" id="{anchor}"><span class="pno">{esc(el[1])}부</span>{esc(el[2])}</h1>')
+            icon=el[3] if len(el)>3 else ''
+            img=f'<img class="partimg" src="build/img/{icon}.png">' if icon else ''
+            parts.append(f'<section class="partpage" id="{anchor}">{img}'
+                         f'<div class="pno">{esc(el[1])}부</div><h1 class="part">{esc(el[2])}</h1></section>')
         elif t=='h1big':
             kind=el[1]; anchor=f"{kind}{len(TOC)}"
             TOC.append((kind,anchor,el[2]))
@@ -43,8 +48,12 @@ def render():
             anchor=f"ch{el[1]}"; TOC.append(("chapter",anchor,f"{el[1]}장. {el[2]}"))
             parts.append(f'<h2 class="chapter" id="{anchor}">{el[1]}장. {esc(el[2])}</h2>')
         elif t=='keysentence':
-            parts.append(f'<div class="keybox"><span class="klabel">이 장의 핵심</span>'
-                         f'<p>{esc(el[1])}</p></div>')
+            icon=el[2] if len(el)>2 else ''
+            ic=f'<img class="kicon" src="build/img/{icon}.png">' if icon else ''
+            parts.append(f'<div class="keybox">{ic}<div class="ktext"><span class="klabel">이 장의 핵심</span>'
+                         f'<p>{esc(el[1])}</p></div></div>')
+        elif t=='ornament':
+            parts.append('<div class="ornament"><img src="build/img/ornament.png"></div>')
         elif t=='callout':
             parts.append(f'<div class="callout"><p class="ctitle">{esc(el[1])}</p><p>{esc(el[2])}</p></div>')
         elif t=='compare':
@@ -72,7 +81,9 @@ def render():
             parts.append(f'<div class="{kind}"><span class="lbl">{esc(label)}</span>'
                          f'<ul class="checklist" style="margin:0">{lis}</ul></div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')
-        elif t=='para': parts.append(f'<p>{esc(el[1])}</p>')
+        elif t=='para':
+            dc=' class="dropcap"' if (len(el)>2 and el[2]) else ''
+            parts.append(f'<p{dc}>{esc(el[1])}</p>')
         elif t=='bullets':
             parts.append('<ul class="bullets">'+''.join(f'<li>{esc(x)}</li>' for x in el[1])+'</ul>')
         elif t=='numlist':

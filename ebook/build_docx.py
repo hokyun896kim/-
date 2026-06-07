@@ -7,14 +7,16 @@ content.parse() 가 만든 요소 목록을 Word 네이티브 표/스타일로 �
 """
 import math, pathlib
 from docx import Document
-from docx.shared import Pt, Mm, RGBColor
+from docx.shared import Pt, Mm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import content as C
 
-BUILD = (pathlib.Path(__file__).resolve().parent / "build"); BUILD.mkdir(exist_ok=True)
+ROOTDIR = pathlib.Path(__file__).resolve().parent
+BUILD = ROOTDIR / "build"; BUILD.mkdir(exist_ok=True)
+IMG = BUILD / "img"
 OUT = BUILD / "book.docx"
 
 NAVY="163B4E"; NAVY2="21566E"; ACCENT="C0894B"; ACCENTD="9C6B33"
@@ -69,12 +71,29 @@ def box(doc,fill,accent=None):
 def spacer(doc,pt=2): doc.add_paragraph().paragraph_format.space_after=Pt(pt)
 
 # ---------- 컴포넌트 ----------
-def keysentence(doc,text):
+def keysentence(doc,text,icon=''):
     c=box(doc,TINT2,ACCENT)
     p=c.paragraphs[0]; p.paragraph_format.space_after=Pt(2); p.paragraph_format.line_spacing=1.2
+    ip=IMG/f"{icon}.png"
+    if icon and ip.exists():
+        r=p.add_run(); r.add_picture(str(ip), width=Mm(5.6)); p.add_run("  ")
     run(p,"이 장의 핵심",font=HEAD,size=8.5,bold=True,color=ACCENTD)
-    p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.4
+    p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.45
     run(p2,text,font=HEAD,size=11,bold=True,color=NAVY); spacer(doc)
+
+def ornament(doc):
+    op=IMG/"ornament.png"
+    p=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=3,after=4)
+    if op.exists(): p.add_run().add_picture(str(op), width=Mm(34))
+    else: run(p,"✦",color=ACCENT,size=11)
+
+def body_para(doc,text,dropcap=False):
+    p=para(doc,WD_ALIGN_PARAGRAPH.JUSTIFY)
+    if dropcap and text:
+        run(p,text[0],font=HEAD,size=22,bold=True,color=ACCENT)
+        run(p,text[1:],size=10.5,color=INK)
+    else:
+        run(p,text,size=10.5,color=INK)
 def callout(doc,title,body):
     c=box(doc,TINT,NAVY)
     p=c.paragraphs[0]; p.paragraph_format.space_after=Pt(3); p.paragraph_format.line_spacing=1.3
@@ -151,9 +170,12 @@ def dodont(doc,label,items,kind):
 def heading2(doc,text):
     h=doc.add_paragraph(style='Heading 2'); h.paragraph_format.page_break_before=True
     run(h,text,font=HEAD,size=15,bold=True,color=NAVY); botborder(h,ACCENT,16); return h
-def part_page(doc,num,title):
-    h=doc.add_paragraph(style='Heading 1'); h.paragraph_format.page_break_before=True
-    h.alignment=WD_ALIGN_PARAGRAPH.CENTER; h.paragraph_format.space_before=Pt(190)
+def part_page(doc,num,title,icon=''):
+    ip=IMG/f"{icon}.png"
+    img_p=doc.add_paragraph(); img_p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    img_p.paragraph_format.page_break_before=True; img_p.paragraph_format.space_before=Pt(135); img_p.paragraph_format.space_after=Pt(10)
+    if icon and ip.exists(): img_p.add_run().add_picture(str(ip), width=Mm(34))
+    h=doc.add_paragraph(style='Heading 1'); h.alignment=WD_ALIGN_PARAGRAPH.CENTER
     run(h,f"{num}부",font=HEAD,size=13,bold=True,color=ACCENT)
     h2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=0); run(h2,title,font=HEAD,size=19,bold=True,color=NAVY)
 
@@ -169,14 +191,17 @@ def add_toc(doc):
 
 # ---------- 빌드 ----------
 def build():
+    if not (IMG/"heart.png").exists():
+        import make_assets; make_assets.build()
     doc=Document()
     sec=doc.sections[0]
     sec.page_width=Mm(152); sec.page_height=Mm(225)
     sec.top_margin=Mm(20); sec.bottom_margin=Mm(20); sec.left_margin=Mm(18); sec.right_margin=Mm(18)
     nm=doc.styles['Normal']; nm.font.name=BODY; nm.font.size=Pt(10.5)
     nm.element.rPr.rFonts.set(qn('w:eastAsia'),BODY)
-    nm.paragraph_format.line_spacing=1.5; nm.paragraph_format.line_spacing_rule=WD_LINE_SPACING.MULTIPLE
-    nm.paragraph_format.space_after=Pt(6)
+    nm.paragraph_format.line_spacing=1.72; nm.paragraph_format.line_spacing_rule=WD_LINE_SPACING.MULTIPLE
+    nm.paragraph_format.space_after=Pt(9)
+    _set(nm.element.get_or_add_rPr(),'w:spacing',**{'w:val':'4'})  # 자간 살짝(≈0.2pt)
     for hn,sz in (('Heading 1',18),('Heading 2',15)):
         st=doc.styles[hn]; st.font.name=HEAD; st.font.size=Pt(sz); st.font.bold=True
         st.font.color.rgb=RGBColor.from_string(NAVY)
@@ -202,10 +227,11 @@ def build():
                 dp=c.add_paragraph(); dp.paragraph_format.space_after=Pt(4); dp.paragraph_format.line_spacing=1.45
                 run(dp,d,size=9.8,color="48433D")
         elif t=='toc': add_toc(doc)
-        elif t=='part': part_page(doc, el[1], el[2])
+        elif t=='part': part_page(doc, el[1], el[2], el[3])
         elif t=='h1big': heading2(doc, el[2])
         elif t=='chapter': heading2(doc, f"{el[1]}장. {el[2]}")
-        elif t=='keysentence': keysentence(doc, el[1])
+        elif t=='keysentence': keysentence(doc, el[1], el[2] if len(el)>2 else '')
+        elif t=='ornament': ornament(doc)
         elif t=='callout': callout(doc, el[1], el[2])
         elif t=='compare': compare(doc, el[1], el[2], el[3])
         elif t=='cards': cards(doc, el[1])
@@ -215,7 +241,7 @@ def build():
         elif t=='h3':
             p=para(doc,before=6,after=2); run(p,el[1],font=HEAD,size=11.5,bold=True,color=NAVY2)
         elif t=='para':
-            p=para(doc,WD_ALIGN_PARAGRAPH.JUSTIFY); run(p,el[1],size=10.5,color=INK)
+            body_para(doc, el[1], el[2] if len(el)>2 else False)
         elif t=='bullets':
             for it in el[1]:
                 bp=para(doc,after=2,indent=4); run(bp,"· ",bold=True,color=ACCENT); run(bp,it,size=10,color=INK)

@@ -28,12 +28,7 @@ def render():
     for el in C.parse():
         t=el[0]
         if t=='cover':
-            parts.append(f'''<section class="cover"><div class="inner">
-              <div class="eyebrow">AI · INVESTING · SYSTEM</div>
-              <h1>나는 AI에게<br>종목을 묻지 않았다</h1><div class="rule"></div>
-              <div class="sub">{esc(C.SUBTITLE)}</div>
-              <div class="key">“{esc(C.KEYLINE)}”</div>
-              <div class="foot">{esc(C.PROJECT)}</div></div></section>''')
+            parts.append('<section class="coverpage"></section>')
         elif t=='disclaimer':
             items="".join(f"<p>{esc(d)}</p>" for d in el[1])
             parts.append(f'<section class="frontmatter"><h2 class="plain">일러두기</h2>'
@@ -89,6 +84,8 @@ def render():
                         for a,b in items)
             parts.append(f'<div class="{kind}"><span class="lbl">{esc(label)}</span>'
                          f'<ul class="checklist" style="margin:0">{lis}</ul></div>')
+        elif t=='pullquote':
+            parts.append(f'<blockquote class="pull"><p>{esc(el[1])}</p></blockquote>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')
         elif t=='para':
             if len(el)>2 and el[2] and el[1]:

@@ -218,6 +218,24 @@ def _keywords(el):
             if len(tok)>=2: out.append(tok)
     return out
 
+_INSIGHT=['아니라','아니었','바뀌','달라졌','배웠','선택권','기준','깨달','중요','보이기 시작','시작했']
+def pick_pullquote(paras, exclude=""):
+    text=" ".join(paras)
+    sents=[s.strip() for s in re.split(r'(?<=다\.)|(?<=요\.)', text) if s.strip()]
+    best=None; bs=-1
+    for s in sents:
+        if not s.endswith('다.'): continue
+        if any(c in s for c in '?“”"'): continue
+        if s==exclude: continue
+        L=len(s)
+        if L<14 or L>44: continue
+        sc=sum(2 for w in _INSIGHT if w in s) - abs(L-25)*0.05
+        if '아니라' in s or '아니었' in s: sc+=1.5
+        if s[:3] in ('그래서','그리고','그러다','하지만','그런데'): sc-=1.2
+        if '이런 식' in s or '이렇게' in s: sc-=1.0
+        if sc>bs: bs=sc; best=s
+    return best if bs>0 else None
+
 def relocate(E):
     out=[]; i=0; n=len(E)
     while i<n:
@@ -247,6 +265,15 @@ def relocate(E):
                     cand=[k for k in front if k not in used] or front
                     best=cand[(vi*len(cand))//max(1,len(vis))]  # 분산
                 used.add(best); placements.append((best,v))
+            # 발췌 인용구(pull-quote): 장 후반(~70%) 별도 문단 옆에
+            ks=next((e[1] for e in region if e[0]=='keysentence'), "")
+            pq=pick_pullquote([rest[k][1] for k in para_idx], exclude=ks)
+            if pq:
+                anchor=para_idx[min(len(para_idx)-1, int(len(para_idx)*0.7))]
+                cand=[k for k in para_idx if k not in used]
+                if cand:
+                    tgt=min(cand, key=lambda k:abs(k-anchor))
+                    used.add(tgt); placements.append((tgt, ('pullquote', pq)))
             for k,v in sorted(placements, key=lambda x:-x[0]):
                 rest.insert(k+1, v)
             region=rest

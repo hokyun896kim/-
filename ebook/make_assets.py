@@ -7,7 +7,7 @@ import pathlib, cairosvg
 
 ROOT=pathlib.Path(__file__).resolve().parent
 IMG=ROOT/"build"/"img"; IMG.mkdir(parents=True, exist_ok=True)
-NAVY="#163B4E"; ACCENT="#C0894B"; CREAM="#F6F1E7"
+NAVY="#163B4E"; ACCENT="#C0894B"; CREAM="#F6F1E7"; FONT="Noto Sans CJK KR"
 
 # 각 아이콘: viewBox 0 0 64 64 내부 마크업. stroke는 {C}로 치환.
 ICONS = {
@@ -89,7 +89,44 @@ def part_badge(name, inner):
          f'transform="translate(9.6 9.6) scale(0.7)">{inner.replace("{C}",NAVY)}</g></svg>')
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/f"part_{name}.png"), output_width=px, output_height=px)
 
+def cover_image():
+    # 신국판 비율 152:225 → 1240x1835
+    Wc,Hc=1240,1835
+    svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="{Wc}" height="{Hc}" viewBox="0 0 {Wc} {Hc}">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+   <stop offset="0" stop-color="#102B39"/><stop offset="0.55" stop-color="#163B4E"/><stop offset="1" stop-color="#23596F"/>
+ </linearGradient>
+ <radialGradient id="glow" cx="0.85" cy="0.12" r="0.5">
+   <stop offset="0" stop-color="#C0894B" stop-opacity="0.40"/><stop offset="1" stop-color="#C0894B" stop-opacity="0"/>
+ </radialGradient>
+</defs>
+<rect width="{Wc}" height="{Hc}" fill="url(#bg)"/>
+<rect width="{Wc}" height="{Hc}" fill="url(#glow)"/>
+<text x="100" y="240" font-family="{FONT}" font-size="30" letter-spacing="10" fill="{ACCENT}" font-weight="700">AI · INVESTING · SYSTEM</text>
+<text x="96" y="350" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">나는 AI에게</text>
+<text x="96" y="452" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">종목을 묻지 않았다</text>
+<rect x="100" y="510" width="150" height="6" fill="{ACCENT}"/>
+<text x="100" y="580" font-family="{FONT}" font-size="34" fill="#D9E4E8">7천만 원에서 2.5억까지,</text>
+<text x="100" y="628" font-family="{FONT}" font-size="34" fill="#D9E4E8">AI 투자 시스템의 시작</text>
+<!-- 중앙 모티프: 말풍선 + 상승 차트 -->
+<g transform="translate(360,820)">
+ <rect x="0" y="0" width="520" height="360" rx="44" fill="#FFFFFF" fill-opacity="0.05" stroke="{ACCENT}" stroke-width="4"/>
+ <path d="M70 360 l-8 60 70 -50" fill="none" stroke="{ACCENT}" stroke-width="4" stroke-linejoin="round"/>
+ <line x1="70" y1="120" x2="70" y2="280" stroke="#9FB4BC" stroke-width="3"/>
+ <line x1="70" y1="280" x2="450" y2="280" stroke="#9FB4BC" stroke-width="3"/>
+ <polyline points="95,250 175,225 255,190 335,140 415,95" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M415 95 l-30 4 14 22 z" fill="{ACCENT}"/>
+ <circle cx="335" cy="140" r="9" fill="{ACCENT}"/>
+ <text x="260" y="60" font-family="{FONT}" font-size="120" font-weight="800" fill="{ACCENT}" text-anchor="middle" opacity="0.9">?</text>
+</g>
+<text x="100" y="1700" font-family="{FONT}" font-size="32" fill="#9FB4BC">도토리 AI 투자위원회</text>
+<text x="100" y="1745" font-family="{FONT}" font-size="24" fill="#7F97A1">개인투자자를 위한 AI 활용 실전 기록</text>
+</svg>'''
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
+
 def build():
+    cover_image()
     for name,inner in ICONS.items():
         render(name, inner, NAVY, 96)        # 본문 키박스용(네이비)
         hero(name, inner)                    # 장 도입부 일러스트

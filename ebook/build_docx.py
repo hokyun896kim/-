@@ -10,6 +10,7 @@ from docx import Document
 from docx.shared import Pt, Mm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.section import WD_SECTION
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import content as C
@@ -219,15 +220,16 @@ def build():
     for el in C.parse():
         t=el[0]
         if t=='cover':
-            for _ in range(4): doc.add_paragraph()
-            p=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=2); run(p,"AI · INVESTING · SYSTEM",font=HEAD,size=11,bold=True,color=ACCENT)
-            p=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=0,line=1.25)
-            run(p,"나는 AI에게\n",font=HEAD,size=28,bold=True,color=NAVY); run(p,"종목을 묻지 않았다",font=HEAD,size=28,bold=True,color=NAVY)
-            pb=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=10,after=10); botborder(pb,ACCENT,24)
-            p=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=14); run(p,C.SUBTITLE,font=HEAD,size=12,color="4A453F")
-            p=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=2); run(p,f"“{C.KEYLINE}”",size=11,italic=True,color=ACCENTD)
-            for _ in range(6): doc.add_paragraph()
-            p=para(doc,WD_ALIGN_PARAGRAPH.CENTER); run(p,C.PROJECT,font=HEAD,size=11,color=MUTED)
+            s0=doc.sections[0]
+            s0.page_width=Mm(152); s0.page_height=Mm(225)
+            s0.top_margin=s0.bottom_margin=s0.left_margin=s0.right_margin=Mm(0)
+            cp=doc.add_paragraph(); cp.alignment=WD_ALIGN_PARAGRAPH.CENTER
+            cp.paragraph_format.space_before=Pt(0); cp.paragraph_format.space_after=Pt(0); cp.paragraph_format.line_spacing=1.0
+            cov=IMG/"cover.png"
+            if cov.exists(): cp.add_run().add_picture(str(cov), width=Mm(152))
+            ns=doc.add_section(WD_SECTION.NEW_PAGE)
+            ns.page_width=Mm(152); ns.page_height=Mm(225)
+            ns.top_margin=Mm(20); ns.bottom_margin=Mm(20); ns.left_margin=Mm(18); ns.right_margin=Mm(18)
         elif t=='disclaimer':
             heading2(doc,"일러두기")
             c=box(doc,"FFFFFF",NAVY); pp=c.paragraphs[0]; pp.paragraph_format.space_after=Pt(4)
@@ -256,6 +258,10 @@ def build():
         elif t=='modebar': modebar(doc, el[1])
         elif t=='flow': flow(doc, el[1])
         elif t=='dodont': dodont(doc, el[1], el[2], el[3])
+        elif t=='pullquote':
+            qm=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=8,after=0,line=1.0); run(qm,"“",font="Georgia",size=30,bold=True,color=ACCENT)
+            pq=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=0,after=2,line=1.4); run(pq,el[1],font=BODY,size=14,italic=True,bold=True,color=NAVY)
+            rl=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=8); rl.paragraph_format.left_indent=Mm(58); rl.paragraph_format.right_indent=Mm(58); botborder(rl,ACCENT,16)
         elif t=='h3':
             p=para(doc,before=6,after=2); run(p,el[1],font=HEAD,size=11.5,bold=True,color=NAVY2)
         elif t=='para':

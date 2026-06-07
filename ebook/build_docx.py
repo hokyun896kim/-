@@ -143,9 +143,9 @@ def compare(doc,headers,rows,good_right,caption=''):
 def cards(doc,items):
     for i,(title,desc) in enumerate(items,1):
         t=doc.add_table(rows=1,cols=2); t.alignment=WD_TABLE_ALIGNMENT.CENTER; nobord(t)
-        bc=t.cell(0,0); shade(bc,ACCENT); vcenter(bc); cmar(bc,60,60,80,80); bc.width=Mm(9)
+        bc=t.cell(0,0); shade(bc,"ECE0C8"); vcenter(bc); cmar(bc,60,60,80,80); bc.width=Mm(8)
         bp=bc.paragraphs[0]; bp.alignment=WD_ALIGN_PARAGRAPH.CENTER; bp.paragraph_format.space_after=Pt(0)
-        run(bp,str(i),font=HEAD,size=10,bold=True,color="FFFFFF")
+        run(bp,str(i),font=HEAD,size=9,bold=True,color=ACCENTD)
         cc=t.cell(0,1); cmar(cc,40,40,150,40); cc.width=Mm(107)
         p=cc.paragraphs[0]; p.paragraph_format.space_after=Pt(1); p.paragraph_format.line_spacing=1.2
         run(p,title,font=HEAD,size=10.5,bold=True,color=NAVY)
@@ -284,6 +284,16 @@ def build():
             qm=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=8,after=0,line=1.0); run(qm,"“",font="Georgia",size=30,bold=True,color=ACCENT)
             pq=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=0,after=2,line=1.4); run(pq,el[1],font=BODY,size=14,italic=True,bold=True,color=NAVY)
             rl=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=8); rl.paragraph_format.left_indent=Mm(58); rl.paragraph_format.right_indent=Mm(58); botborder(rl,ACCENT,16)
+        elif t=='endnote':
+            c=box(doc,"FBF7EF",ACCENT)
+            lp=c.paragraphs[0]; lp.alignment=WD_ALIGN_PARAGRAPH.CENTER; lp.paragraph_format.space_after=Pt(2)
+            run(lp,"이 장의 정리",font=HEAD,size=8,bold=True,color=ACCENTD)
+            ep=c.add_paragraph(); ep.alignment=WD_ALIGN_PARAGRAPH.CENTER; ep.paragraph_format.space_after=Pt(0); ep.paragraph_format.line_spacing=1.45
+            run(ep,el[1],font=HEAD,size=11,bold=True,color=NAVY); spacer(doc)
+        elif t=='apxnote':
+            c=box(doc,TINT,NAVY2)
+            ap=c.paragraphs[0]; ap.paragraph_format.space_after=Pt(0); ap.paragraph_format.line_spacing=1.5
+            run(ap,"사용법  ",font=HEAD,size=8,bold=True,color=NAVY2); run(ap,el[1],size=9.6,color="3A4A46"); spacer(doc)
         elif t=='h3':
             p=para(doc,before=6,after=2); run(p,el[1],font=HEAD,size=11.5,bold=True,color=NAVY2)
         elif t=='para':

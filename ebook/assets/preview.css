@@ -79,6 +79,17 @@ blockquote.pull p{margin:0;font-family:"Noto Serif CJK KR";font-style:italic;fon
  font-size:15pt;line-height:1.55;color:var(--navy);text-align:center}
 blockquote.pull::after{content:"";display:block;width:16mm;height:2px;background:var(--accent);margin:4mm auto 0}
 
+.endnote{margin:7mm 0 2mm;padding:3.5mm 5mm;border-top:2px solid var(--accent);border-bottom:1px solid var(--line);
+ background:#FBF7EF;page-break-inside:avoid;text-align:center}
+.endnote .enlabel{display:block;font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;letter-spacing:.08em;
+ color:var(--accentd);margin-bottom:2mm}
+.endnote p{margin:0;font-family:"Noto Sans CJK KR";font-weight:700;font-size:11pt;color:var(--navy);line-height:1.5;text-align:center}
+
+.apxnote{margin:4mm 0 5mm;padding:3.5mm 4.5mm;background:var(--tint);border-left:4px solid var(--navy2);
+ border-radius:8px;font-size:9.6pt;color:#3a4a46;line-height:1.6}
+.apxnote .anlabel{font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;letter-spacing:.06em;
+ color:var(--navy2);margin-right:2.5mm}
+
 .callout{border:1px solid var(--line);border-left:4px solid var(--navy);background:#fff;border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
 .callout .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:10pt;margin:0 0 2mm}
 .callout .ctitle::before{content:"● ";color:var(--accent);font-size:8pt}
@@ -99,9 +110,9 @@ p.tcap::before{content:"→ "}
 .card{display:inline-block;width:48%;vertical-align:top;font-size:10.5pt;border:1px solid var(--line);border-radius:8px;
  background:#FCFBF8;padding:3.2mm 3.6mm;margin:0 0 2.5mm;page-break-inside:avoid}
 .card:nth-child(odd){margin-right:3%}
-.card .cidx{font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;color:#fff;background:var(--accent);
- border-radius:20px;padding:.3mm 2.3mm;display:inline-block;margin-bottom:1.5mm}
-.card h4{font-family:"Noto Sans CJK KR";color:var(--navy);margin:0 0 1mm;font-size:10.5pt}
+.card .cidx{font-family:"Noto Sans CJK KR";font-weight:800;font-size:7pt;color:var(--accentd);background:#ECE0C8;
+ border-radius:20px;padding:.2mm 2mm;display:inline-block;margin-bottom:1.5mm}
+.card h4{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:0 0 1mm;font-size:10.5pt}
 .card p{margin:0;font-size:9pt;color:#3A3631;line-height:1.4}
 
 .modebar{margin:5mm 0;font-size:0;page-break-inside:avoid}

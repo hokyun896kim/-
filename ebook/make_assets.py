@@ -107,10 +107,10 @@ def cover_image():
 <text x="96" y="350" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">나는 AI에게</text>
 <text x="96" y="452" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">종목을 묻지 않았다</text>
 <rect x="100" y="510" width="150" height="6" fill="{ACCENT}"/>
-<text x="100" y="580" font-family="{FONT}" font-size="34" fill="#D9E4E8">7천만 원에서 2.5억까지,</text>
-<text x="100" y="628" font-family="{FONT}" font-size="34" fill="#D9E4E8">AI 투자 시스템의 시작</text>
+<text x="100" y="586" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">7천만 원에서 2.5억까지,</text>
+<text x="100" y="642" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">AI 투자 시스템의 시작</text>
 <!-- 중앙 모티프: 말풍선 + 상승 차트 -->
-<g transform="translate(360,820)">
+<g transform="translate(360,760)">
  <rect x="0" y="0" width="520" height="360" rx="44" fill="#FFFFFF" fill-opacity="0.05" stroke="{ACCENT}" stroke-width="4"/>
  <path d="M70 360 l-8 60 70 -50" fill="none" stroke="{ACCENT}" stroke-width="4" stroke-linejoin="round"/>
  <line x1="70" y1="120" x2="70" y2="280" stroke="#9FB4BC" stroke-width="3"/>
@@ -120,8 +120,8 @@ def cover_image():
  <circle cx="335" cy="140" r="9" fill="{ACCENT}"/>
  <text x="260" y="60" font-family="{FONT}" font-size="120" font-weight="800" fill="{ACCENT}" text-anchor="middle" opacity="0.9">?</text>
 </g>
-<text x="100" y="1700" font-family="{FONT}" font-size="32" fill="#9FB4BC">도토리 AI 투자위원회</text>
-<text x="100" y="1745" font-family="{FONT}" font-size="24" fill="#7F97A1">개인투자자를 위한 AI 활용 실전 기록</text>
+<text x="100" y="1695" font-family="{FONT}" font-size="38" font-weight="700" fill="#B7C6CC">도토리 AI 투자위원회</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#8EA2AB">개인투자자를 위한 AI 활용 실전 기록</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
 

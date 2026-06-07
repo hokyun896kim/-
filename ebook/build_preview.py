@@ -106,6 +106,11 @@ def render():
                          f'<ul class="checklist" style="margin:0">{lis}</ul></div>')
         elif t=='pullquote':
             parts.append(f'<blockquote class="pull"><p>{esc(el[1])}</p></blockquote>')
+        elif t=='endnote':
+            parts.append(f'<div class="endnote"><span class="enlabel">이 장의 정리</span>'
+                         f'<p>{esc(el[1])}</p></div>')
+        elif t=='apxnote':
+            parts.append(f'<div class="apxnote"><span class="anlabel">사용법</span>{esc(el[1])}</div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')
         elif t=='para':
             if len(el)>2 and el[2] and el[1]:   # 장 첫 문단: 짧고 깔끔한 첫 문장만 굵게

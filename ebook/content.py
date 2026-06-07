@@ -77,6 +77,13 @@ CH_FIGURE={
  19:("fig_19","계좌만 보지 않고 하루를 기록하면, 오늘이 내일로 이어진다."),
 }
 GVIS={'figure','compare','cards','flow','modebar','dodont'}  # 본문 중간으로 재배치 대상
+APPENDIX_USAGE={
+ "A":"1부 독자가 바로 써볼 수 있는 기본 질문입니다. 종목·시장·계좌 상황에 맞게 골라, 결론을 재촉하지 말고 ‘무엇을 확인할지’를 묻는 데 쓰세요.",
+ "B":"장 시작 전 5분, 오늘이 공격할 날인지 지킬 날인지 ‘태도’를 먼저 정하는 용도입니다. 모두 채우기보다 오늘의 한 줄 판단을 잡는 데 목적이 있습니다.",
+ "C":"장 마감 후, 수익률이 아니라 ‘오늘 판단의 질’을 남기는 기록지입니다. 매일 같은 양식으로 쌓으면 하루의 등락이 흐름으로 보이기 시작합니다.",
+ "D":"매수 버튼을 누르기 전 3분 동안 쓰는 용도입니다. 완벽히 채우기보다, 지금 내가 감정으로 매수하려는 건 아닌지 확인하는 데 목적이 있습니다.",
+ "E":"매도 버튼을 누르기 전 쓰는 용도입니다. 공포로 도망치는 매도인지, 기준에 따른 매도인지 구분하는 데 목적이 있습니다.",
+}
 
 # 장별 그래픽 (요소 목록). 핵심 박스 직후에 삽입된다.
 def graphics_for(n):
@@ -95,7 +102,12 @@ def graphics_for(n):
        ('cards',[("확증 편향","듣고 싶은 답만 골라 듣는다."),
                  ("책임 전가","틀리면 AI 탓으로 돌린다."),
                  ("맥락 상실","내 계좌·기준이 빠진 답을 받는다."),
-                 ("허락받기","판단이 아니라 안심을 산다.")])],
+                 ("허락받기","판단이 아니라 안심을 산다.")]),
+       ('compare',("","AI를 잘못 쓰는 방식","AI를 제대로 쓰는 방식"),
+        [("","결론을 요구한다","판단 구조를 요구한다"),
+         ("","확신을 얻으려 한다","빠뜨린 질문을 찾는다"),
+         ("","종목명을 던진다","조건과 반증을 나눈다"),
+         ("","허락을 구한다","기준을 만든다")],True,"AI는 결론이 아니라 ‘판단 구조’를 물을 때 쓸모가 커집니다.")],
     6:[('callout',"이 장을 한눈에 — 종목보다 시장·섹터가 먼저 움직인다","돈은 늘 어딘가로 이동합니다. 위에서 아래로 흐름을 읽으면 종목이 다르게 보입니다."),
        ('flow',[("시장","위험선호인가, 위험회피인가 — 큰 방향"),
                 ("섹터","돈이 지금 어느 업종으로 이동하는가"),
@@ -227,14 +239,16 @@ def _keywords(el):
     return out
 
 _INSIGHT=['아니라','아니었','바뀌','달라졌','배웠','선택권','기준','깨달','중요','보이기 시작','시작했']
-def pick_pullquote(paras, exclude=""):
+def pick_pullquote(paras, exclude=()):
+    if isinstance(exclude,str): exclude=(exclude,)
+    exclude=set(x for x in exclude if x)
     text=" ".join(paras)
     sents=[s.strip() for s in re.split(r'(?<=다\.)|(?<=요\.)', text) if s.strip()]
     best=None; bs=-1
     for s in sents:
         if not s.endswith('다.'): continue
         if any(c in s for c in '?“”"'): continue
-        if s==exclude: continue
+        if s in exclude: continue
         L=len(s)
         if L<14 or L>44: continue
         sc=sum(2 for w in _INSIGHT if w in s) - abs(L-25)*0.05
@@ -293,6 +307,10 @@ def relocate(E):
             for k,v in sorted(placements, key=lambda x:-x[0]):
                 rest.insert(k+1, v)
             region=rest
+            # 장 끝 '한 줄 정리' — 후반부에서 닫는 문장 한 줄 발췌
+            tail=[rest[k][1] for k in range(len(rest)) if rest[k][0]=='para'][-4:]
+            end=pick_pullquote(tail, exclude=(ks, pq))
+            if end: region=region+[('endnote', end)]
         out.append(el); out.extend(region); i=j
     return out
 
@@ -343,6 +361,7 @@ def parse_appendix(md):
         content=next(it)
         letter=title.split()[1].rstrip('.')
         E.append(('h1big','appendix', clean(title.strip()), 'clipboard'))
+        if letter in APPENDIX_USAGE: E.append(('apxnote', APPENDIX_USAGE[letter]))
         E += parse_appendix_body(content, letter)
     return E
 

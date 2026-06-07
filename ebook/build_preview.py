@@ -82,8 +82,11 @@ def render():
                          f'<ul class="checklist" style="margin:0">{lis}</ul></div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')
         elif t=='para':
-            dc=' class="dropcap"' if (len(el)>2 and el[2]) else ''
-            parts.append(f'<p{dc}>{esc(el[1])}</p>')
+            if len(el)>2 and el[2] and el[1]:
+                first=esc(el[1][0]); rest=esc(el[1][1:])
+                parts.append(f'<p class="dropcap"><span class="dc">{first}</span>{rest}</p>')
+            else:
+                parts.append(f'<p>{esc(el[1])}</p>')
         elif t=='bullets':
             parts.append('<ul class="bullets">'+''.join(f'<li>{esc(x)}</li>' for x in el[1])+'</ul>')
         elif t=='numlist':

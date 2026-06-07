@@ -155,6 +155,8 @@ ul.bullets{margin:1mm 0 3mm;padding-left:5mm}ul.bullets li{font-size:9.6pt;paddi
 ul.numlist{list-style:none;margin:2mm 0 3mm;padding-left:1mm}
 ul.numlist li{font-size:9.8pt;padding:.7mm 0 .7mm 6mm;text-indent:-6mm;text-align:left;line-height:1.5}
 ul.numlist .ln{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--accentd);margin-right:1.5mm}
-.fillline{text-align:left}
+.fillline{text-align:left;page-break-before:avoid;page-break-inside:avoid}
 .fillrule{border:0;border-bottom:1px dotted var(--line);margin:1.5mm 0;height:0}
-.writeline{border-bottom:1px solid #D3CCBD;height:0;margin:4mm 4mm 4mm 2mm;page-break-before:avoid}
+.writeline{border-bottom:1px solid #D3CCBD;height:0;margin:4mm 4mm 4mm 2mm;page-break-before:avoid;page-break-inside:avoid}
+h3{page-break-after:avoid}
+ul.bullets,ul.numlist{page-break-inside:avoid}

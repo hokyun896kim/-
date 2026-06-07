@@ -301,6 +301,7 @@ def build():
             run(ap,"사용법  ",font=HEAD,size=8,bold=True,color=NAVY2); run(ap,el[1],size=9.6,color="3A4A46"); spacer(doc)
         elif t=='h3':
             p=para(doc,before=6,after=2); run(p,el[1],font=HEAD,size=11.5,bold=True,color=NAVY2)
+            p.paragraph_format.keep_with_next=True
         elif t=='para':
             body_para(doc, el[1], el[2] if len(el)>2 else False)
         elif t=='bullets':
@@ -309,9 +310,12 @@ def build():
         elif t=='numlist':
             for num,it in el[1]:
                 bp=para(doc,after=2,indent=4); run(bp,f"{num}. ",bold=True,color=ACCENTD); run(bp,it,size=10,color=INK)
+        elif t=='fill':
+            fp=para(doc,before=2,after=2); run(fp,el[1]+" ",font=HEAD,size=9,color=MUTED); botborder(fp,LINE,6)
+            fp.paragraph_format.keep_with_next=True; fp.paragraph_format.keep_together=True
         elif t=='writeline':
             wl=para(doc,before=1,after=3); wl.paragraph_format.left_indent=Mm(2); wl.paragraph_format.right_indent=Mm(2)
-            botborder(wl, "C9C2B4", 6)
+            botborder(wl, "C9C2B4", 6); wl.paragraph_format.keep_with_next=True; wl.paragraph_format.keep_together=True
         elif t=='cat':
             cp=para(doc,before=8,after=3); botborder(cp,ACCENT,12)
             run(cp,f" {el[1]}  ",font=HEAD,size=9,bold=True,color="FFFFFF")
@@ -320,14 +324,12 @@ def build():
             qmode,num,text=el[1],el[2],el[3]
             qp=para(doc,before=5,after=2)
             run(qp,("Q"+num+" " if qmode else num+". "),font=HEAD,size=10.5,bold=True,color=ACCENTD)
-            run(qp,text,font=HEAD,size=10.5,bold=True,color=INK)
+            run(qp,text,font=HEAD,size=10.5,bold=True,color=INK); qp.paragraph_format.keep_with_next=True
         elif t=='prompt':
             c=box(doc,PROMPTBG,NAVY2); tp=c.paragraphs[0]; tp.paragraph_format.space_after=Pt(2)
             run(tp,"붙여넣을 프롬프트",font=HEAD,size=7.8,bold=True,color=NAVY2)
             bp=c.add_paragraph(); bp.paragraph_format.space_after=Pt(0); bp.paragraph_format.line_spacing=1.4
             run(bp,el[1],size=9.6,color="33433F"); spacer(doc,1)
-        elif t=='fill':
-            fp=para(doc,before=2,after=2); run(fp,el[1]+" ",font=HEAD,size=9,color=MUTED); botborder(fp,LINE,6)
 
     doc.save(str(OUT)); print("[ok] DOCX →", OUT)
 

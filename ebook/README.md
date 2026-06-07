@@ -19,6 +19,8 @@ MS Word 원고(`.docx`)를 **시인성 좋은 책**으로 변환하는 파이프
 - `build_docx.py` — 요소 목록 → Word(.docx). 콜아웃·비교표·카드·흐름도·모드바·Do/Dont를 네이티브 표로.
 - `build_preview.py` — 요소 목록 → HTML → PDF(WeasyPrint). 시각 확인용.
 - `make_assets.py` — 라인 일러스트(아이콘 20종)·부 표제지 그림·장식 구분선을 SVG→PNG로 생성(`build/img/`).
+- `concept_diagrams.py` — 장별 **개념 도식(설명 삽화) 19종**(진자·갈림길·순환·게이지·부채꼴·모래시계·도넛·타임라인 등)을 SVG→PNG로 생성.
+  `content.relocate()`가 각 도식·인포그래픽을 **그 내용이 나오는 본문 문단 옆**(키워드 매칭)으로 자동 배치.
 - `assets/preview.css` — 미리보기 디자인(Word와 동일 콘셉트).
 
 ## 편집 방침 (v1.1 기준)

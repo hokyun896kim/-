@@ -1,0 +1,77 @@
+/* ============================================================
+   EPUB 스타일 — 리플로우(reflow) 대응. 고정폭/페이지 규칙 배제.
+   ============================================================ */
+body {
+  font-family: serif;
+  line-height: 1.8;
+  color: #232020;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  margin: 0 5%;
+}
+p { margin: 0 0 0.8em; text-align: justify; text-indent: 0; }
+strong { color: #163B4E; }
+em { font-style: normal; background: #F4E3C2; }
+
+h1 { font-family: sans-serif; color: #163B4E; line-height: 1.4; text-align: center;
+     page-break-before: always; margin: 1.2em 0; }
+h2 { font-family: sans-serif; color: #163B4E; line-height: 1.4;
+     page-break-before: always; margin: 1em 0 0.6em; border-bottom: 2px solid #C0894B; padding-bottom: .3em; }
+h2 .cnum { display:block; font-size:.6em; letter-spacing:.2em; color:#C0894B; margin-bottom:.4em; }
+h3 { font-family: sans-serif; color: #21566E; }
+
+blockquote.closer {
+  background:#F6F1E7; border-radius:8px; padding:1em 1.1em; margin:1.4em 0;
+  font-weight:600; color:#163B4E; border:0;
+}
+blockquote.closer p { margin:0; text-align:left; }
+blockquote { border-left:3px solid #C0894B; padding:.3em 1em; color:#4a453f; margin:1em 0; }
+blockquote p { text-align:left; }
+
+.callout { border:1px solid #DED8CC; border-left:4px solid #163B4E; background:#fff;
+  border-radius:8px; padding:1em 1.1em; margin:1.2em 0; }
+.callout .ctitle { font-family:sans-serif; font-weight:700; color:#163B4E; margin:0 0 .5em; }
+
+table { width:100%; border-collapse:collapse; margin:1.2em 0; font-size:.92em; }
+thead th { background:#163B4E; color:#fff; font-family:sans-serif; text-align:left; padding:.5em .6em; }
+tbody td, tbody th { border-bottom:1px solid #DED8CC; padding:.5em .6em; vertical-align:top; text-align:left; }
+tbody th { font-family:sans-serif; color:#163B4E; }
+table.compare .col-good { background:#F0F5F1; }
+table.compare .col-bad  { background:#F8EFE9; }
+
+.cardgrid { margin:1.2em 0; }
+.card { border:1px solid #DED8CC; border-radius:8px; background:#fff; padding:.8em 1em; margin:.6em 0; }
+.card .cidx { font-family:sans-serif; font-weight:700; color:#fff; background:#C0894B;
+  border-radius:12px; padding:.05em .7em; font-size:.8em; }
+.card h4 { font-family:sans-serif; color:#163B4E; margin:.4em 0 .3em; }
+.card p { margin:0; }
+
+.flow .step { margin:0 0 .9em; padding-left:1.6em; position:relative; }
+.flow .dot { position:absolute; left:0; top:0; width:1.4em; height:1.4em; line-height:1.4em;
+  text-align:center; border-radius:50%; background:#163B4E; color:#fff; font-family:sans-serif; font-weight:700; font-size:.85em; }
+.flow .body h4 { font-family:sans-serif; color:#163B4E; margin:0 0 .2em; }
+.flow .body p { margin:0; }
+
+.modebar .mode { border:1px solid #DED8CC; border-radius:6px; padding:.5em; margin:.3em 0; font-family:sans-serif; }
+.modebar .mode b { color:#9C6B33; }
+
+.dont { background:#F8EFE9; border:1px solid #E6CFC4; border-radius:8px; padding:.8em 1em; margin:.8em 0; }
+.do   { background:#EEF4F0; border:1px solid #CFE0D6; border-radius:8px; padding:.8em 1em; margin:.8em 0; }
+.dont .lbl { font-family:sans-serif; font-weight:700; color:#A6433B; display:block; margin-bottom:.4em; }
+.do .lbl   { font-family:sans-serif; font-weight:700; color:#2F6F5E; display:block; margin-bottom:.4em; }
+
+.checklist { list-style:none; padding:0; }
+.checklist li { padding:.4em 0 .4em 1.6em; border-bottom:1px solid #DED8CC; position:relative; }
+.checklist li::before { content:"\2610"; position:absolute; left:0; color:#21566E; font-size:1.2em; }
+.qnum { font-family:sans-serif; font-weight:700; color:#9C6B33; }
+.chips span { font-family:sans-serif; font-size:.8em; border:1px solid #DED8CC; border-radius:12px;
+  padding:.05em .6em; margin-right:.3em; color:#21566E; }
+.fillline { color:#6E6A63; font-family:sans-serif; font-size:.85em; }
+
+.apx-cat { font-family:sans-serif; font-weight:700; color:#163B4E; border-bottom:2px solid #C0894B;
+  padding-bottom:.2em; margin:1.4em 0 .6em; }
+.apx-cat span { background:#163B4E; color:#fff; border-radius:50%; padding:0 .5em; margin-right:.4em; }
+.apx-q { font-family:sans-serif; font-weight:700; margin:.9em 0 .3em; }
+.prompt { background:#EEF3F2; border:1px solid #D7E2DF; border-radius:8px; padding:.8em 1em; margin:0 0 .8em; }
+.prompt .ptag { display:block; font-family:sans-serif; font-size:.75em; letter-spacing:.1em; color:#21566E; margin-bottom:.4em; }
+ul.bullets, ol.numlist { margin:.4em 0 .8em; }

@@ -243,6 +243,13 @@ def build():
         elif t=='chapter': opener(doc, el[3] if len(el)>3 else '', f"CHAPTER {el[1]}", f"{el[1]}장. {el[2]}")
         elif t=='keysentence': keysentence(doc, el[1], el[2] if len(el)>2 else '')
         elif t=='ornament': ornament(doc)
+        elif t=='figure':
+            fp=IMG/f"{el[1]}.png"
+            if fp.exists():
+                pic=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=3,after=1)
+                pic.add_run().add_picture(str(fp), width=Mm(116))
+            if len(el)>2 and el[2]:
+                cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6); run(cap,el[2],font=HEAD,size=8.5,color=MUTED)
         elif t=='callout': callout(doc, el[1], el[2])
         elif t=='compare': compare(doc, el[1], el[2], el[3])
         elif t=='cards': cards(doc, el[1])

@@ -60,6 +60,9 @@ def render():
                          f'<p>{esc(el[1])}</p></div></div>')
         elif t=='ornament':
             parts.append('<div class="ornament"><img src="build/img/ornament.png"></div>')
+        elif t=='figure':
+            cap=f'<figcaption>{esc(el[2])}</figcaption>' if len(el)>2 and el[2] else ''
+            parts.append(f'<figure class="cfig"><img src="build/img/{el[1]}.png">{cap}</figure>')
         elif t=='callout':
             parts.append(f'<div class="callout"><p class="ctitle">{esc(el[1])}</p><p>{esc(el[2])}</p></div>')
         elif t=='compare':

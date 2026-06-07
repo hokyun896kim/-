@@ -46,6 +46,14 @@ CH_ICON={1:"heart",2:"seed",3:"chat_q",4:"gear",5:"scale",6:"cycle",7:"table",8:
  16:"chat_x",17:"chat_check",18:"clipboard",19:"moon"}
 PART_ICON={"1":"part_heart","2":"part_gear","3":"part_table","4":"part_coins","5":"part_surge","6":"part_clipboard"}
 
+# 본문 중간에 들어갈 개념도(설명 삽화). 스타일 검증용 1·5·6장 우선.
+CH_FIGURE={
+ 1:("fig_1","진짜 적은 시장이 아니라, 욕심과 공포 사이에서 흔들리는 ‘나’다."),
+ 5:("fig_5","좋은 기업과 좋은 주식은 다르다 — 기대가 가격에 이미 반영됐는지를 본다."),
+ 6:("fig_6","종목보다 시장·섹터가 먼저다 — 돈의 흐름을 위에서 아래로 읽는다."),
+}
+GVIS={'figure','compare','cards','flow','modebar','dodont'}  # 본문 중간으로 재배치 대상
+
 # 장별 그래픽 (요소 목록). 핵심 박스 직후에 삽입된다.
 def graphics_for(n):
     G={
@@ -125,19 +133,18 @@ def graphics_for(n):
          ("분리해 묻기","“좋은 기업인지와 좋은 주식인지 나눠줘”"),
          ("반증을 묻기","“이 판단이 틀렸다고 볼 조건은?”"),
          ("선택지로 묻기","“추격·눌림대기·관찰·보내기 중 어디?”")],"do")],
-    18:[('callout',"이 장을 한눈에 — 장전 5분, 종목보다 ‘태도’를 먼저","장이 열리기 전 다섯 가지만 정해두면 장중 충동이 크게 줄어듭니다."),
-        ('flow',[("오늘의 태도","공격·정찰·유지·감량·현금대기 중 하나"),
+    18:[('flow',[("오늘의 태도","공격·정찰·유지·감량·현금대기 중 하나"),
                  ("밤사이 글로벌","미국·금리·환율 분위기 확인"),
                  ("유리한 쪽","코스피·코스닥·대형·성장·방어 중 어디"),
                  ("오늘 볼 섹터 3개","내가 좋아하는 게 아니라 시장이 볼 섹터"),
                  ("계좌 점검","내 비중과 오늘 시장 방향이 맞는가")])],
-    19:[('callout',"이 장을 한눈에 — 계좌는 결과를, 기록은 이유를 남긴다","장마감엔 수익률이 아니라 ‘오늘 판단의 질’을 남깁니다."),
-        ('compare',("","계좌만 볼 때","기록할 때"),
+    19:[('compare',("","계좌만 볼 때","기록할 때"),
         [("무엇을 보나","수익률 숫자","오늘 판단의 질"),
          ("남는 것","기분(좋다·나쁘다)","이유와 교훈"),
          ("내일","또 즉흥 매매","확인할 체크포인트 3개")],True)],
     }
-    return G.get(n, [])
+    # 콜아웃(요약 박스)은 제외하고 시각 인포그래픽만 본문 중간에 배치
+    return [g for g in G.get(n, []) if g[0]!='callout']
 
 # ---------- 텍스트 정제 ----------
 def clean(t):
@@ -179,7 +186,55 @@ def parse():
     E += parse_body(body_md)
     # 부록
     E += parse_appendix(appendix_md)
-    return E
+    return relocate(E)
+
+# ---------- 인포그래픽/삽화를 '관련 문단' 옆으로 재배치 ----------
+def _keywords(el):
+    t=el[0]; ks=[]
+    if t=='compare': ks=[el[1][1],el[1][2]]+[r[0] for r in el[2]]+[c for r in el[2] for c in r[1:]]
+    elif t in ('cards','flow','modebar'): ks=[x[0] for x in el[1]]
+    elif t=='dodont': ks=[x[0] for x in el[2]]
+    elif t=='figure': ks=[el[2]]
+    out=[]
+    for k in ks:
+        k=re.sub(r'[“”"\'(),.?·—×✕✓≠]',' ',k)
+        for tok in k.split():
+            if len(tok)>=2: out.append(tok)
+    return out
+
+def relocate(E):
+    out=[]; i=0; n=len(E)
+    while i<n:
+        el=E[i]
+        if el[0]!='chapter':
+            out.append(el); i+=1; continue
+        j=i+1
+        region=[]
+        while j<n and E[j][0] not in ('chapter','part','h1big'):
+            region.append(E[j]); j+=1
+        vis=[e for e in region if e[0] in GVIS]
+        rest=[e for e in region if e[0] not in GVIS]
+        para_idx=[k for k,e in enumerate(rest) if e[0]=='para']
+        if vis and para_idx:
+            used=set(); placements=[]
+            for v in vis:
+                kws=_keywords(v)
+                best=None; bs=-1
+                for k in para_idx:
+                    if k==para_idx[0]: continue  # 첫 문단(드롭캡) 바로 뒤는 피함
+                    sc=sum(rest[k][1].count(w) for w in kws)
+                    if sc>bs and k not in used: bs=sc; best=k
+                if best is None or bs<=0:
+                    # 폴백: 문단들에 고르게 분산
+                    cand=[k for k in para_idx[1:] if k not in used] or para_idx[1:] or para_idx
+                    best=cand[len(cand)//2]
+                used.add(best); placements.append((best,v))
+            # 인덱스 큰 것부터 삽입(인덱스 보존)
+            for k,v in sorted(placements, key=lambda x:-x[0]):
+                rest.insert(k+1, v)
+            region=rest
+        out.append(el); out.extend(region); i=j
+    return out
 
 def parse_body(md):
     E=[]; buf=[]; cur=None; need_dropcap=[False]
@@ -206,6 +261,8 @@ def parse_body(md):
             ks=re.sub(r'^핵심\s*문장\s*\|\s*','', clean(raw))  # 정제 후 접두어 제거
             E.append(('keysentence', ks, CH_ICON.get(cur,'')))
             for g in graphics_for(cur): E.append(g)
+            if cur in CH_FIGURE:
+                fig=CH_FIGURE[cur]; E.append(('figure', fig[0], fig[1]))
             E.append(('ornament',))
             need_dropcap[0]=True
             continue

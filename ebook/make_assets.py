@@ -96,6 +96,7 @@ def build():
     ornament()
     for name in ("heart","gear","table","coins","surge","clipboard"):
         part_badge(name, ICONS[name])
+    import concept_diagrams; concept_diagrams.build()
     print("[ok] assets →", IMG, "(", len(list(IMG.glob('*.png'))), "files )")
 
 if __name__=="__main__":

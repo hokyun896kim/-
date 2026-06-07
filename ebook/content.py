@@ -232,20 +232,21 @@ def relocate(E):
         rest=[e for e in region if e[0] not in GVIS]
         para_idx=[k for k,e in enumerate(rest) if e[0]=='para']
         if vis and para_idx:
+            # 후보 문단: 첫 문단(드롭캡) 제외 + 앞~중간(앞 50%)으로 제한 → 너무 뒤로 안 감
+            hi=max(3, int(len(para_idx)*0.5))
+            front=para_idx[1:hi] or para_idx[1:] or para_idx
             used=set(); placements=[]
-            for v in vis:
+            for vi,v in enumerate(vis):
                 kws=_keywords(v)
                 best=None; bs=-1
-                for k in para_idx:
-                    if k==para_idx[0]: continue  # 첫 문단(드롭캡) 바로 뒤는 피함
+                for k in front:
+                    if k in used: continue
                     sc=sum(rest[k][1].count(w) for w in kws)
-                    if sc>bs and k not in used: bs=sc; best=k
+                    if sc>bs: bs=sc; best=k
                 if best is None or bs<=0:
-                    # 폴백: 문단들에 고르게 분산
-                    cand=[k for k in para_idx[1:] if k not in used] or para_idx[1:] or para_idx
-                    best=cand[len(cand)//2]
+                    cand=[k for k in front if k not in used] or front
+                    best=cand[(vi*len(cand))//max(1,len(vis))]  # 분산
                 used.add(best); placements.append((best,v))
-            # 인덱스 큰 것부터 삽입(인덱스 보존)
             for k,v in sorted(placements, key=lambda x:-x[0]):
                 rest.insert(k+1, v)
             region=rest

@@ -66,9 +66,13 @@ h3{font-family:"Noto Sans CJK KR";color:var(--navy2);font-size:12pt;margin:6mm 0
 .keybox p{margin:0;font-family:"Noto Sans CJK KR";font-size:11pt;font-weight:700;color:var(--navy);line-height:1.5;text-align:left}
 .ornament{text-align:center;margin:5mm 0 4mm;page-break-after:avoid}
 .ornament img{width:38mm;opacity:.9}
-figure.cfig{margin:5mm 0;text-align:center;page-break-inside:avoid}
-figure.cfig img{width:100%;max-width:116mm}
-figure.cfig figcaption{font-family:"Noto Sans CJK KR";font-size:8.6pt;color:var(--muted);margin-top:2mm;line-height:1.4}
+figure.cfig{margin:6mm 0;text-align:center;page-break-inside:avoid}
+figure.cfig img{width:100%;max-width:118mm;border-radius:9px;
+ box-shadow:0 2px 7px rgba(22,59,78,.10), 0 0 0 1px rgba(193,137,75,.10)}
+figure.cfig figcaption{font-family:"Noto Serif CJK KR";font-style:italic;font-size:8.8pt;color:var(--accentd);
+ margin-top:2.5mm;line-height:1.45}
+figure.cfig figcaption::before{content:"— ";color:var(--accent)}
+figure.cfig figcaption::after{content:" —";color:var(--accent)}
 
 .callout{border:1px solid var(--line);border-left:4px solid var(--navy);background:#fff;border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
 .callout .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:10pt;margin:0 0 2mm}

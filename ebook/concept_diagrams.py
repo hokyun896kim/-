@@ -61,23 +61,25 @@ def two_path(name,ttl,llabel,lpts,rlabel,rpts,note):  # 갈림길(하락 vs 상�
     _png(name,"".join(b),H)
 
 def cycle(name,ttl,nodes,note):  # 순환(악순환/선순환)
-    H=380; cx,cy,r=450,205,118
-    b=[title(ttl)]
-    k=len(nodes)
-    pts=[]
-    for i,nd in enumerate(nodes):
+    cx,cy,r,nr=450,206,104,42; H=400
+    b=[title(ttl)]; k=len(nodes); pts=[]
+    for i in range(k):
         a=-math.pi/2+2*math.pi*i/k
-        x=cx+r*math.cos(a); y=cy+r*math.sin(a); pts.append((x,y))
-    # 화살표 호
+        pts.append((cx+r*math.cos(a), cy+r*math.sin(a)))
     for i in range(k):
         x1,y1=pts[i]; x2,y2=pts[(i+1)%k]
-        b.append(f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}" y2="{y2:.0f}" stroke="{ACCENT}" stroke-width="2" opacity="0.7"/>')
+        dx,dy=x2-x1,y2-y1; L=math.hypot(dx,dy); ux,uy=dx/L,dy/L
+        sx,sy=x1+ux*nr,y1+uy*nr; ex,ey=x2-ux*nr,y2-uy*nr
+        b.append(f'<line x1="{sx:.0f}" y1="{sy:.0f}" x2="{ex:.0f}" y2="{ey:.0f}" stroke="{ACCENT}" stroke-width="2" opacity="0.75"/>')
+        # 화살촉
+        ax,ay=ex,ey; px,py=-uy,ux
+        b.append(f'<path d="M{ax:.0f} {ay:.0f} L{ax-ux*9+px*5:.0f} {ay-uy*9+py*5:.0f} L{ax-ux*9-px*5:.0f} {ay-uy*9-py*5:.0f} Z" fill="{ACCENT}"/>')
     for i,(x,y) in enumerate(pts):
-        b.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="44" fill="#fff" stroke="{NAVY}" stroke-width="2"/>')
+        b.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{nr}" fill="#fff" stroke="{NAVY}" stroke-width="2"/>')
         lines=wrap(nodes[i],7)
         for j,ln in enumerate(lines):
-            b.append(T(x,y-2+(j-(len(lines)-1)/2)*16,ln,12.5,NAVY,700))
-    b.append(cap(366,note))
+            b.append(T(x,y+4+(j-(len(lines)-1)/2)*15,ln,12,NAVY,700))
+    b.append(cap(H-16,note))
     _png(name,"".join(b),H)
 
 def panel2(name,ttl,lt,litems,rt,ritems,note,mid="→"):  # 두 패널 대비
@@ -98,17 +100,18 @@ def panel2(name,ttl,lt,litems,rt,ritems,note,mid="→"):  # 두 패널 대비
     _png(name,"".join(b),H)
 
 def fan(name,ttl,center,leaves,note,ccolor=NAVY):  # 중심 → 부채꼴 갈래
-    H=360; cx,cy=170,190
+    n=len(leaves); leaf_h=46; gap=18; top=80
+    total=n*leaf_h+(n-1)*gap; H=top+total+46; cy=top+total/2
     b=[title(ttl),
-       f'<rect x="60" y="{cy-34}" width="170" height="68" rx="12" fill="{ccolor}"/>',
+       f'<rect x="60" y="{cy-34:.0f}" width="170" height="68" rx="12" fill="{ccolor}"/>',
        T(145,cy+7,center,18,"#fff",700)]
-    n=len(leaves); top=95; gap=(330-top)/(n-1) if n>1 else 0
     for i,lf in enumerate(leaves):
-        ly=top+gap*i
-        b.append(f'<line x1="230" y1="{cy}" x2="430" y2="{ly:.0f}" stroke="{ACCENT}" stroke-width="2"/>')
-        b.append(f'<rect x="430" y="{ly-22:.0f}" width="410" height="44" rx="10" fill="#fff" stroke="{LINE}" stroke-width="1.5"/>')
-        b.append(T(450,ly+6,lf,14,NAVY,700,anchor="start"))
-    b.append(cap(H-12,note))
+        y0=top+i*(leaf_h+gap); ymid=y0+leaf_h/2
+        b.append(f'<line x1="230" y1="{cy:.0f}" x2="430" y2="{ymid:.0f}" stroke="{ACCENT}" stroke-width="2"/>')
+        b.append(f'<circle cx="430" cy="{ymid:.0f}" r="4" fill="{ACCENT}"/>')
+        b.append(f'<rect x="442" y="{y0:.0f}" width="408" height="{leaf_h}" rx="10" fill="#fff" stroke="{LINE}" stroke-width="1.5"/>')
+        b.append(T(462,ymid+5,lf,14,NAVY,700,anchor="start"))
+    b.append(cap(H-16,note))
     _png(name,"".join(b),H)
 
 def hourglass(name,ttl,top,bottom,note):  # 모래시계

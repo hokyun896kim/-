@@ -70,6 +70,16 @@ def ornament():
          f'</g></svg>')
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"ornament.png"), output_width=w*3, output_height=h*3)
 
+def hero(name, inner):
+    # 장 도입부용 일러스트: 크림 원 + 가는 골드 링 + 네이비 라인 아이콘
+    px=600
+    svg=(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="{px}" height="{px}">'
+         f'<circle cx="32" cy="32" r="30" fill="{CREAM}"/>'
+         f'<circle cx="32" cy="32" r="29" fill="none" stroke="{ACCENT}" stroke-width="0.8" opacity="0.75"/>'
+         f'<g fill="none" stroke="{NAVY}" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" '
+         f'transform="translate(9.6 9.6) scale(0.7)">{inner.replace("{C}",NAVY)}</g></svg>')
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/f"hero_{name}.png"), output_width=px, output_height=px)
+
 def part_badge(name, inner):
     # 부 표제지용 큰 아이콘: 크림 원 배경 + 네이비 라인 아이콘
     px=520
@@ -82,6 +92,7 @@ def part_badge(name, inner):
 def build():
     for name,inner in ICONS.items():
         render(name, inner, NAVY, 96)        # 본문 키박스용(네이비)
+        hero(name, inner)                    # 장 도입부 일러스트
     ornament()
     for name in ("heart","gear","table","coins","surge","clipboard"):
         part_badge(name, ICONS[name])

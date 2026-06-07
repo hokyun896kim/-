@@ -15,6 +15,12 @@ TOC=[]
 
 def esc(s): return html.escape(s)
 
+def opener_html(icon, eyebrow, title, anchor):
+    img=f'<img class="heroimg" src="build/img/hero_{icon}.png">' if icon else ''
+    return (f'<section class="chapopen" id="{anchor}">{img}'
+            f'<div class="ceyebrow">{esc(eyebrow)}</div>'
+            f'<h2 class="chaptit">{esc(title)}</h2></section>')
+
 def render():
     if not (BUILD/"img"/"heart.png").exists():
         import make_assets; make_assets.build()
@@ -41,16 +47,16 @@ def render():
             parts.append(f'<section class="partpage" id="{anchor}">{img}'
                          f'<div class="pno">{esc(el[1])}부</div><h1 class="part">{esc(el[2])}</h1></section>')
         elif t=='h1big':
-            kind=el[1]; anchor=f"{kind}{len(TOC)}"
+            kind=el[1]; anchor=f"{kind}{len(TOC)}"; icon=el[3] if len(el)>3 else ''
+            eye={'prologue':'PROLOGUE','epilogue':'EPILOGUE','appendix':'APPENDIX'}.get(kind,'')
             TOC.append((kind,anchor,el[2]))
-            parts.append(f'<h2 class="chapter" id="{anchor}">{esc(el[2])}</h2>')
+            parts.append(opener_html(icon, eye, el[2], anchor))
         elif t=='chapter':
-            anchor=f"ch{el[1]}"; TOC.append(("chapter",anchor,f"{el[1]}장. {el[2]}"))
-            parts.append(f'<h2 class="chapter" id="{anchor}">{el[1]}장. {esc(el[2])}</h2>')
+            anchor=f"ch{el[1]}"; icon=el[3] if len(el)>3 else ''
+            TOC.append(("chapter",anchor,f"{el[1]}장. {el[2]}"))
+            parts.append(opener_html(icon, f"CHAPTER {el[1]}", f"{el[1]}장. {el[2]}", anchor))
         elif t=='keysentence':
-            icon=el[2] if len(el)>2 else ''
-            ic=f'<img class="kicon" src="build/img/{icon}.png">' if icon else ''
-            parts.append(f'<div class="keybox">{ic}<div class="ktext"><span class="klabel">이 장의 핵심</span>'
+            parts.append(f'<div class="keybox"><div class="ktext"><span class="klabel">이 장의 핵심</span>'
                          f'<p>{esc(el[1])}</p></div></div>')
         elif t=='ornament':
             parts.append('<div class="ornament"><img src="build/img/ornament.png"></div>')

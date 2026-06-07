@@ -74,12 +74,21 @@ def spacer(doc,pt=2): doc.add_paragraph().paragraph_format.space_after=Pt(pt)
 def keysentence(doc,text,icon=''):
     c=box(doc,TINT2,ACCENT)
     p=c.paragraphs[0]; p.paragraph_format.space_after=Pt(2); p.paragraph_format.line_spacing=1.2
-    ip=IMG/f"{icon}.png"
-    if icon and ip.exists():
-        r=p.add_run(); r.add_picture(str(ip), width=Mm(5.6)); p.add_run("  ")
     run(p,"이 장의 핵심",font=HEAD,size=8.5,bold=True,color=ACCENTD)
     p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.45
     run(p2,text,font=HEAD,size=11,bold=True,color=NAVY); spacer(doc)
+
+def opener(doc, icon, eyebrow, title):
+    # 그림이 있는 챕터 오프닝: 큰 일러스트 + 영문 eyebrow + 제목 + 짧은 골드 선
+    ip=IMG/f"hero_{icon}.png"
+    p0=doc.add_paragraph(); p0.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    p0.paragraph_format.page_break_before=True; p0.paragraph_format.space_before=Pt(8); p0.paragraph_format.space_after=Pt(5)
+    if icon and ip.exists(): p0.add_run().add_picture(str(ip), width=Mm(24))
+    pe=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=1); run(pe,eyebrow,font=HEAD,size=9,bold=True,color=ACCENT)
+    h=doc.add_paragraph(style='Heading 2'); h.alignment=WD_ALIGN_PARAGRAPH.CENTER
+    run(h,title,font=HEAD,size=15,bold=True,color=NAVY)
+    rr=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=2,after=7)
+    rr.paragraph_format.left_indent=Mm(54); rr.paragraph_format.right_indent=Mm(54); botborder(rr,ACCENT,18)
 
 def ornament(doc):
     op=IMG/"ornament.png"
@@ -228,8 +237,10 @@ def build():
                 run(dp,d,size=9.8,color="48433D")
         elif t=='toc': add_toc(doc)
         elif t=='part': part_page(doc, el[1], el[2], el[3])
-        elif t=='h1big': heading2(doc, el[2])
-        elif t=='chapter': heading2(doc, f"{el[1]}장. {el[2]}")
+        elif t=='h1big':
+            eye={'prologue':'PROLOGUE','epilogue':'EPILOGUE','appendix':'APPENDIX'}.get(el[1],'')
+            opener(doc, el[3] if len(el)>3 else '', eye, el[2])
+        elif t=='chapter': opener(doc, el[3] if len(el)>3 else '', f"CHAPTER {el[1]}", f"{el[1]}장. {el[2]}")
         elif t=='keysentence': keysentence(doc, el[1], el[2] if len(el)>2 else '')
         elif t=='ornament': ornament(doc)
         elif t=='callout': callout(doc, el[1], el[2])

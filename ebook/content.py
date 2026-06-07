@@ -165,7 +165,7 @@ def parse():
     E.append(('disclaimer', DISCLAIMER))
     E.append(('toc',))
     # 프롤로그
-    E.append(('h1big','prologue','프롤로그  나는 AI에게 종목을 묻지 않기로 했습니다'))
+    E.append(('h1big','prologue','프롤로그  나는 AI에게 종목을 묻지 않기로 했습니다','chat_q'))
     E.append(('keysentence', PROLOGUE_KEY, 'chat_q'))
     E.append(('ornament',))
     for i,p in enumerate(PROLOGUE):
@@ -197,7 +197,7 @@ def parse_body(md):
         m=re.match(r'^# (\d)부\. (.+)$', raw, re.S)
         if m: flush(); E.append(('part', m.group(1), clean(m.group(2)), PART_ICON.get(m.group(1),''))); cur=None; continue
         m=re.match(r'^# 에필로그\. (.+)$', raw, re.S)
-        if m: flush(); E.append(('h1big','epilogue','에필로그  '+clean(m.group(1)))); cur=None; need_dropcap[0]=True; continue
+        if m: flush(); E.append(('h1big','epilogue','에필로그  '+clean(m.group(1)),'flag')); cur=None; need_dropcap[0]=True; continue
         m=re.match(r'^## (\d+)장\. (.+)$', raw, re.S)
         if m:
             flush(); cur=int(m.group(1)); E.append(('chapter', cur, clean(m.group(2)), CH_ICON.get(cur,''))); continue
@@ -225,7 +225,7 @@ def parse_appendix(md):
     for title in it:
         content=next(it)
         letter=title.split()[1].rstrip('.')
-        E.append(('h1big','appendix', clean(title.strip())))
+        E.append(('h1big','appendix', clean(title.strip()), 'clipboard'))
         E += parse_appendix_body(content, letter)
     return E
 

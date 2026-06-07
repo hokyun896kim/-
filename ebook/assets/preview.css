@@ -50,9 +50,12 @@ h2.plain{font-family:"Noto Sans CJK KR";color:var(--navy);font-size:14pt;border-
 .partpage .partimg{width:34mm;height:34mm;margin-bottom:9mm}
 .partpage .pno{font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--accent);letter-spacing:.2em;margin-bottom:5mm}
 h1.part{margin:0;padding:0 12mm;font-family:"Noto Sans CJK KR";font-weight:800;font-size:19pt;color:var(--navy);line-height:1.5}
-h2.chapter{string-set:ct content();page-break-before:always;font-family:"Noto Sans CJK KR";font-weight:800;
- font-size:16pt;color:var(--navy);line-height:1.38;margin:0 0 0;padding:0 0 3mm}
-h2.chapter::after{content:"";display:block;width:13mm;height:3px;background:var(--accent);margin-top:3.5mm}
+.chapopen{page-break-before:always;text-align:center;margin:2mm 0 6mm}
+.chapopen .heroimg{width:24mm;height:24mm;margin:2mm auto 3mm}
+.chapopen .ceyebrow{font-family:"Noto Sans CJK KR";font-weight:800;font-size:9pt;letter-spacing:.22em;color:var(--accent);margin-bottom:2.5mm}
+h2.chaptit{string-set:ct content();font-family:"Noto Sans CJK KR";font-weight:800;font-size:16pt;color:var(--navy);
+ line-height:1.4;margin:0;padding:0}
+h2.chaptit::after{content:"";display:block;width:13mm;height:3px;background:var(--accent);margin:4mm auto 0}
 h3{font-family:"Noto Sans CJK KR";color:var(--navy2);font-size:12pt;margin:6mm 0 2mm}
 
 .keybox{background:var(--tint2);border-left:4px solid var(--accent);border-radius:10px;padding:4mm 5mm;margin:5mm 0;

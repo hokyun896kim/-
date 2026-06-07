@@ -222,6 +222,8 @@ def parse():
     E += parse_body(body_md)
     # 부록
     E += parse_appendix(appendix_md)
+    # 책을 닫는 한 문장
+    E.append(('closing', "좋은 투자는 정답을 찾는 일이 아니라, 끝까지 질문을 놓치지 않는 일입니다."))
     return relocate(E)
 
 # ---------- 인포그래픽/삽화를 '관련 문단' 옆으로 재배치 ----------

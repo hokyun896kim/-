@@ -91,6 +91,10 @@ blockquote.pull::after{content:"";display:block;width:16mm;height:2px;background
  border-radius:8px;font-size:9.6pt;color:#3a4a46;line-height:1.6}
 .apxnote .anlabel{font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;letter-spacing:.06em;
  color:var(--navy2);margin-right:2.5mm}
+.closing{margin:16mm auto 0;text-align:center;page-break-inside:avoid}
+.closing img{width:30mm;opacity:.85;margin-bottom:5mm}
+.closing p{margin:0 auto;max-width:104mm;font-family:"Noto Serif CJK KR";font-style:italic;font-weight:600;
+ font-size:11.5pt;line-height:1.7;color:var(--navy)}
 
 .callout{border:1px solid var(--line);border-left:4px solid var(--navy);background:#fff;border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
 .callout .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:10pt;margin:0 0 2mm}

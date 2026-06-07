@@ -330,6 +330,13 @@ def build():
             run(tp,"붙여넣을 프롬프트",font=HEAD,size=7.8,bold=True,color=NAVY2)
             bp=c.add_paragraph(); bp.paragraph_format.space_after=Pt(0); bp.paragraph_format.line_spacing=1.4
             run(bp,el[1],size=9.6,color="33433F"); spacer(doc,1)
+        elif t=='closing':
+            op=IMG/"ornament.png"
+            ip=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=36,after=6)
+            if op.exists(): ip.add_run().add_picture(str(op), width=Mm(30))
+            cp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.6)
+            cp.paragraph_format.left_indent=Mm(12); cp.paragraph_format.right_indent=Mm(12)
+            run(cp,el[1],font=BODY,size=11.5,italic=True,bold=True,color=NAVY)
 
     doc.save(str(OUT)); print("[ok] DOCX →", OUT)
 

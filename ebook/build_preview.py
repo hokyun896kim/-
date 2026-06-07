@@ -112,6 +112,9 @@ def render():
             parts.append(f'<div class="endnote"><span class="enlabel">이 장의 정리</span><ol>{lis}</ol></div>')
         elif t=='writeline':
             parts.append('<div class="writeline"></div>')
+        elif t=='closing':
+            parts.append(f'<div class="closing"><img src="build/img/ornament.png">'
+                         f'<p>{esc(el[1])}</p></div>')
         elif t=='apxnote':
             parts.append(f'<div class="apxnote"><span class="anlabel">사용법</span>{esc(el[1])}</div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')

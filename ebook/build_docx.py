@@ -5,7 +5,7 @@ Word(.docx) 전자책 생성기  ―  「나는 AI에게 종목을 묻지 않았
 content.parse() 가 만든 요소 목록을 Word 네이티브 표/스타일로 렌더링한다.
 산출물: ebook/build/book.docx
 """
-import math, pathlib
+import math, pathlib, re
 from docx import Document
 from docx.shared import Pt, Mm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
@@ -79,17 +79,25 @@ def keysentence(doc,text,icon=''):
     p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.45
     run(p2,text,font=HEAD,size=11,bold=True,color=NAVY); spacer(doc)
 
-def opener(doc, icon, eyebrow, title):
-    # 그림이 있는 챕터 오프닝: 큰 일러스트 + 영문 eyebrow + 제목 + 짧은 골드 선
+def opener(doc, icon, eyebrow, title, subtitle=None):
+    # 그림이 있는 챕터 오프닝: 큰 일러스트 + (영문 eyebrow) + 제목 + 짧은 골드 선 + (부제)
     ip=IMG/f"hero_{icon}.png"
     p0=doc.add_paragraph(); p0.alignment=WD_ALIGN_PARAGRAPH.CENTER
     p0.paragraph_format.page_break_before=True; p0.paragraph_format.space_before=Pt(8); p0.paragraph_format.space_after=Pt(5)
     if icon and ip.exists(): p0.add_run().add_picture(str(ip), width=Mm(24))
-    pe=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=1); run(pe,eyebrow,font=HEAD,size=9,bold=True,color=ACCENT)
+    if eyebrow:
+        pe=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=1); run(pe,eyebrow,font=HEAD,size=9,bold=True,color=ACCENT)
     h=doc.add_paragraph(style='Heading 2'); h.alignment=WD_ALIGN_PARAGRAPH.CENTER
     run(h,title,font=HEAD,size=15,bold=True,color=NAVY)
-    rr=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=2,after=7)
+    rr=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=2,after=(2 if subtitle else 7))
     rr.paragraph_format.left_indent=Mm(54); rr.paragraph_format.right_indent=Mm(54); botborder(rr,ACCENT,18)
+    if subtitle:
+        ps=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=7); run(ps,subtitle,font=HEAD,size=13,bold=True,color=NAVY)
+
+def first_sentence_split(text):
+    m=re.match(r'^([^"“”]{6,38}?[.?!])\s*(.*)$', text, re.S)
+    if m and len(m.group(1))<=38: return m.group(1), m.group(2)
+    return None, text
 
 def ornament(doc):
     op=IMG/"ornament.png"
@@ -97,11 +105,14 @@ def ornament(doc):
     if op.exists(): p.add_run().add_picture(str(op), width=Mm(34))
     else: run(p,"✦",color=ACCENT,size=11)
 
-def body_para(doc,text,dropcap=False):
+def body_para(doc,text,lead=False):
     p=para(doc,WD_ALIGN_PARAGRAPH.JUSTIFY)
-    if dropcap and text:
-        run(p,text[0],font=HEAD,size=22,bold=True,color=ACCENT)
-        run(p,text[1:],size=10.5,color=INK)
+    if lead and text:   # 장 첫 문단: 짧고 깔끔한 첫 문장만 굵게
+        first,rest=first_sentence_split(text)
+        if first:
+            run(p,first,size=10.5,bold=True,color=NAVY); run(p," "+rest,size=10.5,color=INK)
+        else:
+            run(p,text,size=10.5,color=INK)
     else:
         run(p,text,size=10.5,color=INK)
 def callout(doc,title,body):
@@ -110,23 +121,24 @@ def callout(doc,title,body):
     run(p,"● ",size=8,bold=True,color=ACCENT,font=HEAD); run(p,title,font=HEAD,size=10.5,bold=True,color=NAVY)
     p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.4
     run(p2,body,size=9.8,color="3A4A46"); spacer(doc)
-def compare(doc,headers,rows,good_right):
-    t=doc.add_table(rows=1+len(rows),cols=3); t.alignment=WD_TABLE_ALIGNMENT.CENTER; t.style='Table Grid'
-    W=(Mm(26),Mm(45),Mm(45))
+def compare(doc,headers,rows,good_right,caption=''):
+    # 2열(라벨 열 제거) + 결론 캡션 — 모바일 가독성
+    t=doc.add_table(rows=1+len(rows),cols=2); t.alignment=WD_TABLE_ALIGNMENT.CENTER; t.style='Table Grid'
     for i,c in enumerate(t.rows[0].cells):
         shade(c,NAVY); cmar(c); vcenter(c)
-        p=c.paragraphs[0]; p.alignment=WD_ALIGN_PARAGRAPH.CENTER if i else WD_ALIGN_PARAGRAPH.LEFT; p.paragraph_format.space_after=Pt(0)
-        run(p,headers[i],font=HEAD,size=9.5,bold=True,color="FFFFFF")
+        p=c.paragraphs[0]; p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.space_after=Pt(0)
+        run(p,headers[i+1],font=HEAD,size=9.8,bold=True,color="FFFFFF")
     bgA,bgB=(BADBG,GOODBG) if good_right else (GOODBG,BADBG)
     for ri,(lab,a,b) in enumerate(rows,1):
         cs=t.rows[ri].cells
         for c in cs: cmar(c)
-        shade(cs[0],"F3F0E9"); shade(cs[1],bgA); shade(cs[2],bgB)
-        run(cs[0].paragraphs[0],lab,font=HEAD,size=9.3,bold=True,color=NAVY)
-        run(cs[1].paragraphs[0],a,size=9.3,color="3A3631"); run(cs[2].paragraphs[0],b,size=9.3,color="3A3631")
+        shade(cs[0],bgA); shade(cs[1],bgB)
+        run(cs[0].paragraphs[0],a,size=9.6,color="3A3631"); run(cs[1].paragraphs[0],b,size=9.6,color="3A3631")
         for c in cs: c.paragraphs[0].paragraph_format.space_after=Pt(0); c.paragraphs[0].paragraph_format.line_spacing=1.3
     for row in t.rows:
-        for i,c in enumerate(row.cells): c.width=W[i]
+        for c in row.cells: c.width=Mm(58)
+    if caption:
+        cp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=2,after=0); run(cp,"→ "+caption,font=HEAD,size=9.4,bold=True,color=ACCENTD)
     spacer(doc)
 def cards(doc,items):
     for i,(title,desc) in enumerate(items,1):
@@ -180,14 +192,18 @@ def dodont(doc,label,items,kind):
 def heading2(doc,text):
     h=doc.add_paragraph(style='Heading 2'); h.paragraph_format.page_break_before=True
     run(h,text,font=HEAD,size=15,bold=True,color=NAVY); botborder(h,ACCENT,16); return h
-def part_page(doc,num,title,icon=''):
+def part_page(doc,num,title,icon='',intro=''):
     ip=IMG/f"{icon}.png"
     img_p=doc.add_paragraph(); img_p.alignment=WD_ALIGN_PARAGRAPH.CENTER
-    img_p.paragraph_format.page_break_before=True; img_p.paragraph_format.space_before=Pt(135); img_p.paragraph_format.space_after=Pt(10)
+    img_p.paragraph_format.page_break_before=True; img_p.paragraph_format.space_before=Pt(115); img_p.paragraph_format.space_after=Pt(10)
     if icon and ip.exists(): img_p.add_run().add_picture(str(ip), width=Mm(34))
     h=doc.add_paragraph(style='Heading 1'); h.alignment=WD_ALIGN_PARAGRAPH.CENTER
     run(h,f"{num}부",font=HEAD,size=13,bold=True,color=ACCENT)
     h2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=0); run(h2,title,font=HEAD,size=19,bold=True,color=NAVY)
+    if intro:
+        pi=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=9,after=0,line=1.6)
+        pi.paragraph_format.left_indent=Mm(20); pi.paragraph_format.right_indent=Mm(20)
+        run(pi,intro,font=BODY,size=11,italic=True,color=NAVY2)
 
 # ---------- TOC ----------
 def add_toc(doc):
@@ -237,11 +253,16 @@ def build():
             for d in el[1]:
                 dp=c.add_paragraph(); dp.paragraph_format.space_after=Pt(4); dp.paragraph_format.line_spacing=1.45
                 run(dp,d,size=9.8,color="48433D")
+            kp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=30,after=4); run(kp,"·  이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.  ·",font=HEAD,size=12.5,bold=True,color=NAVY)
+            gp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); gp.paragraph_format.left_indent=Mm(14); gp.paragraph_format.right_indent=Mm(14)
+            run(gp,"이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.",size=9.6,color=MUTED)
         elif t=='toc': add_toc(doc)
-        elif t=='part': part_page(doc, el[1], el[2], el[3])
+        elif t=='part': part_page(doc, el[1], el[2], el[3] if len(el)>3 else '', el[4] if len(el)>4 else '')
         elif t=='h1big':
-            eye={'prologue':'PROLOGUE','epilogue':'EPILOGUE','appendix':'APPENDIX'}.get(el[1],'')
-            opener(doc, el[3] if len(el)>3 else '', eye, el[2])
+            kind=el[1]; icon=el[3] if len(el)>3 else ''
+            if kind=='prologue': opener(doc, icon, '', '프롤로그', subtitle=el[2])
+            elif kind=='epilogue': opener(doc, icon, '', '에필로그', subtitle=el[2])
+            else: opener(doc, icon, 'APPENDIX', el[2])
         elif t=='chapter': opener(doc, el[3] if len(el)>3 else '', f"CHAPTER {el[1]}", f"{el[1]}장. {el[2]}")
         elif t=='keysentence': keysentence(doc, el[1], el[2] if len(el)>2 else '')
         elif t=='ornament': ornament(doc)
@@ -251,9 +272,10 @@ def build():
                 pic=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=3,after=1)
                 pic.add_run().add_picture(str(fp), width=Mm(116))
             if len(el)>2 and el[2]:
-                cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6); run(cap,el[2],font=HEAD,size=8.5,color=MUTED)
+                cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6)
+                run(cap,"개념도  ",font=HEAD,size=7.5,bold=True,color=ACCENTD); run(cap,el[2],font=HEAD,size=8.5,color=MUTED)
         elif t=='callout': callout(doc, el[1], el[2])
-        elif t=='compare': compare(doc, el[1], el[2], el[3])
+        elif t=='compare': compare(doc, el[1], el[2], el[3], el[4] if len(el)>4 else '')
         elif t=='cards': cards(doc, el[1])
         elif t=='modebar': modebar(doc, el[1])
         elif t=='flow': flow(doc, el[1])

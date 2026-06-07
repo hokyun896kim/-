@@ -2,9 +2,9 @@
 :root{--paper:#FBF9F4;--ink:#232020;--navy:#163B4E;--navy2:#21566E;--accent:#C0894B;
  --accentd:#9C6B33;--tint:#EEF3F2;--tint2:#F6F1E7;--muted:#6E6A63;--line:#DED8CC;
  --danger:#A6433B;--good:#2F6F5E;--goodbg:#EAF1ED;--badbg:#F7EEE8;}
-@page{size:152mm 225mm;margin:20mm 18mm;
- @bottom-center{content:counter(page);font-family:"Noto Sans CJK KR";font-size:8.5pt;color:#9a948a;}
- @top-center{content:string(ct);font-family:"Noto Sans CJK KR";font-size:8pt;color:#b3ada2;}}
+@page{size:152mm 225mm;margin:21mm 18mm 19mm;
+ @bottom-center{content:counter(page);font-family:"Noto Sans CJK KR";font-size:8.5pt;color:#a59f95;}
+ @top-center{content:string(ct);font-family:"Noto Sans CJK KR";font-size:7pt;letter-spacing:.04em;color:#cfc8bb;}}
 @page:first{@top-center{content:none}@bottom-center{content:none}}
 @page cover{margin:0;@top-center{content:none}@bottom-center{content:none}}
 *{box-sizing:border-box}
@@ -12,9 +12,8 @@ html{font-size:10.5pt}
 body{font-family:"Noto Serif CJK KR",serif;color:var(--ink);background:var(--paper);
  line-height:1.78;letter-spacing:.12px;margin:0;word-break:keep-all;overflow-wrap:anywhere}
 p{margin:0 0 .82em;text-align:justify}
-p.dropcap{min-height:13mm}
-p.dropcap .dc{float:left;font-family:"Noto Sans CJK KR";font-weight:800;color:var(--accent);
- font-size:2.6em;line-height:1;height:1em;margin:.5mm 2.2mm 0 0}
+p.leadp{margin-top:1mm}
+p.leadp .lead{color:var(--navy);font-weight:700}
 strong{color:var(--navy);font-weight:700}
 em{font-style:normal;background:linear-gradient(transparent 62%,#F4E3C2 62%)}
 
@@ -27,20 +26,28 @@ h2.plain{font-family:"Noto Sans CJK KR";color:var(--navy);font-size:14pt;border-
 .disclaimer{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;background:#fff;
  padding:6mm;font-size:9.8pt;color:#48433d;line-height:1.7}
 .disclaimer .tag{font-family:"Noto Sans CJK KR";font-size:8.5pt;letter-spacing:.18em;color:var(--accentd);display:block;margin-bottom:3mm}
+.readkey{margin:14mm 0 3mm;text-align:center;font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--navy)}
+.readkey::before,.readkey::after{content:"·  ";color:var(--accent)}
+.readguide{text-align:center;font-size:9.6pt;color:var(--muted);line-height:1.6;max-width:110mm;margin:0 auto}
 
 .toc{page-break-after:always}
 .toc ol{list-style:none;padding:0;margin:0}
-.toc .tpart{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:5mm 0 1.5mm;font-size:11.5pt}
-.toc .tpart .pno{color:var(--accent);margin-right:2mm}
-.toc li{font-size:10pt;padding:1mm 0;list-style:none}
-.toc li a{display:flex;align-items:baseline;color:#3c3833}
-.toc li .dots{flex:1;border-bottom:1px dotted #cfc8ba;margin:0 2mm;transform:translateY(-2px)}
+.toc .tpart{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:8mm 0 2.5mm;font-size:13pt;
+ padding-bottom:1.5mm;border-bottom:1px solid var(--line)}
+.toc .tpart .pno{color:var(--accent);margin-right:2.5mm}
+.toc li{font-size:9.8pt;padding:1.3mm 0 1.3mm 5mm;list-style:none}
+.toc li a{display:flex;align-items:baseline;color:#4a453f}
+.toc li .dots{flex:1;border-bottom:1px dotted #d8d1c4;margin:0 2mm;transform:translateY(-2px)}
 .toc li a::after{content:target-counter(attr(href),page);font-family:"Noto Sans CJK KR";color:var(--muted)}
 
 .partpage{string-set:ct "";page-break-before:always;page-break-after:always;text-align:center;padding-top:58mm}
 .partpage .partimg{width:34mm;height:34mm;margin-bottom:9mm}
 .partpage .pno{font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--accent);letter-spacing:.2em;margin-bottom:5mm}
 h1.part{margin:0;padding:0 12mm;font-family:"Noto Sans CJK KR";font-weight:800;font-size:19pt;color:var(--navy);line-height:1.5}
+.partpage .pintro{margin:9mm auto 0;max-width:96mm;font-family:"Noto Serif CJK KR";font-style:italic;
+ font-size:11pt;line-height:1.7;color:var(--navy2)}
+.chapopen .csub{margin:3mm auto 0;max-width:110mm;font-family:"Noto Sans CJK KR";font-weight:700;
+ font-size:13pt;line-height:1.45;color:var(--navy)}
 .chapopen{page-break-before:always;text-align:center;margin:2mm 0 6mm}
 .chapopen .heroimg{width:24mm;height:24mm;margin:2mm auto 3mm}
 .chapopen .ceyebrow{font-family:"Noto Sans CJK KR";font-weight:800;font-size:9pt;letter-spacing:.22em;color:var(--accent);margin-bottom:2.5mm}
@@ -62,8 +69,8 @@ figure.cfig img{width:100%;max-width:118mm;border-radius:9px;
  box-shadow:0 2px 7px rgba(22,59,78,.10), 0 0 0 1px rgba(193,137,75,.10)}
 figure.cfig figcaption{font-family:"Noto Serif CJK KR";font-style:italic;font-size:8.8pt;color:var(--accentd);
  margin-top:2.5mm;line-height:1.45}
-figure.cfig figcaption::before{content:"— ";color:var(--accent)}
-figure.cfig figcaption::after{content:" —";color:var(--accent)}
+figure.cfig .figtag{font-family:"Noto Sans CJK KR";font-style:normal;font-weight:700;font-size:7pt;
+ letter-spacing:.05em;color:#fff;background:var(--accent);border-radius:10px;padding:.4mm 1.8mm;margin-right:2mm;vertical-align:middle}
 
 blockquote.pull{margin:7mm 6mm;padding:0;text-align:center;page-break-inside:avoid;position:relative}
 blockquote.pull::before{content:"\201C";display:block;font-family:Georgia,serif;font-size:34pt;line-height:.2;
@@ -81,9 +88,12 @@ table{width:100%;border-collapse:collapse;margin:5mm 0;font-size:9.4pt;page-brea
 thead th{background:var(--navy);color:#fff;font-family:"Noto Sans CJK KR";font-weight:700;text-align:left;padding:2.4mm 2.6mm;font-size:9.4pt}
 tbody td,tbody th{border-bottom:1px solid var(--line);padding:2.4mm 2.6mm;vertical-align:top;text-align:left}
 tbody th{font-family:"Noto Sans CJK KR";color:var(--navy);font-weight:700;background:#F3F0E9;white-space:nowrap}
-table.compare td{width:42%}
+table.compare td{width:50%;font-size:9.8pt}
 table.compare .col-good{background:var(--goodbg)}
 table.compare .col-bad{background:var(--badbg)}
+p.tcap{margin:-3mm 0 5mm;text-align:center;font-family:"Noto Sans CJK KR";font-weight:700;
+ font-size:9.4pt;color:var(--accentd)}
+p.tcap::before{content:"→ "}
 
 .cardgrid{margin:5mm 0;font-size:0}
 .card{display:inline-block;width:48%;vertical-align:top;font-size:10.5pt;border:1px solid var(--line);border-radius:8px;

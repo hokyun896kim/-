@@ -45,14 +45,22 @@ CH_ICON={1:"heart",2:"seed",3:"chat_q",4:"gear",5:"scale",6:"cycle",7:"table",8:
  9:"notebook",10:"coins",11:"hourglass",12:"compass",13:"surge",14:"umbrella",15:"docmag",
  16:"chat_x",17:"chat_check",18:"clipboard",19:"moon"}
 PART_ICON={"1":"part_heart","2":"part_gear","3":"part_table","4":"part_coins","5":"part_surge","6":"part_clipboard"}
+PART_INTRO={
+ "1":"시장은 매일 흔들렸습니다. 하지만 더 자주 흔들린 것은 제 기준이었습니다.",
+ "2":"질문이 바뀌자, AI의 답보다 먼저 제 판단이 바뀌기 시작했습니다.",
+ "3":"정답을 구하던 자리에, 저는 회의실을 만들기 시작했습니다.",
+ "4":"계좌를 키운 것은 매수 버튼이 아니라, 사지 않은 결정들이었습니다.",
+ "5":"이론이 아니라, 실전에서 가장 먼저 달라진 것들의 기록입니다.",
+ "6":"이제, 오늘 당장 써볼 수 있는 질문으로 갑니다.",
+}
 
 # 본문 중간에 들어갈 개념도(설명 삽화) — 전 장.
 CH_FIGURE={
  1:("fig_1","진짜 적은 시장이 아니라, 욕심과 공포 사이에서 흔들리는 ‘나’다."),
- 2:("fig_2","같은 7천만 원도 기준이 있느냐에 따라 전혀 다른 계좌가 된다."),
+ 2:("fig_2","같은 7천만 원도 기준이 있느냐에 따라 다른 계좌가 된다. (실제 수익률이 아닌 개념도)"),
  3:("fig_3","종목을 물을수록 판단이 아니라 ‘안심’만 반복해서 사게 된다."),
  4:("fig_4","‘무엇을 살까’ 대신 ‘무엇을 확인할까’로 물으면 판단의 순서가 생긴다."),
- 5:("fig_5","좋은 기업과 좋은 주식은 다르다 — 기대가 가격에 이미 반영됐는지를 본다."),
+ 5:("fig_5","좋은 기업과 좋은 주식은 다르다 — 기대가 가격에 이미 반영됐는지를 본다. (실제 수익률이 아닌 개념도)"),
  6:("fig_6","종목보다 시장·섹터가 먼저다 — 돈의 흐름을 위에서 아래로 읽는다."),
  7:("fig_7","AI에게 결정을 맡기면 점쟁이, 관점을 물으면 투자위원회가 된다."),
  8:("fig_8","장전에는 종목을 찾기 전에 ‘오늘의 태도’부터 정한다."),
@@ -82,7 +90,7 @@ def graphics_for(n):
        ('compare',("","기준이 없을 때","기준이 있을 때"),
         [("매수 이유","남이 사니까·뉴스 보고","미리 정한 조건이 충족돼서"),
          ("하락하면","불안에 손절·물타기","시나리오대로 대응"),
-         ("계좌","감정에 휘둘린다","흔들려도 중심을 잡는다")],True)],
+         ("계좌","감정에 휘둘린다","흔들려도 중심을 잡는다")],True,"기준이 있으면, 흔들려도 같은 자리로 돌아옵니다.")],
     3:[('callout',"이 장을 한눈에 — 종목을 물으면 ‘정답지 사용자’가 된다","AI에게 종목을 묻는 순간, 투자자가 아니라 정답을 받아 적는 사람이 됩니다."),
        ('cards',[("확증 편향","듣고 싶은 답만 골라 듣는다."),
                  ("책임 전가","틀리면 AI 탓으로 돌린다."),
@@ -96,17 +104,17 @@ def graphics_for(n):
        ('compare',("","종목 질문","시스템 질문"),
         [("묻는 법","“이거 살까요?”","“사려면 무엇을 확인해야 하나요?”"),
          ("AI의 답","매수·매도 결론","확인 순서와 조건"),
-         ("남는 것","그때뿐인 안심","반복 가능한 기준")],True)],
+         ("남는 것","그때뿐인 안심","반복 가능한 기준")],True,"질문을 바꾸면 AI의 답도 달라집니다.")],
     5:[('compare',("","좋은 기업","좋은 주식"),
         [("판단 대상","사업 자체 — 매출·이익·경쟁력","그 사업에 매겨진 가격"),
          ("좋다는 뜻","실적이 늘고 산업이 큰가","지금 가격이 기대 대비 싼가"),
          ("흔한 함정","좋으면 언제 사도 된다","모두가 좋다고 아는 값에 산다"),
-         ("핵심 질문","사업적으로 좋은가?","이 기대는 이미 주가에 있나?")],False)],
+         ("핵심 질문","사업적으로 좋은가?","이 기대는 이미 주가에 있나?")],False,"좋은 기업인지와 ‘지금 좋은 주식인지’를 분리해서 봅니다.")],
     7:[('compare',("","정답지로 쓸 때","회의실로 쓸 때"),
         [("AI의 역할","정답을 내려주는 점쟁이","관점을 넓혀주는 참석자"),
          ("내가 하는 일","결정을 떠넘긴다","근거를 받아 내가 결정한다"),
          ("질문 형태","“살까요, 팔까요?”","“이 판단의 약점은?”"),
-         ("틀렸을 때","AI 탓을 한다","내 기준을 다시 본다")],True)],
+         ("틀렸을 때","AI 탓을 한다","내 기준을 다시 본다")],True,"AI는 정답지가 아니라 ‘회의실’로 쓸 때 힘을 냅니다.")],
     8:[('modebar',[("공격","적극 신규·증액"),("정찰","소량 관찰"),("유지","현 비중"),
                    ("감량","리스크 축소"),("현금대기","기회 대기")])],
     9:[('flow',[("오늘 시장 한 줄 판단","오늘은 어떤 성격의 장이었나"),
@@ -121,7 +129,7 @@ def graphics_for(n):
     11:[('compare',("","익절 = 배신","익절 = 시간 사기"),
         [("느낌","상승을 포기한 손해","다음 판단을 위한 여유 확보"),
          ("이후 행동","후회하며 재진입","현금으로 다음 기회 대기"),
-         ("기준","주가만 본다","보유 논리와 비중을 본다")],True)],
+         ("기준","주가만 본다","보유 논리와 비중을 본다")],True,"익절은 손해가 아니라, 다음 판단을 위한 준비입니다.")],
     12:[('cards',[("섹터 쏠림","한 방향에 베팅이 몰려 있지 않은가."),
                   ("현금 여력","다음 기회에 대응할 현금이 있는가."),
                   ("손실 방치","논리가 깨진 종목을 버티고만 있지 않은가."),
@@ -138,7 +146,7 @@ def graphics_for(n):
     15:[('compare',("","지형도용 읽기","트리거용 읽기"),
         [("목적","산업·판도 이해","단기 매매 신호 포착"),
          ("보는 곳","구조·경쟁력·장기 전망","목표가·서프라이즈·수급"),
-         ("질문","“판이 어떻게 바뀌나?”","“지금 무엇이 달라졌나?”")],True)],
+         ("질문","“판이 어떻게 바뀌나?”","“지금 무엇이 달라졌나?”")],True,"같은 리포트도 목적에 따라 다르게 읽습니다.")],
     16:[('dodont',"이렇게 묻지 마라",
         [("정답 요구","“이거 살까요?”처럼 결정을 떠넘기는 질문"),
          ("허락 요구","“들고 가도 되죠?”처럼 안심을 구하는 질문"),
@@ -157,7 +165,7 @@ def graphics_for(n):
     19:[('compare',("","계좌만 볼 때","기록할 때"),
         [("무엇을 보나","수익률 숫자","오늘 판단의 질"),
          ("남는 것","기분(좋다·나쁘다)","이유와 교훈"),
-         ("내일","또 즉흥 매매","확인할 체크포인트 3개")],True)],
+         ("내일","또 즉흥 매매","확인할 체크포인트 3개")],True,"계좌는 결과를, 기록은 이유를 남깁니다.")],
     }
     # 콜아웃(요약 박스)은 제외하고 시각 인포그래픽만 본문 중간에 배치
     return [g for g in G.get(n, []) if g[0]!='callout']
@@ -188,7 +196,7 @@ def parse():
     E.append(('disclaimer', DISCLAIMER))
     E.append(('toc',))
     # 프롤로그
-    E.append(('h1big','prologue','프롤로그  나는 AI에게 종목을 묻지 않기로 했습니다','chat_q'))
+    E.append(('h1big','prologue','나는 AI에게 종목을 묻지 않기로 했습니다','chat_q'))
     E.append(('keysentence', PROLOGUE_KEY, 'chat_q'))
     E.append(('ornament',))
     for i,p in enumerate(PROLOGUE):
@@ -197,7 +205,7 @@ def parse():
             E.append(('compare',("","바꾸기 전 질문","바꾼 뒤 질문"),
                 [("종목","“이 종목 살까요?”","“사려면 무엇을 확인해야 하나요?”"),
                  ("예측","“내일 오를까요?”","“어떤 조건에서 오르고, 언제 틀린 건가요?”"),
-                 ("기업","“좋은 기업인가요?”","“지금 좋은 주식인가요?”")],True))
+                 ("기업","“좋은 기업인가요?”","“지금 좋은 주식인가요?”")],True,"질문이 바뀌면 AI의 답도 달라집니다."))
     # 본문
     E += parse_body(body_md)
     # 부록
@@ -250,27 +258,35 @@ def relocate(E):
         rest=[e for e in region if e[0] not in GVIS]
         para_idx=[k for k,e in enumerate(rest) if e[0]=='para']
         if vis and para_idx:
-            # 후보 문단: 첫 문단(드롭캡) 제외 + 앞~중간(앞 50%)으로 제한 → 너무 뒤로 안 감
+            _BAD=('그 ','이 ','저 ','그래서','그리고','그러자','그제야','그것','이것','그런데')
+            def good_after(k):  # 삽입 뒤 문단이 앞 문장을 이어받지 않도록(흐름 끊김 방지)
+                nxt = rest[k+1] if k+1 < len(rest) else None
+                if nxt and nxt[0]=='para':
+                    s=nxt[1].lstrip()
+                    return not any(s.startswith(b) for b in _BAD)
+                return True
+            # 후보 문단: 첫 문단 제외 + 앞~중간(앞 50%)으로 제한 → 너무 뒤로 안 감
             hi=max(3, int(len(para_idx)*0.5))
             front=para_idx[1:hi] or para_idx[1:] or para_idx
             used=set(); placements=[]
             for vi,v in enumerate(vis):
-                kws=_keywords(v)
-                best=None; bs=-1
+                kws=_keywords(v); best=None; bs=-1
                 for k in front:
-                    if k in used: continue
+                    if k in used or not good_after(k): continue
                     sc=sum(rest[k][1].count(w) for w in kws)
                     if sc>bs: bs=sc; best=k
                 if best is None or bs<=0:
-                    cand=[k for k in front if k not in used] or front
-                    best=cand[(vi*len(cand))//max(1,len(vis))]  # 분산
+                    cand=[k for k in front if k not in used and good_after(k)] \
+                         or [k for k in front if k not in used] or front
+                    best=cand[(vi*len(cand))//max(1,len(vis))]
                 used.add(best); placements.append((best,v))
-            # 발췌 인용구(pull-quote): 장 후반(~70%) 별도 문단 옆에
+            # 발췌 인용구(pull-quote): 장 후반(~70%) 별도 문단 사이에
             ks=next((e[1] for e in region if e[0]=='keysentence'), "")
             pq=pick_pullquote([rest[k][1] for k in para_idx], exclude=ks)
             if pq:
                 anchor=para_idx[min(len(para_idx)-1, int(len(para_idx)*0.7))]
-                cand=[k for k in para_idx if k not in used]
+                cand=[k for k in para_idx if k not in used and good_after(k)] \
+                     or [k for k in para_idx if k not in used]
                 if cand:
                     tgt=min(cand, key=lambda k:abs(k-anchor))
                     used.add(tgt); placements.append((tgt, ('pullquote', pq)))
@@ -294,9 +310,9 @@ def parse_body(md):
         raw=blk.strip()
         if not raw: continue
         m=re.match(r'^# (\d)부\. (.+)$', raw, re.S)
-        if m: flush(); E.append(('part', m.group(1), clean(m.group(2)), PART_ICON.get(m.group(1),''))); cur=None; continue
+        if m: flush(); E.append(('part', m.group(1), clean(m.group(2)), PART_ICON.get(m.group(1),''), PART_INTRO.get(m.group(1),''))); cur=None; continue
         m=re.match(r'^# 에필로그\. (.+)$', raw, re.S)
-        if m: flush(); E.append(('h1big','epilogue','에필로그  '+clean(m.group(1)),'flag')); cur=None; need_dropcap[0]=True; continue
+        if m: flush(); E.append(('h1big','epilogue',clean(m.group(1)),'flag')); cur=None; need_dropcap[0]=True; continue
         m=re.match(r'^## (\d+)장\. (.+)$', raw, re.S)
         if m:
             flush(); cur=int(m.group(1)); E.append(('chapter', cur, clean(m.group(2)), CH_ICON.get(cur,''))); continue

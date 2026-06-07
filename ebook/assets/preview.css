@@ -26,16 +26,16 @@ h2.plain{font-family:"Noto Sans CJK KR";color:var(--navy);font-size:14pt;border-
 .disclaimer{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;background:#fff;
  padding:6mm;font-size:9.8pt;color:#48433d;line-height:1.7}
 .disclaimer .tag{font-family:"Noto Sans CJK KR";font-size:8.5pt;letter-spacing:.18em;color:var(--accentd);display:block;margin-bottom:3mm}
-.readkey{margin:14mm 0 3mm;text-align:center;font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--navy)}
-.readkey::before,.readkey::after{content:"·  ";color:var(--accent)}
-.readguide{text-align:center;font-size:9.6pt;color:var(--muted);line-height:1.6;max-width:110mm;margin:0 auto}
+.readkey{margin:16mm 0 3mm;text-align:center;font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--navy)}
+.readguide{text-align:center;font-size:9.6pt;color:var(--muted);line-height:1.6;max-width:108mm;margin:0 auto}
 
 .toc{page-break-after:always}
 .toc ol{list-style:none;padding:0;margin:0}
-.toc .tpart{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:8mm 0 2.5mm;font-size:13pt;
- padding-bottom:1.5mm;border-bottom:1px solid var(--line)}
+.toc .tpart{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);margin:5mm 0 1.8mm;font-size:12.5pt;
+ padding-bottom:1.2mm;border-bottom:1px solid var(--line)}
+.toc .tpart:first-of-type{margin-top:2mm}
 .toc .tpart .pno{color:var(--accent);margin-right:2.5mm}
-.toc li{font-size:9.8pt;padding:1.3mm 0 1.3mm 5mm;list-style:none}
+.toc li{font-size:9.6pt;padding:0.85mm 0 0.85mm 5mm;list-style:none}
 .toc li a{display:flex;align-items:baseline;color:#4a453f}
 .toc li .dots{flex:1;border-bottom:1px dotted #d8d1c4;margin:0 2mm;transform:translateY(-2px)}
 .toc li a::after{content:target-counter(attr(href),page);font-family:"Noto Sans CJK KR";color:var(--muted)}
@@ -83,7 +83,9 @@ blockquote.pull::after{content:"";display:block;width:16mm;height:2px;background
  background:#FBF7EF;page-break-inside:avoid;text-align:center}
 .endnote .enlabel{display:block;font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;letter-spacing:.08em;
  color:var(--accentd);margin-bottom:2mm}
-.endnote p{margin:0;font-family:"Noto Sans CJK KR";font-weight:700;font-size:11pt;color:var(--navy);line-height:1.5;text-align:center}
+.endnote ol{margin:0;padding-left:6mm;text-align:left}
+.endnote ol li{font-family:"Noto Sans CJK KR";font-weight:700;font-size:10.3pt;color:var(--navy);line-height:1.55;padding:1mm 0}
+.endnote ol li::marker{color:var(--accentd);font-weight:800}
 
 .apxnote{margin:4mm 0 5mm;padding:3.5mm 4.5mm;background:var(--tint);border-left:4px solid var(--navy2);
  border-radius:8px;font-size:9.6pt;color:#3a4a46;line-height:1.6}
@@ -144,10 +146,15 @@ p.tcap::before{content:"→ "}
  padding-bottom:1.5mm;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:2.5mm}
 .apx-cat span{flex:0 0 auto;width:6mm;height:6mm;border-radius:50%;background:var(--navy);color:#fff;font-size:8.5pt;
  display:flex;align-items:center;justify-content:center}
-.apx-q{font-family:"Noto Sans CJK KR";font-weight:700;color:var(--ink);font-size:10.5pt;margin:4mm 0 1.5mm;line-height:1.45}
+.apx-q{font-family:"Noto Sans CJK KR";font-weight:700;color:var(--ink);font-size:10.5pt;margin:4mm 0 1.5mm;line-height:1.45;text-align:left;page-break-after:avoid}
+.apx-cat{text-align:left}
 .apx-q .qnum{color:var(--accentd);font-weight:800;margin-right:1.5mm}
 .prompt{background:var(--tint);border:1px solid #D7E2DF;border-radius:8px;padding:3.2mm 4mm;margin:0 0 3mm;font-size:9.4pt;color:#33433f;line-height:1.6;page-break-inside:avoid}
 .prompt .ptag{display:block;font-family:"Noto Sans CJK KR";font-size:7.6pt;letter-spacing:.1em;color:var(--navy2);margin-bottom:1.5mm}
-ul.bullets{margin:1mm 0 3mm;padding-left:5mm}ul.bullets li{font-size:9.6pt;padding:.5mm 0}
-ol.numlist{margin:2mm 0 3mm;padding-left:6mm}ol.numlist li{font-size:9.8pt;padding:.6mm 0}
+ul.bullets{margin:1mm 0 3mm;padding-left:5mm}ul.bullets li{font-size:9.6pt;padding:.5mm 0;text-align:left}
+ul.numlist{list-style:none;margin:2mm 0 3mm;padding-left:1mm}
+ul.numlist li{font-size:9.8pt;padding:.7mm 0 .7mm 6mm;text-indent:-6mm;text-align:left;line-height:1.5}
+ul.numlist .ln{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--accentd);margin-right:1.5mm}
+.fillline{text-align:left}
 .fillrule{border:0;border-bottom:1px dotted var(--line);margin:1.5mm 0;height:0}
+.writeline{border-bottom:1px solid #D3CCBD;height:0;margin:4mm 4mm 4mm 2mm;page-break-before:avoid}

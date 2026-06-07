@@ -307,10 +307,13 @@ def relocate(E):
             for k,v in sorted(placements, key=lambda x:-x[0]):
                 rest.insert(k+1, v)
             region=rest
-            # 장 끝 '한 줄 정리' — 후반부에서 닫는 문장 한 줄 발췌
+            # 장 끝 '한 줄 정리' — 핵심·발췌·닫는 문장으로 2~3줄 요약
             tail=[rest[k][1] for k in range(len(rest)) if rest[k][0]=='para'][-4:]
             end=pick_pullquote(tail, exclude=(ks, pq))
-            if end: region=region+[('endnote', end)]
+            summ=[]
+            for s in (ks, pq, end):
+                if s and s not in summ: summ.append(s)
+            if summ: region=region+[('endnote', summ[:3])]
         out.append(el); out.extend(region); i=j
     return out
 
@@ -378,12 +381,20 @@ def parse_appendix_body(content, letter):
         if msub: E.append(('h3', clean(msub.group(1)))); pending=False; continue
         if p.endswith(":") and len(p)<=16 and "\n" not in p:
             E.append(('fill', p[:-1])); continue
+        # 라벨 + 밑줄 작성란이 한 블록인 경우: 라벨 + 작성선으로 분리
+        ml=re.match(r'^(.{1,16}):\s*\n([\\_\s]+)$', p)
+        if ml and set(re.sub(r'[\\\s]','',ml.group(2)))<=set('_'):
+            E.append(('fill', ml.group(1))); E.append(('writeline',)); continue
+        # 순수 밑줄 작성란(\_\_\_) → 깨끗한 작성선 (개행·공백·역슬래시 무시)
+        t2=re.sub(r'[\\\s]','',p)
+        if t2 and set(t2)<=set('_') and len(t2)>=3:
+            E.append(('writeline',)); continue
         if re.search(r'(?m)^[-*]\s+', p):
             items=re.findall(r'(?m)^[-*]\s+(.+)$', p)
             if items: E.append(('bullets', [clean(x) for x in items])); continue
         if re.search(r'(?m)^\d+\.\s', p):
-            items=re.findall(r'(?m)^\d+\.\s+(.+)$', p)
-            if items: E.append(('numlist', [clean(x) for x in items])); continue
+            items=re.findall(r'(?m)^(\d+)\.\s+(.+)$', p)
+            if items: E.append(('numlist', [(num, clean(x)) for num,x in items])); continue
         text=clean(p)
         if pending: E.append(('prompt', text)); pending=False
         else: E.append(('para', text, False))

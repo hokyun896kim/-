@@ -253,7 +253,7 @@ def build():
             for d in el[1]:
                 dp=c.add_paragraph(); dp.paragraph_format.space_after=Pt(4); dp.paragraph_format.line_spacing=1.45
                 run(dp,d,size=9.8,color="48433D")
-            kp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=30,after=4); run(kp,"·  이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.  ·",font=HEAD,size=12.5,bold=True,color=NAVY)
+            kp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=30,after=4); run(kp,"이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.",font=HEAD,size=12.5,bold=True,color=NAVY)
             gp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); gp.paragraph_format.left_indent=Mm(14); gp.paragraph_format.right_indent=Mm(14)
             run(gp,"이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.",size=9.6,color=MUTED)
         elif t=='toc': add_toc(doc)
@@ -285,11 +285,16 @@ def build():
             pq=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=0,after=2,line=1.4); run(pq,el[1],font=BODY,size=14,italic=True,bold=True,color=NAVY)
             rl=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=8); rl.paragraph_format.left_indent=Mm(58); rl.paragraph_format.right_indent=Mm(58); botborder(rl,ACCENT,16)
         elif t=='endnote':
+            lines=el[1] if isinstance(el[1],(list,tuple)) else [el[1]]
             c=box(doc,"FBF7EF",ACCENT)
-            lp=c.paragraphs[0]; lp.alignment=WD_ALIGN_PARAGRAPH.CENTER; lp.paragraph_format.space_after=Pt(2)
-            run(lp,"이 장의 정리",font=HEAD,size=8,bold=True,color=ACCENTD)
-            ep=c.add_paragraph(); ep.alignment=WD_ALIGN_PARAGRAPH.CENTER; ep.paragraph_format.space_after=Pt(0); ep.paragraph_format.line_spacing=1.45
-            run(ep,el[1],font=HEAD,size=11,bold=True,color=NAVY); spacer(doc)
+            lp=c.paragraphs[0]; lp.paragraph_format.space_after=Pt(3)
+            run(lp,"이 장의 정리",font=HEAD,size=8.5,bold=True,color=ACCENTD)
+            for i,s in enumerate(lines,1):
+                ep=(c.paragraphs[0] if False else c.add_paragraph())
+                ep.paragraph_format.space_after=Pt(2); ep.paragraph_format.line_spacing=1.4
+                run(ep,f"{i}.  ",font=HEAD,size=10.5,bold=True,color=ACCENTD)
+                run(ep,s,font=HEAD,size=10.5,bold=True,color=NAVY)
+            spacer(doc)
         elif t=='apxnote':
             c=box(doc,TINT,NAVY2)
             ap=c.paragraphs[0]; ap.paragraph_format.space_after=Pt(0); ap.paragraph_format.line_spacing=1.5
@@ -302,8 +307,11 @@ def build():
             for it in el[1]:
                 bp=para(doc,after=2,indent=4); run(bp,"· ",bold=True,color=ACCENT); run(bp,it,size=10,color=INK)
         elif t=='numlist':
-            for k,it in enumerate(el[1],1):
-                bp=para(doc,after=2,indent=4); run(bp,f"{k}. ",bold=True,color=ACCENTD); run(bp,it,size=10,color=INK)
+            for num,it in el[1]:
+                bp=para(doc,after=2,indent=4); run(bp,f"{num}. ",bold=True,color=ACCENTD); run(bp,it,size=10,color=INK)
+        elif t=='writeline':
+            wl=para(doc,before=1,after=3); wl.paragraph_format.left_indent=Mm(2); wl.paragraph_format.right_indent=Mm(2)
+            botborder(wl, "C9C2B4", 6)
         elif t=='cat':
             cp=para(doc,before=8,after=3); botborder(cp,ACCENT,12)
             run(cp,f" {el[1]}  ",font=HEAD,size=9,bold=True,color="FFFFFF")

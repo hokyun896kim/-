@@ -107,8 +107,11 @@ def render():
         elif t=='pullquote':
             parts.append(f'<blockquote class="pull"><p>{esc(el[1])}</p></blockquote>')
         elif t=='endnote':
-            parts.append(f'<div class="endnote"><span class="enlabel">이 장의 정리</span>'
-                         f'<p>{esc(el[1])}</p></div>')
+            lines=el[1] if isinstance(el[1],(list,tuple)) else [el[1]]
+            lis="".join(f'<li>{esc(s)}</li>' for s in lines)
+            parts.append(f'<div class="endnote"><span class="enlabel">이 장의 정리</span><ol>{lis}</ol></div>')
+        elif t=='writeline':
+            parts.append('<div class="writeline"></div>')
         elif t=='apxnote':
             parts.append(f'<div class="apxnote"><span class="anlabel">사용법</span>{esc(el[1])}</div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')
@@ -124,7 +127,8 @@ def render():
         elif t=='bullets':
             parts.append('<ul class="bullets">'+''.join(f'<li>{esc(x)}</li>' for x in el[1])+'</ul>')
         elif t=='numlist':
-            parts.append('<ol class="numlist">'+''.join(f'<li>{esc(x)}</li>' for x in el[1])+'</ol>')
+            lis="".join(f'<li><span class="ln">{esc(str(num))}.</span> {esc(x)}</li>' for num,x in el[1])
+            parts.append(f'<ul class="numlist">{lis}</ul>')
         elif t=='cat':
             parts.append(f'<p class="apx-cat"><span>{esc(el[1])}</span>{esc(el[2])}</p>')
         elif t=='q':

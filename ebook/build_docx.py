@@ -350,6 +350,9 @@ def build():
             r2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); r2.paragraph_format.left_indent=Mm(12); r2.paragraph_format.right_indent=Mm(12)
             run(r2,"본 전자책은 특정 종목의 매수·매도 권유나 수익 보장을 위한 것이 아니며, 투자 교육·실전 기록을 목적으로 합니다. 투자의 최종 판단과 책임은 독자 본인에게 있습니다.",size=8.2,color="9A948A")
 
+    cp=doc.core_properties
+    cp.title=C.TITLE; cp.author=C.AUTHOR; cp.subject=f"AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {C.SUBTITLE}"
+    cp.keywords="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자"
     doc.save(str(OUT)); print("[ok] DOCX →", OUT)
 
 if __name__=="__main__": build()

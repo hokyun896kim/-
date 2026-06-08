@@ -22,7 +22,15 @@ em{font-style:normal;background:linear-gradient(transparent 62%,#F4E3C2 62%)}
 
 .frontmatter{page-break-after:always;padding-top:6mm}
 h2.plain{font-family:"Noto Sans CJK KR";color:var(--navy);font-size:14pt;border-bottom:2px solid var(--accent);
- padding-bottom:2mm;margin:0 0 6mm}
+ padding-bottom:2mm;margin:0 0 6mm;string-set:ct ""}
+
+/* ---- PDF 북마크(뷰어 좌측 목차) 정리: 구조 항목만 ---- */
+h1,h2,h3,h4,h5,h6{bookmark-level:none}
+h2.plain{bookmark-level:1}                 /* 일러두기·차례·지은이 */
+h1.part{bookmark-level:1}                  /* 1~6부 */
+h2.chaptit{bookmark-level:2}               /* 장 */
+h2.chaptit.major{bookmark-level:1}         /* 프롤로그·에필로그·부록 */
+.colophon .ctitle{bookmark-level:1;bookmark-label:"판권"}
 .disclaimer{border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;background:#fff;
  padding:6mm;font-size:9.8pt;color:#48433d;line-height:1.7}
 .disclaimer .tag{font-family:"Noto Sans CJK KR";font-size:8.5pt;letter-spacing:.18em;color:var(--accentd);display:block;margin-bottom:3mm}

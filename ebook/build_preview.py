@@ -15,12 +15,13 @@ TOC=[]
 
 def esc(s): return html.escape(s)
 
-def opener_html(icon, eyebrow, title, anchor, subtitle=None):
+def opener_html(icon, eyebrow, title, anchor, subtitle=None, major=False):
     img=f'<img class="heroimg" src="build/img/hero_{icon}.png">' if icon else ''
     eb=f'<div class="ceyebrow">{esc(eyebrow)}</div>' if eyebrow else ''
     sub=f'<div class="csub">{esc(subtitle)}</div>' if subtitle else ''
+    cls="chaptit major" if major else "chaptit"
     return (f'<section class="chapopen" id="{anchor}">{img}{eb}'
-            f'<h2 class="chaptit">{esc(title)}</h2>{sub}</section>')
+            f'<h2 class="{cls}">{esc(title)}</h2>{sub}</section>')
 
 def first_sentence_split(text):
     # 따옴표가 끼지 않은 짧고 깔끔한 첫 문장만 도입문으로(없으면 None)
@@ -56,13 +57,13 @@ def render():
             kind=el[1]; anchor=f"{kind}{len(TOC)}"; icon=el[3] if len(el)>3 else ''
             if kind=='prologue':
                 TOC.append((kind,anchor,"프롤로그"))
-                parts.append(opener_html(icon,"","프롤로그",anchor,subtitle=el[2]))
+                parts.append(opener_html(icon,"","프롤로그",anchor,subtitle=el[2],major=True))
             elif kind=='epilogue':
                 TOC.append((kind,anchor,"에필로그"))
-                parts.append(opener_html(icon,"","에필로그",anchor,subtitle=el[2]))
+                parts.append(opener_html(icon,"","에필로그",anchor,subtitle=el[2],major=True))
             else:
                 TOC.append((kind,anchor,el[2]))
-                parts.append(opener_html(icon,"APPENDIX",el[2],anchor))
+                parts.append(opener_html(icon,"APPENDIX",el[2],anchor,major=True))
         elif t=='chapter':
             anchor=f"ch{el[1]}"; icon=el[3] if len(el)>3 else ''
             TOC.append(("chapter",anchor,f"{el[1]}장. {el[2]}"))
@@ -167,7 +168,11 @@ def render():
     body=body.replace("<!--TOC-->", toc)
 
     css=(ASSETS/"preview.css").read_text(encoding="utf-8")
-    doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><style>{css}</style></head><body>{body}</body></html>'
+    meta=(f'<title>{esc(C.TITLE)}</title>'
+          f'<meta name="author" content="{esc(C.AUTHOR)}">'
+          f'<meta name="description" content="AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {esc(C.SUBTITLE)}">'
+          f'<meta name="keywords" content="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자, 챗GPT 주식, AI 종목분석">')
+    doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style></head><body>{body}</body></html>'
     (BUILD/"preview.html").write_text(doc,encoding="utf-8")
     HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/"preview.pdf"))
     print("[ok] preview PDF →", BUILD/"preview.pdf")

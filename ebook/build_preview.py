@@ -115,6 +115,17 @@ def render():
         elif t=='closing':
             parts.append(f'<div class="closing"><img src="build/img/ornament.png">'
                          f'<p>{esc(el[1])}</p></div>')
+        elif t=='authorbio':
+            parts.append(f'<section class="authorbio"><h2 class="plain">지은이</h2>'
+                         f'<div class="abname">{esc(el[1])}</div><p>{esc(el[2])}</p></section>')
+        elif t=='colophon':
+            rows="".join(f'<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>' for k,v in el[1])
+            parts.append(f'<section class="colophon"><div class="ctitle">{esc(C.TITLE)}</div>'
+                         f'<table class="coltbl">{rows}</table>'
+                         f'<p class="crights">© {esc(C.AUTHOR)}. 이 책의 저작권은 지은이에게 있으며, '
+                         f'무단 복제·전재·배포를 금합니다.</p>'
+                         f'<p class="cnote">본 전자책은 특정 종목의 매수·매도 권유나 수익 보장을 위한 것이 아니며, '
+                         f'투자 교육·실전 기록을 목적으로 합니다. 투자의 최종 판단과 책임은 독자 본인에게 있습니다.</p></section>')
         elif t=='apxnote':
             parts.append(f'<div class="apxnote"><span class="anlabel">사용법</span>{esc(el[1])}</div>')
         elif t=='h3': parts.append(f'<h3>{esc(el[1])}</h3>')

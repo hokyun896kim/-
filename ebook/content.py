@@ -18,6 +18,13 @@ TITLE="나는 AI에게 종목을 묻지 않았다"
 SUBTITLE="7천만 원에서 2.5억까지, AI 투자 시스템의 시작"
 KEYLINE="나는 AI에게 정답을 묻지 않았다. AI를 내 투자위원회로 만들기 시작했다."
 PROJECT="도토리 AI 투자위원회"
+AUTHOR="도토리"                     # 필명 (바꾸면 전체 반영)
+EMAIL="contact@example.com"        # 문의 이메일 (실제 주소로 교체)
+PUBDATE="2026년 6월 초판 1쇄"
+AUTHOR_BIO=("개인투자자. AI를 ‘종목 추천기’가 아니라 ‘투자 판단을 점검하는 회의실’로 "
+ "쓰기 시작하면서, 장전·장마감 루틴과 섹터·포트폴리오 점검 질문을 만들어 왔다. "
+ "이 책은 그 과정을 정리한 실전 기록이다. 여전히 자주 틀리고 급등주 앞에서 흔들리지만, "
+ "‘뭘 살까’ 대신 ‘무엇을 확인할까’를 묻는 습관 하나만은 지키려 한다.")
 
 DISCLAIMER=[
  "이 책은 특정 종목의 매수·매도를 권유하기 위한 책이 아닙니다.",
@@ -224,6 +231,12 @@ def parse():
     E += parse_appendix(appendix_md)
     # 책을 닫는 한 문장
     E.append(('closing', "좋은 투자는 정답을 찾는 일이 아니라, 끝까지 질문을 놓치지 않는 일입니다."))
+    # 뒷부속: 저자 소개 + 판권지
+    E.append(('authorbio', AUTHOR, AUTHOR_BIO))
+    E.append(('colophon', [
+        ("제목", TITLE), ("부제", SUBTITLE), ("지은이", AUTHOR),
+        ("발행", f"{PROJECT} (자가출판)"), ("발행일", PUBDATE), ("문의", EMAIL),
+    ]))
     return relocate(E)
 
 # ---------- 인포그래픽/삽화를 '관련 문단' 옆으로 재배치 ----------

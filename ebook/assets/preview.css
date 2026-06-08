@@ -96,6 +96,18 @@ blockquote.pull::after{content:"";display:block;width:16mm;height:2px;background
 .closing p{margin:0 auto;max-width:104mm;font-family:"Noto Serif CJK KR";font-style:italic;font-weight:600;
  font-size:11.5pt;line-height:1.7;color:var(--navy)}
 
+.authorbio{page-break-before:always;padding-top:8mm}
+.authorbio .abname{font-family:"Noto Sans CJK KR";font-weight:800;font-size:14pt;color:var(--navy);margin:0 0 4mm}
+.authorbio p{font-size:10.5pt;line-height:1.8;color:#3a3631;max-width:120mm}
+.colophon{page-break-before:always;padding-top:60mm;text-align:center}
+.colophon .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--navy);margin-bottom:6mm}
+.colophon .coltbl{width:auto;margin:0 auto 7mm;border-collapse:collapse}
+.colophon .coltbl th{background:none;color:var(--muted);font-family:"Noto Sans CJK KR";font-weight:700;
+ font-size:9pt;text-align:right;padding:1.2mm 4mm 1.2mm 0;border:0;white-space:nowrap}
+.colophon .coltbl td{font-size:9.5pt;color:#3a3631;text-align:left;padding:1.2mm 0;border:0}
+.colophon .crights{font-size:8.8pt;color:var(--muted);margin:0 auto 2mm;max-width:110mm;line-height:1.6}
+.colophon .cnote{font-size:8.2pt;color:#9a948a;margin:0 auto;max-width:110mm;line-height:1.6}
+
 .callout{border:1px solid var(--line);border-left:4px solid var(--navy);background:#fff;border-radius:8px;padding:3.5mm 4.5mm;margin:4mm 0;page-break-inside:avoid}
 .callout .ctitle{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--navy);font-size:10pt;margin:0 0 2mm}
 .callout .ctitle::before{content:"● ";color:var(--accent);font-size:8pt}

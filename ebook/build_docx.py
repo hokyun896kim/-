@@ -337,6 +337,18 @@ def build():
             cp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.6)
             cp.paragraph_format.left_indent=Mm(12); cp.paragraph_format.right_indent=Mm(12)
             run(cp,el[1],font=BODY,size=11.5,italic=True,bold=True,color=NAVY)
+        elif t=='authorbio':
+            heading2(doc,"지은이")
+            nm=para(doc,before=2,after=3); run(nm,el[1],font=HEAD,size=14,bold=True,color=NAVY)
+            bp=para(doc,after=0,line=1.8); run(bp,el[2],size=10.5,color="3A3631")
+        elif t=='colophon':
+            tp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=150,after=6); run(tp,C.TITLE,font=HEAD,size=13,bold=True,color=NAVY)
+            for k,v in el[1]:
+                rp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=1,line=1.3)
+                run(rp,k+"  ",font=HEAD,size=8.5,bold=True,color=MUTED); run(rp,v,size=9.5,color="3A3631")
+            r1=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=2); run(r1,f"© {C.AUTHOR}. 무단 복제·전재·배포를 금합니다.",size=8.8,color=MUTED)
+            r2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); r2.paragraph_format.left_indent=Mm(12); r2.paragraph_format.right_indent=Mm(12)
+            run(r2,"본 전자책은 특정 종목의 매수·매도 권유나 수익 보장을 위한 것이 아니며, 투자 교육·실전 기록을 목적으로 합니다. 투자의 최종 판단과 책임은 독자 본인에게 있습니다.",size=8.2,color="9A948A")
 
     doc.save(str(OUT)); print("[ok] DOCX →", OUT)
 

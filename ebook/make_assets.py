@@ -92,13 +92,52 @@ def part_badge(name, inner):
 def cover_image():
     # 신국판 비율 152:225 → 1240x1835
     Wc,Hc=1240,1835
+    UP="#C0894B"; DOWN="#3C5663"; WUP="#D2A263"; WDN="#5C7682"
+    # --- 차트 영역(캔들 + 추세 + AI 신경망) ---
+    # 캔들: (cx, body_top, body_bot, wick_top, wick_bot, up)
+    candles=[(205,1180,1238,1158,1252,0),(312,1116,1186,1096,1206,1),
+             (419,1132,1182,1112,1202,0),(526,1052,1140,1032,1162,1),
+             (633,1010,1066,990,1088,1),(740,1036,1092,1016,1112,0),
+             (847,948,1030,928,1052,1),(954,884,962,864,982,1)]
+    cw=48
+    chart=[]
+    # 은은한 격자
+    for gx in range(170,1090,118):
+        chart.append(f'<line x1="{gx}" y1="900" x2="{gx}" y2="1270" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>')
+    for gy in range(910,1271,90):
+        chart.append(f'<line x1="150" y1="{gy}" x2="1085" y2="{gy}" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>')
+    # 바닥축
+    chart.append('<line x1="150" y1="1272" x2="1085" y2="1272" stroke="#6E8794" stroke-width="2" stroke-opacity="0.6"/>')
+    # 캔들
+    for cx,bt,bb,wt,wb,up in candles:
+        fill=UP if up else DOWN; wick=WUP if up else WDN
+        chart.append(f'<line x1="{cx}" y1="{wt}" x2="{cx}" y2="{wb}" stroke="{wick}" stroke-width="4"/>')
+        chart.append(f'<rect x="{cx-cw//2}" y="{bt}" width="{cw}" height="{bb-bt}" rx="4" fill="{fill}"/>')
+    # 추세선 + 화살표
+    chart.append('<polyline points="150,1215 450,1120 700,1015 905,915 1018,840" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>')
+    chart.append(f'<path d="M1018 840 l-40 6 18 28 z" fill="{ACCENT}"/>')
+    # AI 신경망 (상단 오버레이) — 노드 + 엣지 + 'AI' 칩
+    nodes=[(470,792),(610,820),(762,770),(905,802),(1006,752)]
+    edges=[((340,775),(470,792)),((470,792),(610,820)),((610,820),(762,770)),
+           ((762,770),(905,802)),((905,802),(1006,752)),((610,820),(905,802)),
+           ((905,802),(950,890)),((762,770),(842,946))]  # 마지막 2개: 차트로 연결
+    for (x1,y1),(x2,y2) in edges:
+        chart.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{ACCENT}" stroke-opacity="0.45" stroke-width="2"/>')
+    for nx,ny in nodes:
+        chart.append(f'<circle cx="{nx}" cy="{ny}" r="11" fill="#0E2A38" stroke="{ACCENT}" stroke-width="3"/>'
+                     f'<circle cx="{nx}" cy="{ny}" r="3.2" fill="{ACCENT}"/>')
+    # AI 칩
+    chart.append(f'<rect x="232" y="748" width="108" height="56" rx="28" fill="{ACCENT}" fill-opacity="0.14" stroke="{ACCENT}" stroke-width="3"/>'
+                 f'<text x="286" y="787" font-family="{FONT}" font-size="34" font-weight="800" fill="{ACCENT}" text-anchor="middle">AI</text>')
+    chart_svg="\n".join(chart)
+
     svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="{Wc}" height="{Hc}" viewBox="0 0 {Wc} {Hc}">
 <defs>
  <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
    <stop offset="0" stop-color="#102B39"/><stop offset="0.55" stop-color="#163B4E"/><stop offset="1" stop-color="#23596F"/>
  </linearGradient>
- <radialGradient id="glow" cx="0.85" cy="0.12" r="0.5">
-   <stop offset="0" stop-color="#C0894B" stop-opacity="0.40"/><stop offset="1" stop-color="#C0894B" stop-opacity="0"/>
+ <radialGradient id="glow" cx="0.85" cy="0.12" r="0.55">
+   <stop offset="0" stop-color="#C0894B" stop-opacity="0.38"/><stop offset="1" stop-color="#C0894B" stop-opacity="0"/>
  </radialGradient>
 </defs>
 <rect width="{Wc}" height="{Hc}" fill="url(#bg)"/>
@@ -109,17 +148,7 @@ def cover_image():
 <rect x="100" y="510" width="150" height="6" fill="{ACCENT}"/>
 <text x="100" y="586" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">7천만 원에서 2.5억까지,</text>
 <text x="100" y="642" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">AI 투자 시스템의 시작</text>
-<!-- 중앙 모티프: 말풍선 + 상승 차트 -->
-<g transform="translate(360,760)">
- <rect x="0" y="0" width="520" height="360" rx="44" fill="#FFFFFF" fill-opacity="0.05" stroke="{ACCENT}" stroke-width="4"/>
- <path d="M70 360 l-8 60 70 -50" fill="none" stroke="{ACCENT}" stroke-width="4" stroke-linejoin="round"/>
- <line x1="70" y1="120" x2="70" y2="280" stroke="#9FB4BC" stroke-width="3"/>
- <line x1="70" y1="280" x2="450" y2="280" stroke="#9FB4BC" stroke-width="3"/>
- <polyline points="95,250 175,225 255,190 335,140 415,95" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
- <path d="M415 95 l-30 4 14 22 z" fill="{ACCENT}"/>
- <circle cx="335" cy="140" r="9" fill="{ACCENT}"/>
- <text x="260" y="60" font-family="{FONT}" font-size="120" font-weight="800" fill="{ACCENT}" text-anchor="middle" opacity="0.9">?</text>
-</g>
+{chart_svg}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
 <text x="100" y="1742" font-family="{FONT}" font-size="30" fill="#BBC9CF">개인투자자를 위한 AI 활용 실전 기록</text>
 </svg>'''

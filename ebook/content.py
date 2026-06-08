@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parent
 SRC  = ROOT / "source" / "raw_v1.1.md"
 
 TITLE="나는 AI에게 종목을 묻지 않았다"
-SUBTITLE="7천만 원에서 2.5억까지, AI 투자 시스템의 시작"
+SUBTITLE="7천만 원 계좌에서 시작된 질문, AI 투자 시스템의 시작"
 KEYLINE="나는 AI에게 정답을 묻지 않았다. AI를 내 투자위원회로 만들기 시작했다."
 PROJECT="호차차"
 AUTHOR="호차차"                     # 필명 (바꾸면 전체 반영)

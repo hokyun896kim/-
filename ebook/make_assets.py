@@ -116,7 +116,7 @@ def cover_from_image(src):
     d.text((98,205),"나는 AI에게",font=F(94),fill=WHITE)
     d.text((98,322),"종목을 묻지 않았다",font=F(94),fill=WHITE)
     d.rectangle([102,478,252,485],fill=GOLD)
-    d.text((102,522),"7천만 원에서 2.5억까지,",font=F(41),fill=LIGHT)
+    d.text((102,522),"7천만 원 계좌에서 시작된 질문,",font=F(40),fill=LIGHT)
     d.text((102,578),"AI 투자 시스템의 시작",font=F(41),fill=LIGHT)
     d.text((102,1688),"호차차 지음",font=F(42),fill=(223,231,235))
     d.text((102,1740),"개인투자자를 위한 AI 활용 실전 기록",font=F(29),fill=SUB)
@@ -183,7 +183,7 @@ def cover_image():
 <text x="96" y="350" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">나는 AI에게</text>
 <text x="96" y="452" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">종목을 묻지 않았다</text>
 <rect x="100" y="510" width="150" height="6" fill="{ACCENT}"/>
-<text x="100" y="586" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">7천만 원에서 2.5억까지,</text>
+<text x="100" y="586" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">7천만 원 계좌에서 시작된 질문,</text>
 <text x="100" y="642" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">AI 투자 시스템의 시작</text>
 {chart_svg}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>

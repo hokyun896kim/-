@@ -120,7 +120,7 @@ def cover_image():
  <circle cx="335" cy="140" r="9" fill="{ACCENT}"/>
  <text x="260" y="60" font-family="{FONT}" font-size="120" font-weight="800" fill="{ACCENT}" text-anchor="middle" opacity="0.9">?</text>
 </g>
-<text x="100" y="1695" font-family="{FONT}" font-size="38" font-weight="700" fill="#D7E1E5">도토리 AI 투자위원회</text>
+<text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
 <text x="100" y="1742" font-family="{FONT}" font-size="30" fill="#BBC9CF">개인투자자를 위한 AI 활용 실전 기록</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)

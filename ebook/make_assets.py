@@ -89,7 +89,44 @@ def part_badge(name, inner):
          f'transform="translate(9.6 9.6) scale(0.7)">{inner.replace("{C}",NAVY)}</g></svg>')
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/f"part_{name}.png"), output_width=px, output_height=px)
 
+def cover_from_image(src):
+    from PIL import Image, ImageDraw, ImageFont
+    Wc,Hc=1240,1835
+    base=Image.open(str(src)).convert("RGB")
+    s=max(Wc/base.width, Hc/base.height)
+    base=base.resize((round(base.width*s), round(base.height*s)), Image.LANCZOS)
+    lft=(base.width-Wc)//2; top=(base.height-Hc)//2
+    img=base.crop((lft,top,lft+Wc,top+Hc)).convert("RGBA")
+    # 가독성용 어둠막(상단 제목 / 하단 저자)
+    ov=Image.new("RGBA",(Wc,Hc),(0,0,0,0)); od=ImageDraw.Draw(ov)
+    for y in range(Hc):
+        a=0
+        if y<640: a=max(a,int(165*(1-y/640)))
+        if y>1380: a=max(a,int(170*((y-1380)/(Hc-1380))))
+        if a: od.line([(0,y),(Wc,y)],fill=(8,9,12,a))
+    img=Image.alpha_composite(img,ov)
+    d=ImageDraw.Draw(img)
+    fp="/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+    def F(sz): return ImageFont.truetype(fp,sz)
+    def tracked(x,y,text,font,fill,tr):
+        for ch in text:
+            d.text((x,y),ch,font=font,fill=fill); x+=d.textlength(ch,font=font)+tr
+    GOLD=(196,154,86); WHITE=(255,255,255); LIGHT=(228,236,239); SUB=(196,210,216)
+    tracked(102,150,"AI · INVESTING · SYSTEM",F(29),GOLD,8)
+    d.text((98,205),"나는 AI에게",font=F(94),fill=WHITE)
+    d.text((98,322),"종목을 묻지 않았다",font=F(94),fill=WHITE)
+    d.rectangle([102,478,252,485],fill=GOLD)
+    d.text((102,522),"7천만 원에서 2.5억까지,",font=F(41),fill=LIGHT)
+    d.text((102,578),"AI 투자 시스템의 시작",font=F(41),fill=LIGHT)
+    d.text((102,1688),"호차차 지음",font=F(42),fill=(223,231,235))
+    d.text((102,1740),"개인투자자를 위한 AI 활용 실전 기록",font=F(29),fill=SUB)
+    img.convert("RGB").save(str(IMG/"cover.png"))
+
 def cover_image():
+    # 사용자 업로드 이미지가 있으면 그 위에 타이포 합성, 없으면 SVG 표지
+    src=ROOT/"assets"/"cover_source.png"
+    if src.exists():
+        cover_from_image(src); return
     # 신국판 비율 152:225 → 1240x1835
     Wc,Hc=1240,1835
     UP="#C0894B"; DOWN="#3C5663"; WUP="#D2A263"; WDN="#5C7682"

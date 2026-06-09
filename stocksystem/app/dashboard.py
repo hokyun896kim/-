@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
+from stocksystem.analysis import chart_reader as cr
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
@@ -452,10 +454,10 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-(tab0, tab_eb, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
- tab4) = st.tabs(
+(tab0, tab_eb, tab1, tab_heg, tab2, tab_read, tab_cmp, tab5, tab_sim, tab3,
+ tab_doc, tab4) = st.tabs(
     ["🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
-     "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
+     "🔬 차트 판독", "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
      "🩺 포트폴리오 닥터", "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
@@ -1119,6 +1121,139 @@ with tab_heg:
             width='stretch', hide_index=True, height=440)
     st.caption("⚠️ 스냅샷 아님 — yfinance 손익계산서로 매번 새로 계산합니다. "
                "분기TTM은 8분기 확보 시에만(무료 데이터 한계로 일부 —).")
+
+# ============================ 탭: 차트 판독 ============================
+with tab_read:
+    st.subheader("🔬 차트 판독 — 이미지를 올리면 AI가 읽어줍니다")
+    st.caption("증권사 앱·트레이딩뷰 등에서 캡처한 차트 이미지를 올리면, "
+               "Claude 비전 모델이 추세·지지/저항·패턴·신호를 판독합니다.")
+
+    # API 키: secrets → 환경변수 → 직접 입력 순으로 확보
+    secret_key = None
+    try:
+        secret_key = st.secrets.get("ANTHROPIC_API_KEY")  # type: ignore
+    except Exception:
+        secret_key = None
+    env_key = secret_key or os.environ.get("ANTHROPIC_API_KEY")
+
+    if not env_key:
+        env_key = st.text_input(
+            "Anthropic API 키", type="password",
+            help="console.anthropic.com 에서 발급. 배포 시에는 Streamlit "
+                 "secrets 또는 환경변수 ANTHROPIC_API_KEY 로 설정하면 입력이 "
+                 "생략됩니다. 입력값은 저장되지 않습니다.")
+
+    up = st.file_uploader(
+        "차트 이미지 업로드 (PNG · JPG · WEBP)",
+        type=["png", "jpg", "jpeg", "webp"])
+    note = st.text_input(
+        "참고 맥락 (선택)",
+        placeholder="예: AAPL 일봉 6개월 / 나스닥 선물 4시간봉")
+
+    rc = st.columns([1, 3])
+    go_read = rc[0].button("🔬 판독하기", type="primary",
+                           width='stretch', disabled=up is None)
+
+    if up is not None:
+        st.image(up, caption="업로드한 차트", width='stretch')
+
+    if go_read and up is not None:
+        if not env_key:
+            st.error("먼저 Anthropic API 키를 입력하거나 환경변수로 설정하세요.")
+        else:
+            mt = up.type or "image/png"
+            if mt not in ("image/png", "image/jpeg", "image/webp", "image/gif"):
+                mt = "image/png"
+            try:
+                with st.spinner("AI가 차트를 판독하는 중... (10~30초)"):
+                    reading = cr.read_chart(
+                        up.getvalue(), media_type=mt,
+                        context_note=note, api_key=env_key)
+            except cr.ChartReaderError as e:
+                st.error(f"판독 실패: {e}")
+                reading = None
+            except Exception as e:  # 예기치 못한 오류
+                st.error(f"판독 중 오류가 발생했습니다: {e}")
+                reading = None
+
+            if reading is not None:
+                if not reading.is_chart:
+                    st.warning("이미지를 주가 차트로 판독하기 어렵습니다. "
+                               "차트가 선명하게 보이는 캡처로 다시 시도해보세요.")
+
+                # 상단 요약 지표
+                sig_color = {
+                    "적극매수": "#14532d", "매수": "#15803d", "중립": "#a16207",
+                    "매도": "#b45309", "적극매도": "#7f1d1d"}.get(
+                        reading.signal, "#a16207")
+                mc = st.columns(3)
+                mc[0].metric("종합 신호", reading.signal)
+                mc[1].metric("추세", reading.trend or "—")
+                mc[2].metric("확신도", f"{reading.confidence}/100")
+                st.markdown(
+                    f"<div style='height:6px;border-radius:3px;background:"
+                    f"{sig_color};margin:-6px 0 8px 0'></div>",
+                    unsafe_allow_html=True)
+
+                st.markdown(f"#### 📋 요약\n{reading.summary}")
+                if reading.trend_detail:
+                    st.markdown(f"**추세 해설** — {reading.trend_detail}")
+
+                lr = st.columns(2)
+                with lr[0]:
+                    st.markdown("#### 🟢 지지 구간")
+                    if reading.support_levels:
+                        for s in reading.support_levels:
+                            st.markdown(f"- {s}")
+                    else:
+                        st.caption("뚜렷한 지지 구간이 식별되지 않았습니다.")
+                with lr[1]:
+                    st.markdown("#### 🔴 저항 구간")
+                    if reading.resistance_levels:
+                        for s in reading.resistance_levels:
+                            st.markdown(f"- {s}")
+                    else:
+                        st.caption("뚜렷한 저항 구간이 식별되지 않았습니다.")
+
+                if reading.patterns:
+                    st.markdown("#### 📐 차트 패턴")
+                    for p in reading.patterns:
+                        st.markdown(
+                            f"- **{p.get('name', '')}** — "
+                            f"{p.get('description', '')}")
+
+                if reading.indicators:
+                    st.markdown("#### 📊 보조지표")
+                    for ind in reading.indicators:
+                        st.markdown(
+                            f"- **{ind.get('name', '')}**: "
+                            f"{ind.get('reading', '')}")
+
+                if reading.key_observations:
+                    st.markdown("#### 🔑 핵심 관찰")
+                    for k in reading.key_observations:
+                        st.markdown(f"- {k}")
+
+                sc = st.columns(2)
+                with sc[0]:
+                    st.markdown("#### 📈 상방 시나리오")
+                    st.markdown(reading.bullish_scenario or "—")
+                with sc[1]:
+                    st.markdown("#### 📉 하방 시나리오")
+                    st.markdown(reading.bearish_scenario or "—")
+
+                if reading.invalidation:
+                    st.warning(f"🛑 무효화/손절 기준 — {reading.invalidation}")
+
+                if reading.risks:
+                    st.markdown("#### ⚠️ 유의 리스크")
+                    for r in reading.risks:
+                        st.markdown(f"- {r}")
+
+                st.caption(f"판독 모델: {reading.model} · 본 분석은 교육·연구용 "
+                           "참고 자료이며 투자자문이 아닙니다.")
+    elif up is None:
+        st.info("위에서 차트 이미지를 업로드한 뒤 **판독하기** 를 눌러주세요.")
 
 # ============================ 탭: 종목 비교 레이더 ============================
 with tab_cmp:

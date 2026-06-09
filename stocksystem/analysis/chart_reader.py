@@ -1,7 +1,14 @@
-"""차트 이미지 판독 엔진 (Claude 비전 모델).
+"""차트 이미지 판독 엔진 (Claude 비전 모델 · 미너비니 SEPA/VCP 기반).
 
-업로드한 차트 캡처 이미지를 Claude 비전 모델에게 보내, 추세·지지/저항·
-패턴·지표·매매신호를 구조화된 형태로 읽어온다.
+업로드한 차트 캡처 이미지를 Claude 비전 모델에게 보내, 마크 미너비니의
+SEPA(Specific Entry Point Analysis)와 VCP(Volatility Contraction Pattern)
+관점으로 판독한다.
+
+판독 골자:
+- 트렌드 템플릿 (주가 > 50 > 150 > 200일선, 200일선 우상향, 52주 고저 위치 등)
+- 스테이지 분석 (2단계 상승국면 매집 신호 포착)
+- VCP 변동성 수축 (3~4차 수축, 각 단계가 이전의 ~절반, 거래량 감소)
+- 피벗 포인트 + 손절/목표/손익비 제안 (5% 추격 금지 규율 반영)
 
 설계 노트:
 - `anthropic` 패키지는 함수 안에서 지연 import 한다. 패키지가 없거나
@@ -16,7 +23,7 @@ from __future__ import annotations
 
 import base64
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 # 기본 모델: 가장 capable 한 Opus 4.8
@@ -25,26 +32,63 @@ DEFAULT_MODEL = "claude-opus-4-8"
 # 매매 신호 등급(스코어링 모듈과 톤을 맞춘다)
 SIGNAL_LABELS = ["적극매수", "매수", "중립", "매도", "적극매도"]
 
-# 차트 판독 전문가 시스템 프롬프트
+# 미너비니 관점의 행동 권고
+ACTION_LABELS = [
+    "피벗 돌파 매수",      # 피벗을 대량 거래량과 함께 막 돌파
+    "관찰 대기",           # VCP/베이스 형성 중, 피벗 돌파 전
+    "추격 금지",           # 이미 피벗 +5% 이상 확장 — 신규 진입 부적합
+    "회피",                # 셋업(트렌드 템플릿/스테이지) 미충족
+]
+
+# 와인스타인 스테이지
+STAGE_LABELS = [
+    "1단계 바닥권", "2단계 상승국면", "3단계 천장권", "4단계 하락국면", "불명확",
+]
+
+_STATUS = ["충족", "미충족", "불명확"]
+_DRYUP = ["뚜렷함", "부분적", "없음", "불명확"]
+
+# 차트 판독 전문가 시스템 프롬프트 (미너비니 SEPA/VCP)
 _SYSTEM = """\
-당신은 20년 경력의 기술적 분석(테크니컬 애널리스트) 전문가입니다.
-사용자가 올린 '주가 차트 이미지'를 보고 차트를 판독합니다.
+당신은 마크 미너비니(Mark Minervini)의 SEPA·VCP 매매법을 20년간 운용해 온
+미국 성장주 전문 테크니컬 트레이더입니다. 사용자가 올린 '주가 차트 이미지'를
+미너비니 프레임워크로 정밀 판독합니다.
 
-판독 원칙:
-- 이미지에 실제로 보이는 것만 근거로 삼습니다. 보이지 않는 가격·날짜를
-  지어내지 마세요. 축 눈금이 안 보이면 '대략', '상단/하단 부근'처럼
-  상대적으로 표현합니다.
-- 추세(상승/하락/횡보), 추세선·채널, 지지/저항 구간, 거래량, 차트 패턴
-  (헤드앤숄더, 이중 천장/바닥, 삼각수렴, 깃발, 컵앤핸들 등), 캔들 신호,
-  이미지에 함께 표시된 보조지표(이동평균선·MACD·RSI·볼린저밴드 등)를
-  종합적으로 읽습니다.
-- 한쪽으로 단정하지 말고 상방/하방 시나리오와 무효화(손절) 기준을 함께
-  제시합니다.
+[판독 원칙]
+- 이미지에 실제로 보이는 것만 근거로 삼습니다. 보이지 않는 가격·날짜·재무
+  수치는 지어내지 마세요. 축 눈금이 안 보이면 '대략/상단 부근'처럼 상대적으로
+  표현하고, 해당 항목 status 는 '불명확'으로 둡니다.
 - 모든 설명은 한국어로, 초보자도 이해할 수 있게 풀어서 씁니다.
-- 이것은 교육용 분석이며 투자 권유가 아님을 잊지 마세요.
+- 이것은 교육용 분석이며 투자 권유가 아닙니다.
 
-이미지가 주가 차트가 아니거나 너무 흐려 판독이 어려우면, summary 에 그
-사실을 적고 signal 은 '중립', confidence 는 낮게 설정합니다.
+[1. 스테이지 분석] 와인스타인 4단계 중 어디인지 판정합니다.
+  1단계(바닥 횡보) → 2단계(상승) → 3단계(천장) → 4단계(하락).
+  미너비니는 오직 '2단계 상승국면'의 주도주만 매수 대상으로 삼습니다.
+
+[2. 트렌드 템플릿] 이미지에서 확인 가능한 항목을 점검합니다.
+  - 주가가 50일선 위 / 50일선 > 150일선 > 200일선 정배열인가
+  - 200일(또는 장기) 이동평균선이 우상향하는가
+  - 현재가가 52주 신저가 대비 +30% 이상, 신고가 대비 -25% 이내인가
+  - 상대강도(차트상 강세 흐름)가 시장을 앞서는가
+  ※ 재무(EPS/매출/ROE/기관지분)는 차트 이미지만으로는 확인 불가 →
+     보이지 않으면 status '불명확'으로 두고 추정하지 마세요.
+
+[3. VCP 변동성 수축] 베이스(횡보) 안에서 되돌림 폭이 점점 줄어드는지 봅니다.
+  - 통상 3~4차 수축(T1→T2→T3…). 각 조정폭은 직전의 대략 절반으로 수렴
+    (예: -20% → -10% → -5% → -2%). 보이는 대로 각 수축폭을 추정합니다.
+  - 거래량 감소(Volume Dry-Up): 수축 후반·조정 구간에서 거래량이 평소의
+    40~60% 이하로 바싹 마르면 매도 물량 소진의 강한 신호입니다.
+  - 피벗 포인트: 가격·거래량이 한 점으로 수렴한 마지막 마디의 돌파 기준선.
+
+[4. 진입·리스크 규율]
+  - 매수는 피벗을 '대량 거래량'과 함께 돌파할 때만. 손절은 통상 -7~8%,
+    타이트한 VCP(수축 꼬리 3~5%)는 -5~6%로 더 좁힙니다.
+  - 손익비는 최소 2:1(이상적 3:1) 이상이어야 합니다.
+  - 피벗을 이미 +5% 이상 벗어나 확장된 상태면 추격 매수 금지(action='추격 금지').
+  - 셋업이 트렌드 템플릿/스테이지에 부합하지 않으면 action='회피'.
+
+이미지가 주가 차트가 아니거나 흐려 판독이 어려우면 is_chart=false, signal='중립',
+confidence 를 낮게 두고 summary 에 그 사실을 적습니다.
 """
 
 # 구조화 출력 스키마 (numeric min/max 등 미지원 제약은 쓰지 않는다)
@@ -55,49 +99,95 @@ _SCHEMA = {
             "type": "boolean",
             "description": "이미지가 판독 가능한 주가 차트이면 true",
         },
-        "trend": {
+        "stage": {
             "type": "string",
-            "description": "큰 흐름의 추세 (예: 단기 상승추세, 중기 횡보)",
+            "enum": STAGE_LABELS,
+            "description": "와인스타인 스테이지 판정",
         },
-        "trend_detail": {
+        "stage_reason": {
             "type": "string",
-            "description": "추세에 대한 2~4문장 설명",
+            "description": "스테이지 판정 근거 1~3문장",
+        },
+        "trend_template": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "criterion": {"type": "string", "description": "점검 항목"},
+                    "status": {"type": "string", "enum": _STATUS},
+                    "note": {"type": "string", "description": "근거/관찰"},
+                },
+                "required": ["criterion", "status", "note"],
+                "additionalProperties": False,
+            },
+            "description": "트렌드 템플릿 항목별 점검 결과",
+        },
+        "trend_template_summary": {
+            "type": "string",
+            "description": "예: '확인 가능한 6개 중 5개 충족'",
+        },
+        "vcp_detected": {
+            "type": "boolean",
+            "description": "VCP(변동성 수축 패턴)가 식별되면 true",
+        },
+        "vcp_contractions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "label": {"type": "string", "description": "T1, T2 등"},
+                    "depth": {"type": "string",
+                              "description": "조정폭 추정 (예: 약 -12%)"},
+                    "note": {"type": "string"},
+                },
+                "required": ["label", "depth", "note"],
+                "additionalProperties": False,
+            },
+            "description": "수축 단계별 되돌림 폭 (없으면 빈 배열)",
+        },
+        "volume_dry_up": {
+            "type": "string",
+            "enum": _DRYUP,
+            "description": "거래량 감소(Volume Dry-Up) 정도",
+        },
+        "pivot_point": {
+            "type": "string",
+            "description": "피벗 포인트(돌파 기준선). 보이는 대로 묘사",
+        },
+        "vcp_note": {
+            "type": "string",
+            "description": "VCP 종합 해설 2~4문장",
+        },
+        "action": {
+            "type": "string",
+            "enum": ACTION_LABELS,
+            "description": "미너비니 관점의 행동 권고",
+        },
+        "entry_pivot": {
+            "type": "string",
+            "description": "진입 기준(피벗 돌파) 설명",
+        },
+        "stop_loss": {
+            "type": "string",
+            "description": "손절 기준 (가격대 또는 % 폭)",
+        },
+        "target": {
+            "type": "string",
+            "description": "1차 목표 구간",
+        },
+        "risk_reward": {
+            "type": "string",
+            "description": "예상 손익비 (예: 약 2.5:1)",
         },
         "support_levels": {
             "type": "array",
             "items": {"type": "string"},
-            "description": "지지 구간/가격대. 보이는 대로 묘사",
+            "description": "지지 구간 (보이는 대로)",
         },
         "resistance_levels": {
             "type": "array",
             "items": {"type": "string"},
-            "description": "저항 구간/가격대. 보이는 대로 묘사",
-        },
-        "patterns": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "description": {"type": "string"},
-                },
-                "required": ["name", "description"],
-                "additionalProperties": False,
-            },
-            "description": "식별된 차트 패턴 목록 (없으면 빈 배열)",
-        },
-        "indicators": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "reading": {"type": "string"},
-                },
-                "required": ["name", "reading"],
-                "additionalProperties": False,
-            },
-            "description": "이미지에 함께 보이는 보조지표 판독 (없으면 빈 배열)",
+            "description": "저항 구간 (보이는 대로)",
         },
         "key_observations": {
             "type": "array",
@@ -106,15 +196,16 @@ _SCHEMA = {
         },
         "bullish_scenario": {
             "type": "string",
-            "description": "상방 시나리오와 조건",
+            "description": "상방(피벗 돌파) 시나리오",
         },
         "bearish_scenario": {
             "type": "string",
-            "description": "하방 시나리오와 조건",
+            "description": "하방(베이스 실패) 시나리오",
         },
-        "invalidation": {
-            "type": "string",
-            "description": "분석이 깨지는 손절/무효화 기준",
+        "risks": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "유의해야 할 리스크",
         },
         "signal": {
             "type": "string",
@@ -125,21 +216,18 @@ _SCHEMA = {
             "type": "integer",
             "description": "판독 확신도 0~100",
         },
-        "risks": {
-            "type": "array",
-            "items": {"type": "string"},
-            "description": "유의해야 할 리스크",
-        },
         "summary": {
             "type": "string",
             "description": "전체 판독 요약 (3~5문장)",
         },
     },
     "required": [
-        "is_chart", "trend", "trend_detail", "support_levels",
-        "resistance_levels", "patterns", "indicators", "key_observations",
-        "bullish_scenario", "bearish_scenario", "invalidation", "signal",
-        "confidence", "risks", "summary",
+        "is_chart", "stage", "stage_reason", "trend_template",
+        "trend_template_summary", "vcp_detected", "vcp_contractions",
+        "volume_dry_up", "pivot_point", "vcp_note", "action", "entry_pivot",
+        "stop_loss", "target", "risk_reward", "support_levels",
+        "resistance_levels", "key_observations", "bullish_scenario",
+        "bearish_scenario", "risks", "signal", "confidence", "summary",
     ],
     "additionalProperties": False,
 }
@@ -147,21 +235,30 @@ _SCHEMA = {
 
 @dataclass
 class ChartReading:
-    """차트 판독 결과."""
+    """차트 판독 결과 (미너비니 SEPA/VCP)."""
     is_chart: bool
-    trend: str
-    trend_detail: str
+    stage: str
+    stage_reason: str
+    trend_template: list[dict]
+    trend_template_summary: str
+    vcp_detected: bool
+    vcp_contractions: list[dict]
+    volume_dry_up: str
+    pivot_point: str
+    vcp_note: str
+    action: str
+    entry_pivot: str
+    stop_loss: str
+    target: str
+    risk_reward: str
     support_levels: list[str]
     resistance_levels: list[str]
-    patterns: list[dict]
-    indicators: list[dict]
     key_observations: list[str]
     bullish_scenario: str
     bearish_scenario: str
-    invalidation: str
+    risks: list[str]
     signal: str
     confidence: int
-    risks: list[str]
     summary: str
     model: str = DEFAULT_MODEL
 
@@ -169,19 +266,28 @@ class ChartReading:
     def from_dict(cls, d: dict, model: str = DEFAULT_MODEL) -> "ChartReading":
         return cls(
             is_chart=bool(d.get("is_chart", True)),
-            trend=d.get("trend", ""),
-            trend_detail=d.get("trend_detail", ""),
+            stage=d.get("stage", "불명확"),
+            stage_reason=d.get("stage_reason", ""),
+            trend_template=list(d.get("trend_template", [])),
+            trend_template_summary=d.get("trend_template_summary", ""),
+            vcp_detected=bool(d.get("vcp_detected", False)),
+            vcp_contractions=list(d.get("vcp_contractions", [])),
+            volume_dry_up=d.get("volume_dry_up", "불명확"),
+            pivot_point=d.get("pivot_point", ""),
+            vcp_note=d.get("vcp_note", ""),
+            action=d.get("action", "회피"),
+            entry_pivot=d.get("entry_pivot", ""),
+            stop_loss=d.get("stop_loss", ""),
+            target=d.get("target", ""),
+            risk_reward=d.get("risk_reward", ""),
             support_levels=list(d.get("support_levels", [])),
             resistance_levels=list(d.get("resistance_levels", [])),
-            patterns=list(d.get("patterns", [])),
-            indicators=list(d.get("indicators", [])),
             key_observations=list(d.get("key_observations", [])),
             bullish_scenario=d.get("bullish_scenario", ""),
             bearish_scenario=d.get("bearish_scenario", ""),
-            invalidation=d.get("invalidation", ""),
+            risks=list(d.get("risks", [])),
             signal=d.get("signal", "중립"),
             confidence=int(d.get("confidence", 0)),
-            risks=list(d.get("risks", [])),
             summary=d.get("summary", ""),
             model=model,
         )
@@ -204,7 +310,7 @@ def read_chart(
     api_key: Optional[str] = None,
     model: str = DEFAULT_MODEL,
 ) -> ChartReading:
-    """차트 이미지를 판독해 구조화된 결과를 반환한다.
+    """차트 이미지를 미너비니 SEPA/VCP 관점으로 판독한다.
 
     Parameters
     ----------
@@ -232,14 +338,14 @@ def read_chart(
     client = anthropic.Anthropic(api_key=key)
     b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
 
-    prompt = "이 주가 차트를 판독해 주세요."
+    prompt = ("이 주가 차트를 미너비니 SEPA·VCP 관점으로 판독해 주세요.")
     if context_note.strip():
         prompt += f"\n\n참고 맥락: {context_note.strip()}"
 
     try:
         response = client.messages.create(
             model=model,
-            max_tokens=4096,
+            max_tokens=8192,
             system=_SYSTEM,
             thinking={"type": "adaptive"},
             output_config={

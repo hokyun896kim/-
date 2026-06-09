@@ -1124,9 +1124,10 @@ with tab_heg:
 
 # ============================ 탭: 차트 판독 ============================
 with tab_read:
-    st.subheader("🔬 차트 판독 — 이미지를 올리면 AI가 읽어줍니다")
+    st.subheader("🔬 차트 판독 — 미너비니 SEPA·VCP")
     st.caption("증권사 앱·트레이딩뷰 등에서 캡처한 차트 이미지를 올리면, "
-               "Claude 비전 모델이 추세·지지/저항·패턴·신호를 판독합니다.")
+               "Claude 비전 모델이 마크 미너비니의 트렌드 템플릿·스테이지·"
+               "VCP(변동성 수축)·피벗을 판독하고 손절/목표/손익비를 제안합니다.")
 
     # API 키: secrets → 환경변수 → 직접 입력 순으로 확보
     secret_key = None
@@ -1181,23 +1182,64 @@ with tab_read:
                     st.warning("이미지를 주가 차트로 판독하기 어렵습니다. "
                                "차트가 선명하게 보이는 캡처로 다시 시도해보세요.")
 
-                # 상단 요약 지표
-                sig_color = {
-                    "적극매수": "#14532d", "매수": "#15803d", "중립": "#a16207",
-                    "매도": "#b45309", "적극매도": "#7f1d1d"}.get(
-                        reading.signal, "#a16207")
-                mc = st.columns(3)
-                mc[0].metric("종합 신호", reading.signal)
-                mc[1].metric("추세", reading.trend or "—")
-                mc[2].metric("확신도", f"{reading.confidence}/100")
+                # 상단 요약 지표 — 행동 권고 중심
+                act_color = {
+                    "피벗 돌파 매수": "#14532d", "관찰 대기": "#a16207",
+                    "추격 금지": "#b45309", "회피": "#7f1d1d"}.get(
+                        reading.action, "#a16207")
+                mc = st.columns(4)
+                mc[0].metric("행동 권고", reading.action)
+                mc[1].metric("스테이지", reading.stage)
+                mc[2].metric("종합 신호", reading.signal)
+                mc[3].metric("확신도", f"{reading.confidence}/100")
                 st.markdown(
                     f"<div style='height:6px;border-radius:3px;background:"
-                    f"{sig_color};margin:-6px 0 8px 0'></div>",
+                    f"{act_color};margin:-6px 0 8px 0'></div>",
                     unsafe_allow_html=True)
 
                 st.markdown(f"#### 📋 요약\n{reading.summary}")
-                if reading.trend_detail:
-                    st.markdown(f"**추세 해설** — {reading.trend_detail}")
+                if reading.stage_reason:
+                    st.markdown(f"**스테이지 근거** — {reading.stage_reason}")
+
+                # 진입·리스크 규율
+                st.markdown("#### 🎯 진입 · 리스크 (미너비니 규율)")
+                tc = st.columns(4)
+                tc[0].metric("피벗", reading.pivot_point or "—")
+                tc[1].metric("손절", reading.stop_loss or "—")
+                tc[2].metric("목표", reading.target or "—")
+                tc[3].metric("손익비", reading.risk_reward or "—")
+                if reading.entry_pivot:
+                    st.caption(f"진입 조건 — {reading.entry_pivot}")
+                if reading.action == "추격 금지":
+                    st.warning("⛔ 피벗을 이미 +5% 이상 벗어나 확장된 상태입니다. "
+                               "미너비니 규율상 추격 매수 금지 — 다음 베이스를 "
+                               "기다리세요.")
+
+                # 트렌드 템플릿 체크리스트
+                st.markdown(f"#### ✅ 트렌드 템플릿 — {reading.trend_template_summary}")
+                if reading.trend_template:
+                    _ico = {"충족": "🟢", "미충족": "🔴", "불명확": "⚪"}
+                    for t in reading.trend_template:
+                        st.markdown(
+                            f"- {_ico.get(t.get('status'), '⚪')} "
+                            f"**{t.get('criterion', '')}** — {t.get('note', '')}")
+                else:
+                    st.caption("차트에서 확인 가능한 트렌드 템플릿 항목이 없습니다.")
+
+                # VCP 변동성 수축
+                vstat = "✅ 식별됨" if reading.vcp_detected else "❌ 미식별"
+                st.markdown(f"#### 📐 VCP 변동성 수축 — {vstat}")
+                if reading.vcp_contractions:
+                    vdf = pd.DataFrame([
+                        {"단계": c.get("label", ""),
+                         "조정폭": c.get("depth", ""),
+                         "비고": c.get("note", "")}
+                        for c in reading.vcp_contractions])
+                    st.dataframe(vdf, width='stretch', hide_index=True)
+                st.markdown(f"- **거래량 감소(Volume Dry-Up)**: "
+                            f"{reading.volume_dry_up}")
+                if reading.vcp_note:
+                    st.markdown(reading.vcp_note)
 
                 lr = st.columns(2)
                 with lr[0]:
@@ -1215,20 +1257,6 @@ with tab_read:
                     else:
                         st.caption("뚜렷한 저항 구간이 식별되지 않았습니다.")
 
-                if reading.patterns:
-                    st.markdown("#### 📐 차트 패턴")
-                    for p in reading.patterns:
-                        st.markdown(
-                            f"- **{p.get('name', '')}** — "
-                            f"{p.get('description', '')}")
-
-                if reading.indicators:
-                    st.markdown("#### 📊 보조지표")
-                    for ind in reading.indicators:
-                        st.markdown(
-                            f"- **{ind.get('name', '')}**: "
-                            f"{ind.get('reading', '')}")
-
                 if reading.key_observations:
                     st.markdown("#### 🔑 핵심 관찰")
                     for k in reading.key_observations:
@@ -1241,9 +1269,6 @@ with tab_read:
                 with sc[1]:
                     st.markdown("#### 📉 하방 시나리오")
                     st.markdown(reading.bearish_scenario or "—")
-
-                if reading.invalidation:
-                    st.warning(f"🛑 무효화/손절 기준 — {reading.invalidation}")
 
                 if reading.risks:
                     st.markdown("#### ⚠️ 유의 리스크")

@@ -1,15 +1,18 @@
-"""차트 판독 엔진 테스트 (네트워크/ API 키 불필요).
+"""차트 판독 엔진 테스트 (미너비니 SEPA/VCP · 네트워크/API 키 불필요).
 
 실제 Claude API 호출은 단위 테스트하지 않고, API 키가 없을 때의 방어
-로직과 결과 파싱(from_dict)만 검증한다.
+로직과 결과 파싱(from_dict), 구조화 출력 스키마의 정합성만 검증한다.
 """
 import pytest
 
 from stocksystem.analysis import chart_reader as cr
 
 
-def test_signal_labels():
+def test_label_sets():
     assert cr.SIGNAL_LABELS == ["적극매수", "매수", "중립", "매도", "적극매도"]
+    assert "피벗 돌파 매수" in cr.ACTION_LABELS
+    assert "추격 금지" in cr.ACTION_LABELS
+    assert "2단계 상승국면" in cr.STAGE_LABELS
 
 
 def test_api_key_available(monkeypatch):
@@ -29,36 +32,61 @@ def test_read_chart_without_key_raises(monkeypatch):
 def test_from_dict_full():
     data = {
         "is_chart": True,
-        "trend": "단기 상승추세",
-        "trend_detail": "20일선 위 안착",
-        "support_levels": ["150 부근"],
-        "resistance_levels": ["170 부근", "180 부근"],
-        "patterns": [{"name": "컵앤핸들", "description": "손잡이 형성 중"}],
-        "indicators": [{"name": "RSI", "reading": "62, 중립 상단"}],
-        "key_observations": ["거래량 증가"],
-        "bullish_scenario": "170 돌파 시 상승",
-        "bearish_scenario": "150 이탈 시 하락",
-        "invalidation": "150 종가 이탈",
+        "stage": "2단계 상승국면",
+        "stage_reason": "주가가 200일선 위에서 우상향",
+        "trend_template": [
+            {"criterion": "주가 > 50 > 150 > 200일선", "status": "충족",
+             "note": "정배열 확인"},
+            {"criterion": "ROE 17% 이상", "status": "불명확",
+             "note": "차트로 확인 불가"},
+        ],
+        "trend_template_summary": "확인 가능한 4개 중 3개 충족",
+        "vcp_detected": True,
+        "vcp_contractions": [
+            {"label": "T1", "depth": "약 -24%", "note": "1차 수축"},
+            {"label": "T2", "depth": "약 -11%", "note": "절반으로 축소"},
+            {"label": "T3", "depth": "약 -4%", "note": "수렴 마디"},
+        ],
+        "volume_dry_up": "뚜렷함",
+        "pivot_point": "308 부근",
+        "vcp_note": "3차 수축으로 매물 소진",
+        "action": "피벗 돌파 매수",
+        "entry_pivot": "308 대량 거래량 돌파 시",
+        "stop_loss": "약 -6% (285 부근)",
+        "target": "380 부근",
+        "risk_reward": "약 2.5:1",
+        "support_levels": ["285 부근"],
+        "resistance_levels": ["308 부근"],
+        "key_observations": ["거래량 감소", "정배열"],
+        "bullish_scenario": "피벗 돌파 시 상승",
+        "bearish_scenario": "285 이탈 시 실패",
+        "risks": ["시장 변동성"],
         "signal": "매수",
-        "confidence": 68,
-        "risks": ["실적 발표 변동성"],
-        "summary": "전반적으로 우상향.",
+        "confidence": 72,
+        "summary": "전형적 VCP 셋업.",
     }
     r = cr.ChartReading.from_dict(data)
     assert r.is_chart is True
+    assert r.stage == "2단계 상승국면"
+    assert r.action == "피벗 돌파 매수"
+    assert r.vcp_detected is True
+    assert len(r.vcp_contractions) == 3
+    assert r.vcp_contractions[1]["depth"] == "약 -11%"
+    assert r.volume_dry_up == "뚜렷함"
     assert r.signal == "매수"
-    assert r.confidence == 68
-    assert r.patterns[0]["name"] == "컵앤핸들"
-    assert len(r.resistance_levels) == 2
+    assert r.confidence == 72
     assert r.model == cr.DEFAULT_MODEL
 
 
 def test_from_dict_defaults_on_missing():
     r = cr.ChartReading.from_dict({})
     assert r.signal == "중립"
+    assert r.action == "회피"
+    assert r.stage == "불명확"
     assert r.confidence == 0
-    assert r.support_levels == []
-    assert r.patterns == []
+    assert r.vcp_detected is False
+    assert r.vcp_contractions == []
+    assert r.trend_template == []
     assert r.is_chart is True
 
 
@@ -74,3 +102,17 @@ def test_schema_objects_are_strict():
             for v in node:
                 check(v)
     check(cr._SCHEMA)
+
+
+def test_schema_required_matches_properties():
+    # required 목록과 properties 키가 일치해야 한다 (strict 구조화 출력 요건)
+    props = set(cr._SCHEMA["properties"].keys())
+    required = set(cr._SCHEMA["required"])
+    assert props == required
+
+
+def test_enums_match_label_constants():
+    props = cr._SCHEMA["properties"]
+    assert props["signal"]["enum"] == cr.SIGNAL_LABELS
+    assert props["action"]["enum"] == cr.ACTION_LABELS
+    assert props["stage"]["enum"] == cr.STAGE_LABELS

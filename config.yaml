@@ -15,6 +15,21 @@ watchlist:
   - V
   - JNJ
 
+# 테마별 종목 프리셋 (대시보드에서 묶음으로 선택). 키=이름, 값=티커 목록
+presets:
+  미너비니 주도주 — 대형주:   # Gemini SEPA/VCP 보고서 5개 대형 성장주
+    - NVDA   # 엔비디아
+    - AVGO   # 브로드컴
+    - APP    # 앱러빈
+    - PLTR   # 팔란티어
+    - COST   # 코스트코
+  미너비니 주도주 — 중소형주:  # 보고서 5개 중소형 성장주
+    - ALAB   # 아스테라 랩스
+    - CAVA   # 카바 그룹
+    - CELH   # 셀시우스 홀딩스
+    - VERX   # 버텍스
+    - FIX    # 컴포트 시스템즈
+
 # 데이터 공급자: "yahoo" (실시간, 로컬 권장) 또는 "sample" (오프라인 데모)
 data_provider: yahoo
 

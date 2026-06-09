@@ -361,6 +361,13 @@ period = st.sidebar.selectbox("차트 기간", ["6mo", "1y", "2y", "5y"], index=
 if st.sidebar.button("🔄 데이터 새로고침", width='stretch'):
     st.cache_data.clear()
     st.rerun()
+
+# 테마 프리셋 (config.yaml 의 presets)
+if cfg.presets:
+    with st.sidebar.expander("📌 종목 프리셋", expanded=False):
+        for _pname, _ptickers in cfg.presets.items():
+            st.markdown(f"**{_pname}**")
+            st.caption(", ".join(_ptickers))
 st.sidebar.caption(
     "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
     "최종 판단과 책임은 본인에게 있습니다.")
@@ -1129,6 +1136,13 @@ with tab_read:
                "Claude 비전 모델이 마크 미너비니의 트렌드 템플릿·스테이지·"
                "VCP(변동성 수축)·피벗을 판독하고 손절/목표/손익비를 제안합니다.")
 
+    if cfg.presets:
+        with st.expander("📌 판독해 볼 만한 미너비니 주도주 (보고서 종목)"):
+            for _pn, _pt in cfg.presets.items():
+                st.markdown(f"**{_pn}** — {', '.join(_pt)}")
+            st.caption("위 종목 차트를 증권사 앱/트레이딩뷰에서 캡처해 올려보세요. "
+                       "재무 지표는 `📊 스크리너`·`👑 헤게모니` 탭과 함께 보면 좋습니다.")
+
     # API 키: secrets → 환경변수 → 직접 입력 순으로 확보
     secret_key = None
     try:
@@ -1285,14 +1299,28 @@ with tab_cmp:
     st.subheader("종목 비교 — 투자 DNA 레이더")
     st.caption("여러 종목의 가치·성장·수익성·모멘텀·안정성을 5각형으로 한눈에 비교합니다.")
     uni = [u.symbol for u in load_universe()]
-    picks = st.multiselect("비교할 종목 (2~4개 권장)", uni,
-                           default=["AAPL", "MSFT", "NVDA"], max_selections=4)
+
+    # 프리셋 빠른 선택 (config.yaml presets)
+    if cfg.presets:
+        pcols = st.columns([2, 1])
+        psel = pcols[0].selectbox("프리셋 빠른 선택", ["—"] + list(cfg.presets),
+                                  key="cmp_preset")
+        if pcols[1].button("프리셋 적용", width='stretch',
+                           disabled=(psel == "—")):
+            # 유니버스에 있는 티커만, 레이더 가독성을 위해 최대 5개
+            st.session_state.cmp_picks = [
+                t for t in cfg.presets[psel] if t in uni][:5]
+            st.rerun()
+
+    picks = st.multiselect("비교할 종목 (2~5개 권장)", uni,
+                           default=["AAPL", "MSFT", "NVDA"], max_selections=5,
+                           key="cmp_picks")
     if len(picks) < 2:
         st.info("2개 이상 선택해주세요.")
     else:
         with st.spinner("팩터 분석 중..."):
             profiles = cached_factors(tuple(picks), provider_name)
-        palette = [C_ACCENT, C_AMBER, "#ef5da8", "#8b5cf6"]
+        palette = [C_ACCENT, C_AMBER, "#ef5da8", "#8b5cf6", "#38bdf8"]
         rfig = go.Figure()
         cats = fct.FACTORS + [fct.FACTORS[0]]
         for i, p in enumerate(profiles):

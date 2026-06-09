@@ -52,6 +52,7 @@ class PaperTrading:
 @dataclass
 class Config:
     watchlist: list[str] = field(default_factory=lambda: ["AAPL", "MSFT", "NVDA"])
+    presets: dict[str, list[str]] = field(default_factory=dict)
     data_provider: str = "yahoo"
     technical: TechnicalConfig = field(default_factory=TechnicalConfig)
     weights: Weights = field(default_factory=Weights)
@@ -77,6 +78,7 @@ def load_config(path: str | Path | None = None) -> Config:
 
     return Config(
         watchlist=raw.get("watchlist") or Config().watchlist,
+        presets=raw.get("presets") or {},
         data_provider=raw.get("data_provider", "yahoo"),
         technical=_build(TechnicalConfig, raw.get("technical")),
         weights=_build(Weights, raw.get("weights")),

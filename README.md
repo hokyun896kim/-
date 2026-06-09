@@ -113,6 +113,9 @@ GitHub 저장소만 있으면 클릭 몇 번으로 어디서나 접속 가능한
 
 ```yaml
 watchlist: [AAPL, MSFT, NVDA, ...]   # 관심종목
+presets:                             # 테마별 종목 묶음(사이드바·비교·차트판독에 노출)
+  미너비니 주도주 — 대형주: [NVDA, AVGO, APP, PLTR, COST]
+  미너비니 주도주 — 중소형주: [ALAB, CAVA, CELH, VERX, FIX]
 data_provider: yahoo                 # yahoo(실시간) | sample(오프라인)
 technical:                           # 지표 파라미터
   sma_short: 20

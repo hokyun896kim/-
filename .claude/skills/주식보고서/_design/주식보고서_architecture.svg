@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="560" viewBox="0 0 980 560" font-family="sans-serif">
+  <style>
+    .box { fill:#1e293b; stroke:#475569; rx:8; }
+    .src { fill:#0f3d2e; stroke:#10b981; }
+    .out { fill:#3b2e0f; stroke:#f59e0b; }
+    .t { fill:#e2e8f0; font-size:14px; }
+    .h { fill:#f8fafc; font-size:16px; font-weight:bold; }
+    .s { fill:#94a3b8; font-size:11px; }
+    .arrow { stroke:#64748b; stroke-width:2; marker-end:url(#a); fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="980" height="560" fill="#0f172a"/>
+  <text x="20" y="32" class="h" font-size="20">/주식보고서 {TICKER} — 아키텍처 (관계도 + 흐름도)</text>
+
+  <!-- 입력 -->
+  <rect x="20" y="60" width="180" height="70" class="box"/>
+  <text x="35" y="88" class="h">입력</text>
+  <text x="35" y="110" class="t">티커 1개 (예: AAPL)</text>
+
+  <!-- Phase A 검증 -->
+  <rect x="250" y="60" width="200" height="70" class="box"/>
+  <text x="265" y="88" class="h">A. 티커 검증</text>
+  <text x="265" y="110" class="s">형식 점검 + 데이터 존재 확인</text>
+
+  <!-- 데이터 소스 -->
+  <rect x="20" y="180" width="200" height="110" class="box src"/>
+  <text x="35" y="208" class="h">stocksystem 모듈</text>
+  <text x="35" y="230" class="s">analysis.technical / fundamental</text>
+  <text x="35" y="246" class="s">analysis.scoring / market</text>
+  <text x="35" y="262" class="s">analysis.sentiment / data.yahoo</text>
+  <text x="35" y="280" class="s">(yfinance 라이브, 실패 시 샘플)</text>
+
+  <rect x="20" y="320" width="200" height="70" class="box src"/>
+  <text x="35" y="348" class="h">웹 뉴스 보강</text>
+  <text x="35" y="370" class="s">WebSearch — 최신 이슈·헤드라인</text>
+
+  <!-- Phase B 수집 -->
+  <rect x="290" y="200" width="220" height="160" class="box"/>
+  <text x="305" y="228" class="h">B. 데이터 수집</text>
+  <text x="305" y="252" class="t">① 종합점수+등급</text>
+  <text x="305" y="274" class="t">② 기술·펀더멘털 상세</text>
+  <text x="305" y="296" class="t">③ 시장 맥락(지수·VIX·공탐)</text>
+  <text x="305" y="318" class="t">④ 뉴스 분위기·실적 D-day</text>
+  <text x="305" y="344" class="s">실패 → 샘플 폴백 + ⚠️경고 플래그</text>
+
+  <!-- Phase C 작성 -->
+  <rect x="580" y="200" width="200" height="160" class="box"/>
+  <text x="595" y="228" class="h">C. 보고서 작성</text>
+  <text x="595" y="252" class="t">한국어 종합 해설</text>
+  <text x="595" y="274" class="t">수치 표 + 근거 명시</text>
+  <text x="595" y="296" class="t">면책 문구 포함</text>
+  <text x="595" y="318" class="s">템플릿: SKILL.md 내장</text>
+
+  <!-- 출력 -->
+  <rect x="580" y="430" width="370" height="90" class="box out"/>
+  <text x="595" y="458" class="h">📡 출력 대상 시스템</text>
+  <text x="595" y="482" class="t">reports/주식보고서_{TICKER}_{YYYY-MM-DD}.md</text>
+  <text x="595" y="504" class="s">마크다운 렌더러(깃허브·에디터)에서 열람 · 같은 날 재실행 시 덮어쓰기</text>
+
+  <!-- Phase D 검증 -->
+  <rect x="830" y="200" width="130" height="160" class="box"/>
+  <text x="845" y="228" class="h">D. 자가 점검</text>
+  <text x="845" y="252" class="s">4개 섹션 존재</text>
+  <text x="845" y="274" class="s">수치-근거 일치</text>
+  <text x="845" y="296" class="s">폴백 경고 표기</text>
+  <text x="845" y="318" class="s">파일 저장 확인</text>
+
+  <!-- 화살표 -->
+  <path class="arrow" d="M200 95 L250 95"/>
+  <path class="arrow" d="M350 130 L390 200"/>
+  <path class="arrow" d="M220 235 L290 250"/>
+  <path class="arrow" d="M220 350 L290 320"/>
+  <path class="arrow" d="M510 280 L580 280"/>
+  <path class="arrow" d="M780 280 L830 280"/>
+  <path class="arrow" d="M890 360 L770 440"/>
+</svg>

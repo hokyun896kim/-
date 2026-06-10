@@ -17,3 +17,8 @@ data/*.parquet
 .DS_Store
 .idea/
 .vscode/
+
+# morning-brief 에이전트 런타임 (키·로그는 커밋 금지)
+agents/morning-brief/.env
+agents/morning-brief/history.json
+agents/morning-brief/error.log

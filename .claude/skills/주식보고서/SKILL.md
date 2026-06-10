@@ -1,11 +1,11 @@
 ---
-description: "미국·한국 주식 1종목 심층 분석 보고서 제조 — 본 저장소 stocksystem 모듈(종합점수·기술·펀더멘털·시장맥락·뉴스분위기)과 kr_hegemony(한국 보강), 웹 최신 뉴스를 결합해 한국어 4섹션 보고서를 reports/ 폴더에 날짜별로 저장한다. 데이터 실패 시 샘플 폴백 + 최상단 경고. 사용자가 '주식보고서', '/주식보고서 AAPL', '/주식보고서 005930', '~종목 분석 보고서 만들어줘'를 요청할 때 사용."
+description: "미국·한국 주식 1종목 심층 분석 보고서 제조 — 본 저장소 stocksystem 모듈(종합점수·기술지표 수치·펀더멘털 8항목·헤게모니 스프레드·몬테카를로·시장맥락·뉴스분위기)과 kr_hegemony(한국 보강), 웹 최신 뉴스를 결합해 한국어 6섹션 보고서를 reports/ 폴더에 날짜별로 저장한다. 데이터 실패 시 샘플 폴백 + 최상단 경고. 사용자가 '주식보고서', '/주식보고서 AAPL', '/주식보고서 005930', '~종목 분석 보고서 만들어줘'를 요청할 때 사용."
 user-invocable: true
-version: "1.1"
+version: "1.2"
 last_updated: "2026-06-10"
 ---
 
-<!-- 주식보고서_SPEC_VERSION: V1.1 (V1.0 + 한국주식 지원) -->
+<!-- 주식보고서_SPEC_VERSION: V1.2 (V1.1 + 심층 데이터 확장 — PO 피드백 "보고서양이 이게 다인가?" 반영) -->
 
 # /주식보고서 {티커} — 종목 심층 분석 보고서 제조
 
@@ -61,6 +61,45 @@ python3 cli.py analyze {SYM} --provider yahoo --period 1y
 **실패 판정 기준 (둘 중 하나면 실패)**: 출력에 `Failed to get ticker` 문자열이 있거나, `현재가` 줄이 없음.
 - 한국주식 `.KS` 실패 → `.KQ`로 1회 재시도 (코스닥 종목).
 - 최종 실패 → `--provider sample`로 재실행 + **경고 플래그 ON** (보고서 최상단 ⚠️ 표기). 샘플도 실패(형식 오류 등)하면 보고서를 만들지 않고 원인만 보고한다.
+
+### 2a+. 심층 데이터 — 내장 스니펫 (지표 수치·펀더멘털 8항목·헤게모니·몬테카를로) ★V1.2 필수
+
+cli.py 요약만으로는 보고서가 얇다. 반드시 이 스니펫으로 세부 수치를 추가 수집한다:
+
+```bash
+python3 - "{PROVIDER}" "{SYM}" << 'EOF'
+import sys
+import numpy as np
+from stocksystem.config import load_config
+from stocksystem.data import get_provider
+from stocksystem.analysis import technical as ta, fundamental as fa, hegemony as hg, montecarlo as mc
+
+provider_name, sym = sys.argv[1], sys.argv[2]
+cfg = load_config(); provider = get_provider(provider_name)
+df = provider.price_history(sym, period="1y")
+t = ta.analyze(df, cfg.technical, symbol=sym)
+print("[기술지표 최신값]", {k: round(v, 2) for k, v in t.latest.items()})
+print("[기술신호]", t.signals, "| 기술점수", t.score)
+f = provider.fundamentals(sym)
+fr = fa.analyze(f)
+print("[펀더멘털 원수치]", {k: v for k, v in f.to_dict().items() if v is not None and k != "symbol"})
+print("[펀더멘털 항목점수]", fr.metric_scores, "| 노트:", fr.notes, "| 점수", fr.score)
+try:
+    h = hg.analyze_symbol(sym, provider)
+    print(f"[헤게모니] 연간 매출YoY {h.annual_rev_yoy} 영업이익YoY {h.annual_op_yoy} 스프레드 {h.annual_spread} | TTM 스프레드 {h.ttm_spread} 가속 {h.accel} | 판정 {h.verdict}")
+except Exception as e:
+    print("[헤게모니] 수집 실패:", e)
+try:
+    s = mc.simulate(df, horizon_days=126)
+    fp = s.final_prices
+    print(f"[몬테카를로 6개월] 상승확률 {s.prob_profit}% | 중앙값 {np.percentile(fp,50):.2f} | 비관(p5) {np.percentile(fp,5):.2f} | 낙관(p95) {np.percentile(fp,95):.2f}")
+except Exception as e:
+    print("[몬테카를로] 수집 실패:", e)
+EOF
+```
+
+- 헤게모니·몬테카를로 등 일부 실패 시 해당 줄만 "정보 없음" — 중단하지 않는다.
+- 몬테카를로는 과거 변동성 기반 확률 분포일 뿐 예측이 아님 — 보고서에 이 한계를 반드시 병기.
 
 ### 2b. 시장 브리핑 — 내장 스니펫 (국가별 지수 + 공포·탐욕)
 
@@ -166,17 +205,28 @@ WebSearch로 `{회사명} stock news` (한국주식은 `{회사명} 주가 뉴�
 **판단 근거** (모듈 출력 전체 — 긍정·부정 모두):
 - {근거 줄들}
 
-## 2. 기술적 + 펀더멘털 상세
-- 기술점수 {N.N} — 신호: {추세/가격위치/RSI/MACD/볼린저 표}
-- 펀더멘털 점수 {N.N}
+## 2. 기술적 분석 상세 ★V1.2 확장
+- 기술점수 {N.N} / 100
+- 지표 수치 표 (2a+ 출력): 현재가·RSI·MACD히스토그램·볼린저 %B·SMA20·SMA50 — 각 수치와 함께 **그 수치의 의미를 1줄 풀이** (예: "RSI 58 — 중립~양호, 70 이상이면 과열")
+- 신호 표: {추세/가격위치/RSI/MACD/볼린저 → buy/neutral/sell}
+
+## 3. 펀더멘털 분석 상세 ★V1.2 확장
+- 펀더멘털 점수 {N.N} / 100
+- 8항목 표: PER·PBR·ROE·순이익률·매출성장·이익성장·부채비율·배당 — **원수치와 채점(0~100)을 나란히** + 항목별 1줄 해석
+- 모듈 노트: {예: "부채비율이 높음"}
+- **헤게모니 스프레드** (영업이익YoY − 매출YoY = 이익 레버리지): 연간 {값} · 분기TTM {값} · 가속 {값} → 판정 {가속🟢/유지🟡/피크아웃🔴/마진 압박}
 {한국주식이면:} - 한국 보강 (네이버): PER {값|정보 없음} · 외국인 지분율 {값|정보 없음}% · 외국인/기관 순매수(20일) {값|정보 없음}
 
-## 3. 시장 맥락
-{2b 출력 — 지수별 방향성·추세·모멘텀·수급·변동성 + 해설(narrative)}
-- 공포·탐욕 지수: {N} {라벨}
+## 4. 시장 맥락
+{2b 출력 — 지수별 방향성·추세·모멘텀·수급·변동성 + 해설(narrative) 전체 수록}
+- 공포·탐욕 지수: {N} {라벨} + 구성 항목
 - **이 종목과의 연결**: {시장 국면 속에서 이 종목 점수를 1~3문장으로 해석}
 
-## 4. 뉴스 분위기 + 실적·이벤트
+## 5. 미래 시뮬레이션 (몬테카를로) ★V1.2 신설
+- 6개월 상승확률 {N}% · 중앙값 {값} · 비관(하위 5%) {값} · 낙관(상위 5%) {값}
+- ⚠️ 과거 변동성 기반 확률 분포일 뿐 예측이 아님을 병기
+
+## 6. 뉴스 분위기 + 실적·이벤트
 - 뉴스 분위기 점수: {N} {라벨} (신뢰도 {값})
 - 최근 헤드라인: {모듈 수집 헤드라인}
 - 웹 최신 이슈: {2e 요약 — 출처 링크 포함, 불가 시 경고 1줄}
@@ -193,7 +243,8 @@ WebSearch로 `{회사명} stock news` (한국주식은 `{회사명} 주가 뉴�
 
 ## Phase 4. 자가 점검 (보고서 저장 후 필수)
 
-- [ ] 4개 섹션(종합/상세/시장/뉴스·이벤트) 모두 존재
+- [ ] 6개 섹션(종합/기술상세/펀더멘털상세/시장/시뮬레이션/뉴스·이벤트) 모두 존재
+- [ ] 섹션 2·3에 수치 표 존재 (점수만 있고 원수치 없는 얇은 보고서 금지 — PO 피드백 반영)
 - [ ] 폴백 사용 시 최상단 ⚠️ 경고 존재 (라이브 성공 시엔 경고 없어야 함)
 - [ ] 면책 문구 존재
 - [ ] 등급·점수가 모듈 출력과 일치 (자의 가공 없음)

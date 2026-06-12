@@ -1,77 +1,89 @@
-/* ============================================================
-   EPUB 스타일 — 리플로우(reflow) 대응. 고정폭/페이지 규칙 배제.
-   ============================================================ */
-body {
-  font-family: serif;
-  line-height: 1.8;
-  color: #232020;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  margin: 0 5%;
-}
-p { margin: 0 0 0.8em; text-align: justify; text-indent: 0; }
-strong { color: #163B4E; }
-em { font-style: normal; background: #F4E3C2; }
+/* EPUB(리플로우) 스타일 — 서점 유통용. e-ink/모바일 호환 위해 단순 블록 구조. */
+body{font-family:serif;line-height:1.7;color:#232020;margin:0 5%;word-break:keep-all;overflow-wrap:break-word}
+p{margin:0 0 .8em;text-align:justify}
+strong{color:#163B4E}
+h1{font-family:sans-serif;color:#163B4E;line-height:1.4;margin:1.2em 0 .6em;text-align:center;
+ border-bottom:2px solid #C0894B;padding-bottom:.3em}
+h1 .pno{color:#9C6B33}
+h2{font-family:sans-serif;color:#163B4E;line-height:1.4;margin:1.2em 0 .5em;border-bottom:1px solid #DED8CC;padding-bottom:.25em}
+h2 .cnum,h1 .eyebrow{display:block;font-size:.55em;letter-spacing:.15em;color:#C0894B;margin-bottom:.4em}
+h3{font-family:sans-serif;color:#21566E;margin:1em 0 .3em}
+.csub{text-align:center;font-family:sans-serif;font-weight:700;color:#163B4E;font-size:1.05em;margin:-.2em 0 1em}
+.heroimg{display:block;margin:0 auto .6em;width:22%;max-width:120px}
+.partimg{display:block;margin:1em auto;width:30%;max-width:150px}
+.pintro{text-align:center;font-style:italic;color:#21566E;max-width:80%;margin:.6em auto 0}
 
-h1 { font-family: sans-serif; color: #163B4E; line-height: 1.4; text-align: center;
-     page-break-before: always; margin: 1.2em 0; }
-h2 { font-family: sans-serif; color: #163B4E; line-height: 1.4;
-     page-break-before: always; margin: 1em 0 0.6em; border-bottom: 2px solid #C0894B; padding-bottom: .3em; }
-h2 .cnum { display:block; font-size:.6em; letter-spacing:.2em; color:#C0894B; margin-bottom:.4em; }
-h3 { font-family: sans-serif; color: #21566E; }
+.keybox{background:#F6F1E7;border-left:4px solid #C0894B;border-radius:6px;padding:.7em .9em;margin:1em 0}
+.keybox .klabel{font-family:sans-serif;font-weight:700;font-size:.8em;color:#9C6B33;display:block;margin-bottom:.3em}
+.keybox p{margin:0;font-family:sans-serif;font-weight:700;color:#163B4E;text-align:left}
 
-blockquote.closer {
-  background:#F6F1E7; border-radius:8px; padding:1em 1.1em; margin:1.4em 0;
-  font-weight:600; color:#163B4E; border:0;
-}
-blockquote.closer p { margin:0; text-align:left; }
-blockquote { border-left:3px solid #C0894B; padding:.3em 1em; color:#4a453f; margin:1em 0; }
-blockquote p { text-align:left; }
+.callout{border:1px solid #DED8CC;border-left:4px solid #163B4E;background:#fff;border-radius:6px;padding:.7em .9em;margin:1em 0}
+.callout .ctitle{font-family:sans-serif;font-weight:700;color:#163B4E;margin:0 0 .3em}
+.callout p:last-child{margin:0}
 
-.callout { border:1px solid #DED8CC; border-left:4px solid #163B4E; background:#fff;
-  border-radius:8px; padding:1em 1.1em; margin:1.2em 0; }
-.callout .ctitle { font-family:sans-serif; font-weight:700; color:#163B4E; margin:0 0 .5em; }
+figure.cfig{margin:1.1em 0;text-align:center}
+figure.cfig img{max-width:100%}
+figure.cfig figcaption{font-size:.82em;font-style:italic;color:#9C6B33;margin-top:.4em}
+figure.cfig .figtag{font-style:normal;font-weight:700;font-size:.85em;color:#fff;background:#C0894B;border-radius:8px;padding:0 .5em;margin-right:.4em}
 
-table { width:100%; border-collapse:collapse; margin:1.2em 0; font-size:.92em; }
-thead th { background:#163B4E; color:#fff; font-family:sans-serif; text-align:left; padding:.5em .6em; }
-tbody td, tbody th { border-bottom:1px solid #DED8CC; padding:.5em .6em; vertical-align:top; text-align:left; }
-tbody th { font-family:sans-serif; color:#163B4E; }
-table.compare .col-good { background:#F0F5F1; }
-table.compare .col-bad  { background:#F8EFE9; }
+table.compare{width:100%;border-collapse:collapse;margin:1em 0;font-size:.92em}
+table.compare th{background:#163B4E;color:#fff;font-family:sans-serif;text-align:center;padding:.45em}
+table.compare td{border:1px solid #DED8CC;padding:.45em;vertical-align:top;width:50%}
+table.compare .col-good{background:#EAF1ED}
+table.compare .col-bad{background:#F7EEE8}
+p.tcap{text-align:center;font-family:sans-serif;font-weight:700;color:#9C6B33;font-size:.9em;margin:-.4em 0 1em}
 
-.cardgrid { margin:1.2em 0; }
-.card { border:1px solid #DED8CC; border-radius:8px; background:#fff; padding:.8em 1em; margin:.6em 0; }
-.card .cidx { font-family:sans-serif; font-weight:700; color:#fff; background:#C0894B;
-  border-radius:12px; padding:.05em .7em; font-size:.8em; }
-.card h4 { font-family:sans-serif; color:#163B4E; margin:.4em 0 .3em; }
-.card p { margin:0; }
+.cardgrid{margin:1em 0}
+.card{border:1px solid #DED8CC;border-radius:6px;background:#FCFBF8;padding:.6em .8em;margin:.5em 0}
+.card .cidx{font-family:sans-serif;font-weight:700;font-size:.78em;color:#9C6B33;background:#ECE0C8;border-radius:10px;padding:0 .55em;margin-right:.4em}
+.card h4{display:inline;font-family:sans-serif;color:#163B4E;margin:0}
+.card p{margin:.3em 0 0}
 
-.flow .step { margin:0 0 .9em; padding-left:1.6em; position:relative; }
-.flow .dot { position:absolute; left:0; top:0; width:1.4em; height:1.4em; line-height:1.4em;
-  text-align:center; border-radius:50%; background:#163B4E; color:#fff; font-family:sans-serif; font-weight:700; font-size:.85em; }
-.flow .body h4 { font-family:sans-serif; color:#163B4E; margin:0 0 .2em; }
-.flow .body p { margin:0; }
+ol.flow{margin:1em 0;padding-left:1.3em}
+ol.flow li{margin:.35em 0}
+ol.flow b{color:#163B4E;font-family:sans-serif}
 
-.modebar .mode { border:1px solid #DED8CC; border-radius:6px; padding:.5em; margin:.3em 0; font-family:sans-serif; }
-.modebar .mode b { color:#9C6B33; }
+.modebar{margin:1em 0;padding:0;list-style:none}
+.modebar li{display:inline-block;border:1px solid #DED8CC;border-radius:6px;background:#F3F0E9;padding:.25em .6em;margin:.15em;font-family:sans-serif;font-size:.85em}
+.modebar li b{color:#163B4E}
 
-.dont { background:#F8EFE9; border:1px solid #E6CFC4; border-radius:8px; padding:.8em 1em; margin:.8em 0; }
-.do   { background:#EEF4F0; border:1px solid #CFE0D6; border-radius:8px; padding:.8em 1em; margin:.8em 0; }
-.dont .lbl { font-family:sans-serif; font-weight:700; color:#A6433B; display:block; margin-bottom:.4em; }
-.do .lbl   { font-family:sans-serif; font-weight:700; color:#2F6F5E; display:block; margin-bottom:.4em; }
+.dont,.do{border-radius:6px;padding:.7em .9em;margin:1em 0}
+.dont{background:#F7EEE8;border:1px solid #E6CFC4;border-left:4px solid #A6433B}
+.do{background:#EAF1ED;border:1px solid #CFE0D6;border-left:4px solid #2F6F5E}
+.dont .lbl{font-family:sans-serif;font-weight:700;color:#A6433B;display:block;margin-bottom:.3em}
+.do .lbl{font-family:sans-serif;font-weight:700;color:#2F6F5E;display:block;margin-bottom:.3em}
+.dont ul,.do ul{margin:0;padding-left:1.2em}
 
-.checklist { list-style:none; padding:0; }
-.checklist li { padding:.4em 0 .4em 1.6em; border-bottom:1px solid #DED8CC; position:relative; }
-.checklist li::before { content:"\2610"; position:absolute; left:0; color:#21566E; font-size:1.2em; }
-.qnum { font-family:sans-serif; font-weight:700; color:#9C6B33; }
-.chips span { font-family:sans-serif; font-size:.8em; border:1px solid #DED8CC; border-radius:12px;
-  padding:.05em .6em; margin-right:.3em; color:#21566E; }
-.fillline { color:#6E6A63; font-family:sans-serif; font-size:.85em; }
+blockquote.pull{margin:1.3em 1em;text-align:center;border:0}
+blockquote.pull p{font-style:italic;font-weight:600;font-size:1.15em;color:#163B4E;margin:0;border-top:2px solid #C0894B;border-bottom:2px solid #C0894B;padding:.7em 0}
 
-.apx-cat { font-family:sans-serif; font-weight:700; color:#163B4E; border-bottom:2px solid #C0894B;
-  padding-bottom:.2em; margin:1.4em 0 .6em; }
-.apx-cat span { background:#163B4E; color:#fff; border-radius:50%; padding:0 .5em; margin-right:.4em; }
-.apx-q { font-family:sans-serif; font-weight:700; margin:.9em 0 .3em; }
-.prompt { background:#EEF3F2; border:1px solid #D7E2DF; border-radius:8px; padding:.8em 1em; margin:0 0 .8em; }
-.prompt .ptag { display:block; font-family:sans-serif; font-size:.75em; letter-spacing:.1em; color:#21566E; margin-bottom:.4em; }
-ul.bullets, ol.numlist { margin:.4em 0 .8em; }
+.endnote{background:#FBF7EF;border-top:2px solid #C0894B;border-bottom:1px solid #DED8CC;padding:.7em .9em;margin:1.4em 0}
+.endnote .enlabel{font-family:sans-serif;font-weight:700;font-size:.8em;color:#9C6B33;display:block;text-align:center;margin-bottom:.4em}
+.endnote ol{margin:0;padding-left:1.3em}
+.endnote li{font-family:sans-serif;font-weight:700;color:#163B4E;margin:.25em 0}
+
+.apx-cat{font-family:sans-serif;font-weight:700;color:#163B4E;border-bottom:2px solid #C0894B;padding-bottom:.2em;margin:1.3em 0 .5em}
+.apx-cat span{background:#163B4E;color:#fff;border-radius:50%;padding:0 .5em;margin-right:.4em}
+.apx-q{font-family:sans-serif;font-weight:700;margin:.9em 0 .3em}
+.apx-q .qnum{color:#9C6B33;margin-right:.3em}
+.prompt{background:#EEF3F2;border:1px solid #D7E2DF;border-radius:6px;padding:.6em .8em;margin:0 0 .8em}
+.prompt .ptag{display:block;font-family:sans-serif;font-weight:700;font-size:.75em;color:#21566E;margin-bottom:.3em}
+.fillline{font-family:sans-serif;color:#6E6A63;font-size:.9em;text-align:left;margin:.3em 0 .1em}
+hr.writeline{border:0;border-bottom:1px solid #C9C2B4;margin:.3em 0 .9em}
+ul.numlist{list-style:none;padding-left:.2em}
+ul.numlist li{margin:.3em 0}
+ul.numlist .ln{font-family:sans-serif;font-weight:700;color:#9C6B33;margin-right:.4em}
+.ornament{text-align:center;color:#C0894B;margin:1em 0}
+
+.closing{text-align:center;margin:2em 1em}
+.closing p{font-style:italic;font-weight:600;color:#163B4E}
+.authorbio .abname{font-family:sans-serif;font-weight:700;font-size:1.2em;color:#163B4E;margin:0 0 .5em}
+.colophon{margin-top:2em}
+.colophon table{margin:1em auto;border-collapse:collapse}
+.colophon th{text-align:right;color:#6E6A63;font-family:sans-serif;font-weight:700;padding:.2em .8em .2em 0;font-size:.9em}
+.colophon td{text-align:left;padding:.2em 0;font-size:.92em}
+.colophon .crights,.colophon .cnote{font-size:.82em;color:#6E6A63;text-align:center;margin:.4em 0}
+.disclaimer{border:1px solid #DED8CC;border-left:4px solid #163B4E;background:#fff;border-radius:6px;padding:.8em 1em;margin:1em 0}
+.disclaimer .tag{font-family:sans-serif;font-weight:700;font-size:.78em;color:#9C6B33;display:block;margin-bottom:.4em}
+.readkey{text-align:center;font-family:sans-serif;font-weight:700;color:#163B4E;margin:1.4em 0 .3em}
+.readguide{text-align:center;color:#6E6A63;font-size:.92em}

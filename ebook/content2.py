@@ -49,6 +49,19 @@ CH2_FIGURE={
  21:("fig2_21","점을 선으로 — 일주일로 흐름 잡기"),
  22:("fig2_22","질문→분해→검증→기록이 돌면 내 것이 된다"),
 }
+CH2_FIGURE2={
+ 1:("fig2b_1","용어를 좇으면 빠지는 함정"),2:("fig2b_2","맥락·목표·형식 — 좋은 질문 공식"),
+ 3:("fig2b_3","금리 방향이 시장 배경을 바꾼다"),4:("fig2b_4","환율 = 금리차·수급·심리"),
+ 5:("fig2b_5","물가가 건드리는 것들"),6:("fig2b_6","고용 온도 — 너무 뜨거워도 부담"),
+ 7:("fig2b_7","발표보다 ‘무엇이 달라졌나’"),8:("fig2b_8","유가 방향이 승자·패자를 가른다"),
+ 9:("fig2b_9","좋은 비용 vs 나쁜 비용"),10:("fig2b_10","이익이 매출보다 먼저 좋아진다"),
+ 11:("fig2b_11","갚을 현금이 있는가"),12:("fig2b_12","성장기 vs 성숙기 포인트"),
+ 13:("fig2b_13","현금→이익→자산 순으로 읽기"),14:("fig2b_14","기대의 사이클 — 지금 어디인가"),
+ 15:("fig2b_15","원문으로 거슬러 올라가기"),16:("fig2b_16","상관 ≠ 인과"),
+ 17:("fig2b_17","기사가 빼놓은 것 채우기"),18:("fig2b_18","일부러 반대편을 세우기"),
+ 19:("fig2b_19","믿을 신호 vs 의심 신호"),20:("fig2b_20","10분이 흐름·관점이 되는 법"),
+ 21:("fig2b_21","주간 복기 루프"),22:("fig2b_22","AI 잘 쓰기 vs 못 쓰기"),
+}
 DISCLAIMER=[
  "이 책은 특정 종목·상품의 투자를 권유하기 위한 책이 아닙니다.",
  "경제 뉴스와 지표를 스스로 읽고 판단하는 힘을 기르기 위한 교육·실전 안내서입니다.",
@@ -151,23 +164,30 @@ def _prologue(md):
 def _body(md):
     blocks=[b for b in split_blocks(md) if b.strip()]
     E=[]; k=0; n=len(blocks)
-    cur=[None]; pcount=[0]; figdone=[True]
-    def place_fig():
-        if not figdone[0] and cur[0] in CH2_FIGURE:
-            nm,cap=CH2_FIGURE[cur[0]]; E.append(('figure', nm, cap)); figdone[0]=True
+    pcount=[0]; pending=[]   # 장별 [(문단 임계값, figure 요소)]
+    def setup(cn):
+        pcount[0]=0; p=[]
+        if cn in CH2_FIGURE: nm,cap=CH2_FIGURE[cn]; p.append((2,('figure',nm,cap)))
+        if cn in CH2_FIGURE2: nm,cap=CH2_FIGURE2[cn]; p.append((5,('figure',nm,cap)))
+        pending[:]=p
+    def place(force=False):
+        rem=[]
+        for th,el in pending:
+            if force or pcount[0]>=th: E.append(el)
+            else: rem.append((th,el))
+        pending[:]=rem
     while k<n:
         s=blocks[k].strip()
         m=re.match(r'^#\s+PART\s*(\d+)', s)
         if m:
-            place_fig(); num=m.group(1); title=""
+            place(True); num=m.group(1); title=""
             if k+1<n and re.match(r'^##\s', blocks[k+1]):
                 title=clean(re.sub(r'^##\s*','',blocks[k+1].strip())); k+=1
-            E.append(('part', num, title, '', '')); cur[0]=None; figdone[0]=True; k+=1; continue
+            E.append(('part', num, title, '', '')); k+=1; continue
         m=re.match(r'^#\s+(\d+)장\.\s*(.+)', s)
         if m:
-            place_fig()                      # 이전 장에 미배치 시 보강
-            cn=int(m.group(1)); E.append(('chapter', cn, clean(m.group(2)), ''))
-            cur[0]=cn; pcount[0]=0; figdone[0]=(cn not in CH2_FIGURE); k+=1; continue
+            place(True)                      # 이전 장 미배치분 보강
+            cn=int(m.group(1)); E.append(('chapter', cn, clean(m.group(2)), '')); setup(cn); k+=1; continue
         m=re.match(r'^#{2,3}\s+(.+)', s)     # 소제목(##/###)
         if m:
             label=clean(m.group(1)); body,k=_collect(blocks,k+1)
@@ -175,9 +195,9 @@ def _body(md):
         if _is_table(s):
             rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
         E.append(('para', clean(s), False)); pcount[0]+=1
-        if pcount[0]==2: place_fig()         # 장 본문 2문단 뒤에 개념도 배치
+        place()                              # 임계값 도달한 도식 배치
         k+=1
-    place_fig()
+    place(True)
     return E
 
 def _dispatch(label, body):

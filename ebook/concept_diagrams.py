@@ -18,9 +18,11 @@ def _png(name, body, h, scale=2.3):
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/f"{name}.png"),
                      output_width=int(W*scale), output_height=int(h*scale))
 
+def _esc(s):
+    return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
 def T(x,y,s,size=15,col=INK,w=None,anchor="middle"):
     wt=f' font-weight="{w}"' if w else ''
-    return f'<text x="{x}" y="{y}" font-family="{FONT}" font-size="{size}"{wt} fill="{col}" text-anchor="{anchor}">{s}</text>'
+    return f'<text x="{x}" y="{y}" font-family="{FONT}" font-size="{size}"{wt} fill="{col}" text-anchor="{anchor}">{_esc(s)}</text>'
 def title(s): return T(W/2,44,s,22,NAVY,700)
 def cap(y,s): return T(W/2,y,s,14,INK)
 
@@ -86,7 +88,7 @@ def panel2(name,ttl,lt,litems,rt,ritems,note,mid="→"):  # 두 패널 대비
     rows=max(len(litems),len(ritems)); H=140+rows*40+30
     cw=360; lx=40; rx=W-40-cw; topy=70
     b=[title(ttl)]
-    for x,head,items,col,bg,mark in [(lx,lt,litems,BAD,BADBG,"✕"),(rx,rt,ritems,GOOD,GOODBG,"✓")]:
+    for x,head,items,col,bg,mark in [(lx,lt,litems,BAD,BADBG,"×"),(rx,rt,ritems,GOOD,GOODBG,"✓")]:
         b.append(f'<rect x="{x}" y="{topy}" width="{cw}" height="{rows*40+44}" rx="12" fill="{bg}" stroke="{col}" stroke-width="1.5"/>')
         b.append(T(x+cw/2,topy+28,head,16,col,700))
         for i,it in enumerate(items):

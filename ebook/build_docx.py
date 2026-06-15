@@ -13,12 +13,13 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.section import WD_SECTION
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
-import content as C
+import os, importlib
+C = importlib.import_module(os.environ.get('BOOK','content'))
 
 ROOTDIR = pathlib.Path(__file__).resolve().parent
 BUILD = ROOTDIR / "build"; BUILD.mkdir(exist_ok=True)
 IMG = BUILD / "img"
-OUT = BUILD / "book.docx"
+OUT = BUILD / C.DOCX_OUT
 
 NAVY="163B4E"; NAVY2="21566E"; ACCENT="C0894B"; ACCENTD="9C6B33"
 INK="232020"; MUTED="6E6A63"; LINE="DED8CC"
@@ -241,7 +242,7 @@ def build():
             s0.top_margin=s0.bottom_margin=s0.left_margin=s0.right_margin=Mm(0)
             cp=doc.add_paragraph(); cp.alignment=WD_ALIGN_PARAGRAPH.CENTER
             cp.paragraph_format.space_before=Pt(0); cp.paragraph_format.space_after=Pt(0); cp.paragraph_format.line_spacing=1.0
-            cov=IMG/"cover.png"
+            cov=IMG/C.COVER
             if cov.exists(): cp.add_run().add_picture(str(cov), width=Mm(152))
             ns=doc.add_section(WD_SECTION.NEW_PAGE)
             ns.page_width=Mm(152); ns.page_height=Mm(225)

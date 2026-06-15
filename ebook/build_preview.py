@@ -7,7 +7,8 @@ Word(book.docx)와 동일한 콘텐츠/디자인을 시각 확인하기 위한 �
 """
 import html, pathlib, re
 from weasyprint import HTML
-import content as C
+import os, importlib
+C = importlib.import_module(os.environ.get('BOOK','content'))
 
 ROOT=pathlib.Path(__file__).resolve().parent
 ASSETS=ROOT/"assets"; BUILD=ROOT/"build"; BUILD.mkdir(exist_ok=True)
@@ -36,7 +37,7 @@ def render():
     for el in C.parse():
         t=el[0]
         if t=='cover':
-            parts.append('<section class="coverpage"></section>')
+            parts.append(f'<section class="coverpage" style="background-image:url(build/img/{C.COVER})"></section>')
         elif t=='disclaimer':
             items="".join(f"<p>{esc(d)}</p>" for d in el[1])
             parts.append(f'<section class="frontmatter"><h2 class="plain">일러두기</h2>'
@@ -173,8 +174,8 @@ def render():
           f'<meta name="description" content="AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {esc(C.SUBTITLE)}">'
           f'<meta name="keywords" content="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자, 챗GPT 주식, AI 종목분석">')
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style></head><body>{body}</body></html>'
-    (BUILD/"preview.html").write_text(doc,encoding="utf-8")
-    HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/"preview.pdf"))
-    print("[ok] preview PDF →", BUILD/"preview.pdf")
+    (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
+    HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT))
+    print("[ok] preview PDF →", BUILD/C.PDF_OUT)
 
 if __name__=="__main__": render()

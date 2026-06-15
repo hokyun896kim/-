@@ -191,6 +191,51 @@ def cover_image():
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
 
+def cover_book2():
+    # 2권 표지(경제 읽기 + AI). 차콜+골드 시리즈 톤. 산출: img/book2_cover.png
+    Wc,Hc=1240,1835; G=ACCENT
+    el=[]
+    # 중앙 모티프: 뉴스 카드 + 돋보기 + AI 신경망
+    el.append('<g transform="translate(250,820)">')
+    el.append(f'<rect x="0" y="0" width="520" height="430" rx="22" fill="#FFFFFF" fill-opacity="0.05" stroke="{G}" stroke-width="3"/>')
+    # 뉴스 헤드라인/본문 줄
+    el.append(f'<rect x="48" y="56" width="300" height="22" rx="6" fill="{G}" opacity="0.9"/>')
+    for i,(w) in enumerate([420,420,300,420,360]):
+        el.append(f'<rect x="48" y="{120+i*46}" width="{w}" height="12" rx="6" fill="#9FB4BC" opacity="0.55"/>')
+    # 돋보기
+    el.append(f'<circle cx="360" cy="300" r="92" fill="#102B39" fill-opacity="0.5" stroke="{G}" stroke-width="6"/>')
+    el.append(f'<line x1="426" y1="366" x2="500" y2="440" stroke="{G}" stroke-width="14" stroke-linecap="round"/>')
+    # 돋보기 안 상승선
+    el.append('<polyline points="312,330 340,300 366,312 396,270" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>')
+    el.append('</g>')
+    # AI 신경망 (상단 오버레이)
+    nodes=[(470,792),(610,820),(762,770),(905,802),(1006,752)]
+    edges=[((340,775),(470,792)),((470,792),(610,820)),((610,820),(762,770)),
+           ((762,770),(905,802)),((905,802),(1006,752)),((610,820),(905,802))]
+    for (x1,y1),(x2,y2) in edges:
+        el.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{G}" stroke-opacity="0.45" stroke-width="2"/>')
+    for nx,ny in nodes:
+        el.append(f'<circle cx="{nx}" cy="{ny}" r="11" fill="#0E2A38" stroke="{G}" stroke-width="3"/><circle cx="{nx}" cy="{ny}" r="3.2" fill="{G}"/>')
+    el.append(f'<rect x="232" y="748" width="108" height="56" rx="28" fill="{G}" fill-opacity="0.14" stroke="{G}" stroke-width="3"/>'
+              f'<text x="286" y="787" font-family="{FONT}" font-size="34" font-weight="800" fill="{G}" text-anchor="middle">AI</text>')
+    motif="\n".join(el)
+    svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="{Wc}" height="{Hc}" viewBox="0 0 {Wc} {Hc}">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+ <stop offset="0" stop-color="#102B39"/><stop offset="0.55" stop-color="#163B4E"/><stop offset="1" stop-color="#23596F"/></linearGradient>
+ <radialGradient id="glow" cx="0.85" cy="0.12" r="0.55"><stop offset="0" stop-color="#C0894B" stop-opacity="0.38"/><stop offset="1" stop-color="#C0894B" stop-opacity="0"/></radialGradient></defs>
+<rect width="{Wc}" height="{Hc}" fill="url(#bg)"/><rect width="{Wc}" height="{Hc}" fill="url(#glow)"/>
+<text x="100" y="240" font-family="{FONT}" font-size="30" letter-spacing="9" fill="{G}" font-weight="700">AI · ECONOMY · READING</text>
+<text x="96" y="350" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">질문이 바뀌면</text>
+<text x="96" y="452" font-family="{FONT}" font-size="86" font-weight="800" fill="#FFFFFF">경제가 보인다</text>
+<rect x="100" y="510" width="150" height="6" fill="{G}"/>
+<text x="100" y="586" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">막막한 경제 뉴스를,</text>
+<text x="100" y="642" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">AI와 함께 읽는 법</text>
+{motif}
+<text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
+</svg>'''
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover.png"), output_width=Wc, output_height=Hc)
+
 def build():
     cover_image()
     for name,inner in ICONS.items():

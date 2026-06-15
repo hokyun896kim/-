@@ -3,7 +3,8 @@
 """EPUB(서점 유통용) 생성 — content.parse() → 리플로우 XHTML → pandoc EPUB.
 표지 이미지·메타데이터·내비게이션 포함. 산출: build/book.epub"""
 import html, pathlib, subprocess, datetime
-import content as C
+import os, importlib
+C = importlib.import_module(os.environ.get('BOOK','content'))
 
 ROOT=pathlib.Path(__file__).resolve().parent
 ASSETS=ROOT/"assets"; BUILD=ROOT/"build"; IMG=BUILD/"img"
@@ -111,12 +112,12 @@ def build():
         f'description: "AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {C.SUBTITLE}"\n'
         'subject:\n  - AI 투자\n  - 주식투자\n  - 투자 루틴\n  - 섹터 분석\n  - 포트폴리오\n  - 개인투자자\n'
         "---\n", encoding="utf-8")
-    out=BUILD/"book.epub"
+    out=BUILD/C.EPUB_OUT
     subprocess.run([
         "pandoc", str(src), "--metadata-file", str(meta), "-f","html","-t","epub3","-o",str(out),
         "--toc","--toc-depth=2","--split-level=1",
         "--css",str(ASSETS/"epub.css"),
-        "--epub-cover-image",str(IMG/"cover.png"),
+        "--epub-cover-image",str(IMG/C.COVER),
     ], check=True)
     print("[ok] EPUB →", out)
 

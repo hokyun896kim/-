@@ -19,6 +19,8 @@ SUBTITLE="7천만 원 계좌에서 시작된 질문, AI 투자 시스템의 시�
 KEYLINE="나는 AI에게 정답을 묻지 않았다. AI를 내 투자위원회로 만들기 시작했다."
 PROJECT="호차차"
 AUTHOR="호차차"                     # 필명 (바꾸면 전체 반영)
+COVER="cover.png"                  # build/img/ 내 표지 파일명
+PDF_OUT="preview.pdf"; DOCX_OUT="book.docx"; EPUB_OUT="book.epub"
 EMAIL="morningstar8590@kakao.com"  # 문의 이메일
 PUBDATE="2026년 6월 초판 1쇄"
 AUTHOR_BIO=("개인투자자. AI를 ‘종목 추천기’가 아니라 ‘투자 판단을 점검하는 회의실’로 "

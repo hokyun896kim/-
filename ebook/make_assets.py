@@ -192,7 +192,27 @@ def cover_image():
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
 
 def cover_book2():
-    # 2권 표지(경제 읽기 + AI). 차콜+골드 시리즈 톤. 산출: img/book2_cover.png
+    # 사용자 표지 이미지가 있으면 비율 보정(잘림 없이 위/아래 가장자리색으로 패딩) 후 사용
+    src=ROOT/"assets"/"book2_cover_source.png"
+    if src.exists():
+        from PIL import Image
+        Wc,Hc=1240,1835
+        im=Image.open(str(src)).convert("RGB")
+        w=Wc; h=round(im.height*Wc/im.width)
+        im=im.resize((w,h), Image.LANCZOS)
+        canvas=Image.new("RGB",(Wc,Hc))
+        if h>=Hc:                      # 더 길면 중앙 크롭
+            top=(h-Hc)//2; canvas.paste(im.crop((0,top,Wc,top+Hc)),(0,0))
+        else:                          # 더 짧으면 위/아래 가장자리색으로 패딩
+            y=(Hc-h)//2
+            topc=im.crop((0,0,Wc,1)).resize((1,1)).getpixel((0,0))
+            botc=im.crop((0,h-1,Wc,h)).resize((1,1)).getpixel((0,0))
+            canvas.paste(Image.new("RGB",(Wc,y),topc),(0,0))
+            canvas.paste(Image.new("RGB",(Wc,Hc-y-h),botc),(0,y+h))
+            canvas.paste(im,(0,y))
+        canvas.save(str(IMG/"book2_cover.png"))
+        return
+    # (이하 폴백 SVG 표지)
     Wc,Hc=1240,1835; G=ACCENT
     el=[]
     # 중앙 모티프: 뉴스 카드 + 돋보기 + AI 신경망

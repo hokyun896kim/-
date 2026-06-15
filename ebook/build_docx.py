@@ -15,6 +15,7 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import os, importlib
 C = importlib.import_module(os.environ.get('BOOK','content'))
+BODY_PT=getattr(C,'BODY_PT',10.5)
 
 ROOTDIR = pathlib.Path(__file__).resolve().parent
 BUILD = ROOTDIR / "build"; BUILD.mkdir(exist_ok=True)
@@ -111,11 +112,11 @@ def body_para(doc,text,lead=False):
     if lead and text:   # 장 첫 문단: 짧고 깔끔한 첫 문장만 굵게
         first,rest=first_sentence_split(text)
         if first:
-            run(p,first,size=10.5,bold=True,color=NAVY); run(p," "+rest,size=10.5,color=INK)
+            run(p,first,size=BODY_PT,bold=True,color=NAVY); run(p," "+rest,size=BODY_PT,color=INK)
         else:
-            run(p,text,size=10.5,color=INK)
+            run(p,text,size=BODY_PT,color=INK)
     else:
-        run(p,text,size=10.5,color=INK)
+        run(p,text,size=BODY_PT,color=INK)
 def callout(doc,title,body):
     c=box(doc,TINT,NAVY)
     p=c.paragraphs[0]; p.paragraph_format.space_after=Pt(3); p.paragraph_format.line_spacing=1.3
@@ -239,10 +240,10 @@ def build():
     sec=doc.sections[0]
     sec.page_width=Mm(152); sec.page_height=Mm(225)
     sec.top_margin=Mm(20); sec.bottom_margin=Mm(20); sec.left_margin=Mm(18); sec.right_margin=Mm(18)
-    nm=doc.styles['Normal']; nm.font.name=BODY; nm.font.size=Pt(10.5)
+    nm=doc.styles['Normal']; nm.font.name=BODY; nm.font.size=Pt(BODY_PT)
     nm.element.rPr.rFonts.set(qn('w:eastAsia'),BODY)
     nm.paragraph_format.line_spacing=1.72; nm.paragraph_format.line_spacing_rule=WD_LINE_SPACING.MULTIPLE
-    nm.paragraph_format.space_after=Pt(9)
+    nm.paragraph_format.space_after=Pt(getattr(C,'PARA_AFTER',9))
     _set(nm.element.get_or_add_rPr(),'w:spacing',**{'w:val':'4'})  # 자간 살짝(≈0.2pt)
     for hn,sz in (('Heading 1',18),('Heading 2',15)):
         st=doc.styles[hn]; st.font.name=HEAD; st.font.size=Pt(sz); st.font.bold=True

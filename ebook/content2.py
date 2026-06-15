@@ -23,6 +23,32 @@ PDF_OUT="book2_preview.pdf"; DOCX_OUT="book2.docx"; EPUB_OUT="book2.epub"
 AUTHOR_BIO=("개인투자자이자 ‘경제 읽기’ 기록자. AI를 정답 기계가 아니라 ‘질문 파트너’로 쓰면서, "
  "막막하던 경제 뉴스와 지표를 스스로 읽고 판단하는 루틴을 만들어 왔다. 이 책은 그 과정을 정리한 실전 안내서다. "
  "전작 『나는 AI에게 종목을 묻지 않았다』에 이은 ‘호차차의 AI 읽기’ 두 번째 기록이다.")
+FONT_PT=11.2; LINE=1.85; PARA_EM=1.0      # 미리보기(PDF) 본문 키우기/단락 띄우기
+BODY_PT=11.2; PARA_AFTER=10               # Word 본문
+CH2_FIGURE={
+ 1:("fig2_1","용어가 아니라 ‘연결고리’가 어렵다"),
+ 2:("fig2_2","AI에게 답이 아니라 ‘판단 구조’를 시킨다"),
+ 3:("fig2_3","금리는 돈의 가격 — 대출·집값·소비를 흔든다"),
+ 4:("fig2_4","환율은 양방향 — 장바구니와 수출이 반대로"),
+ 5:("fig2_5","월급이 그대로면 물가만큼 가난해진다"),
+ 6:("fig2_6","좋은 고용도 물가→금리로 부담이 된다"),
+ 7:("fig2_7","발표보다 ‘말투(매파·비둘기파)’를 읽는다"),
+ 8:("fig2_8","전쟁 → 유가 → 물가 → 금리 → 내 지갑"),
+ 9:("fig2_9","매출보다 ‘영업이익’을 본다"),
+ 10:("fig2_10","이익이 더 빨리 좋아지는 회사"),
+ 11:("fig2_11","이익이 나도 현금이 없으면 무너진다"),
+ 12:("fig2_12","산업에도 사계절이 있다"),
+ 13:("fig2_13","재무제표 3종을 함께 읽는다"),
+ 14:("fig2_14","시장은 ‘기대와의 차이’에 반응한다"),
+ 15:("fig2_15","해석보다 원문(1차 소스) 먼저"),
+ 16:("fig2_16","‘A 때문에 B’가 진짜 인과인지 본다"),
+ 17:("fig2_17","기사에 ‘없는 것(침묵)’도 정보다"),
+ 18:("fig2_18","보고 싶은 것만 보지 않으려면 반증을"),
+ 19:("fig2_19","AI 답도 절차로 팩트체크한다"),
+ 20:("fig2_20","하루 10분이면 흐름이 쌓인다"),
+ 21:("fig2_21","점을 선으로 — 일주일로 흐름 잡기"),
+ 22:("fig2_22","질문→분해→검증→기록이 돌면 내 것이 된다"),
+}
 DISCLAIMER=[
  "이 책은 특정 종목·상품의 투자를 권유하기 위한 책이 아닙니다.",
  "경제 뉴스와 지표를 스스로 읽고 판단하는 힘을 기르기 위한 교육·실전 안내서입니다.",
@@ -49,25 +75,18 @@ def _parse_table(s):
     return rows, header
 
 def _render_blocks(blocks):
-    """일반 본문 블록 → para(병합)/bullets/numlist 요소."""
-    E=[]; buf=[]
-    def flush():
-        if buf:
-            t=" ".join(buf).strip()
-            if t: E.append(('para', t, False))
-            buf.clear()
+    """일반 본문 블록 → 요소. 단락은 병합하지 않고 블록 하나=문단 하나(단락 띄우기)."""
+    E=[]
     for b in blocks:
         s=b.strip()
         if not s: continue
         if _is_table(s):
-            flush(); rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); continue
+            rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); continue
         if re.search(r'(?m)^\d+\.\s', s):
-            flush(); E.append(('numlist',[(n,clean(x)) for n,x in re.findall(r'(?m)^(\d+)\.\s+(.+)$',s)])); continue
+            E.append(('numlist',[(n,clean(x)) for n,x in re.findall(r'(?m)^(\d+)\.\s+(.+)$',s)])); continue
         if re.match(r'^[-*]\s+', s):
-            flush(); E.append(('bullets',[clean(x) for x in re.findall(r'(?m)^[-*]\s+(.+)$',s)])); continue
-        buf.append(clean(s))
-        if len(" ".join(buf))>=300: flush()
-    flush()
+            E.append(('bullets',[clean(x) for x in re.findall(r'(?m)^[-*]\s+(.+)$',s)])); continue
+        E.append(('para', clean(s), False))
     return E
 
 def _endnote_lines(blocks):
@@ -131,33 +150,34 @@ def _prologue(md):
 
 def _body(md):
     blocks=[b for b in split_blocks(md) if b.strip()]
-    E=[]; k=0; n=len(blocks); buf=[]
-    def flush():
-        if buf:
-            t=" ".join(buf).strip()
-            if t: E.append(('para', t, False))
-            buf.clear()
+    E=[]; k=0; n=len(blocks)
+    cur=[None]; pcount=[0]; figdone=[True]
+    def place_fig():
+        if not figdone[0] and cur[0] in CH2_FIGURE:
+            nm,cap=CH2_FIGURE[cur[0]]; E.append(('figure', nm, cap)); figdone[0]=True
     while k<n:
         s=blocks[k].strip()
         m=re.match(r'^#\s+PART\s*(\d+)', s)
         if m:
-            flush(); num=m.group(1); title=""
+            place_fig(); num=m.group(1); title=""
             if k+1<n and re.match(r'^##\s', blocks[k+1]):
                 title=clean(re.sub(r'^##\s*','',blocks[k+1].strip())); k+=1
-            E.append(('part', num, title, '', '')); k+=1; continue
+            E.append(('part', num, title, '', '')); cur[0]=None; figdone[0]=True; k+=1; continue
         m=re.match(r'^#\s+(\d+)장\.\s*(.+)', s)
         if m:
-            flush(); E.append(('chapter', int(m.group(1)), clean(m.group(2)), '')); k+=1; continue
+            place_fig()                      # 이전 장에 미배치 시 보강
+            cn=int(m.group(1)); E.append(('chapter', cn, clean(m.group(2)), ''))
+            cur[0]=cn; pcount[0]=0; figdone[0]=(cn not in CH2_FIGURE); k+=1; continue
         m=re.match(r'^#{2,3}\s+(.+)', s)     # 소제목(##/###)
         if m:
-            flush(); label=clean(m.group(1)); body,k=_collect(blocks,k+1)
+            label=clean(m.group(1)); body,k=_collect(blocks,k+1)
             E += _dispatch(label, body); continue
         if _is_table(s):
-            flush(); rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
-        buf.append(clean(s))
-        if len(" ".join(buf))>=300: flush()
+            rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
+        E.append(('para', clean(s), False)); pcount[0]+=1
+        if pcount[0]==2: place_fig()         # 장 본문 2문단 뒤에 개념도 배치
         k+=1
-    flush()
+    place_fig()
     return E
 
 def _dispatch(label, body):

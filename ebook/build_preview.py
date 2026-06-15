@@ -184,7 +184,9 @@ def render():
           f'<meta name="author" content="{esc(C.AUTHOR)}">'
           f'<meta name="description" content="AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {esc(C.SUBTITLE)}">'
           f'<meta name="keywords" content="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자, 챗GPT 주식, AI 종목분석">')
-    doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style></head><body>{body}</body></html>'
+    over=(f'<style>body{{font-size:{C.FONT_PT}pt;line-height:{getattr(C,"LINE",1.78)}}} '
+          f'p{{margin-bottom:{getattr(C,"PARA_EM",0.82)}em}}</style>') if hasattr(C,'FONT_PT') else ''
+    doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'
     (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
     HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT))
     print("[ok] preview PDF →", BUILD/C.PDF_OUT)

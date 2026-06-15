@@ -270,9 +270,9 @@ def build():
             for d in el[1]:
                 dp=c.add_paragraph(); dp.paragraph_format.space_after=Pt(4); dp.paragraph_format.line_spacing=1.45
                 run(dp,d,size=9.8,color="48433D")
-            kp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=30,after=4); run(kp,"이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.",font=HEAD,size=12.5,bold=True,color=NAVY)
+            kp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=30,after=4); run(kp,getattr(C,"READKEY","이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다."),font=HEAD,size=12.5,bold=True,color=NAVY)
             gp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); gp.paragraph_format.left_indent=Mm(14); gp.paragraph_format.right_indent=Mm(14)
-            run(gp,"이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.",size=9.6,color=MUTED)
+            run(gp,getattr(C,"READGUIDE","이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다."),size=9.6,color=MUTED)
         elif t=='toc': add_toc(doc)
         elif t=='part': part_page(doc, el[1], el[2], el[3] if len(el)>3 else '', el[4] if len(el)>4 else '')
         elif t=='h1big':
@@ -369,8 +369,9 @@ def build():
             run(r2,"본 전자책은 특정 종목의 매수·매도 권유나 수익 보장을 위한 것이 아니며, 투자 교육·실전 기록을 목적으로 합니다. 투자의 최종 판단과 책임은 독자 본인에게 있습니다.",size=8.2,color="9A948A")
 
     cp=doc.core_properties
-    cp.title=C.TITLE; cp.author=C.AUTHOR; cp.subject=f"AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {C.SUBTITLE}"
-    cp.keywords="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자"
+    cp.title=C.TITLE; cp.author=C.AUTHOR
+    cp.subject=getattr(C,"DESCRIPTION",f"AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {C.SUBTITLE}")
+    cp.keywords=", ".join(getattr(C,"KEYWORDS",["AI 투자","주식투자","투자 루틴","섹터 분석","포트폴리오","개인투자자"]))
     doc.save(str(OUT)); print("[ok] DOCX →", OUT)
 
 if __name__=="__main__": build()

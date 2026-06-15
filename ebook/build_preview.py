@@ -42,9 +42,8 @@ def render():
             items="".join(f"<p>{esc(d)}</p>" for d in el[1])
             parts.append(f'<section class="frontmatter"><h2 class="plain">일러두기</h2>'
                          f'<div class="disclaimer"><span class="tag">DISCLAIMER</span>{items}</div>'
-                         f'<p class="readkey">이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.</p>'
-                         f'<p class="readguide">이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 '
-                         f'실전 노트처럼 활용하셔도 좋습니다.</p></section>')
+                         f'<p class="readkey">{esc(getattr(C,"READKEY","이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다."))}</p>'
+                         f'<p class="readguide">{esc(getattr(C,"READGUIDE","이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다."))}</p></section>')
         elif t=='toc':
             parts.append("<!--TOC-->")
         elif t=='part':
@@ -182,8 +181,8 @@ def render():
     css=(ASSETS/"preview.css").read_text(encoding="utf-8")
     meta=(f'<title>{esc(C.TITLE)}</title>'
           f'<meta name="author" content="{esc(C.AUTHOR)}">'
-          f'<meta name="description" content="AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {esc(C.SUBTITLE)}">'
-          f'<meta name="keywords" content="AI 투자, 주식투자, 투자 루틴, 섹터 분석, 포트폴리오, 개인투자자, 챗GPT 주식, AI 종목분석">')
+          f'<meta name="description" content="{esc(getattr(C,"DESCRIPTION","AI 투자 루틴과 개인투자자의 판단 구조화 기록 — "+C.SUBTITLE))}">'
+          f'<meta name="keywords" content="{esc(", ".join(getattr(C,"KEYWORDS",["AI 투자","주식투자","투자 루틴","섹터 분석","포트폴리오","개인투자자","챗GPT 주식","AI 종목분석"])))}">')
     over=(f'<style>body{{font-size:{C.FONT_PT}pt;line-height:{getattr(C,"LINE",1.78)}}} '
           f'p{{margin-bottom:{getattr(C,"PARA_EM",0.82)}em}}</style>') if hasattr(C,'FONT_PT') else ''
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'

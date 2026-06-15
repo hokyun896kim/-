@@ -19,8 +19,8 @@ def render_elements():
         if t=='disclaimer':
             items="".join(f"<p>{esc(d)}</p>" for d in el[1])
             out.append(f'<h1>일러두기</h1><div class="disclaimer"><span class="tag">DISCLAIMER</span>{items}</div>'
-                       f'<p class="readkey">이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.</p>'
-                       f'<p class="readguide">이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.</p>')
+                       f'<p class="readkey">{getattr(C,"READKEY","이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.")}</p>'
+                       f'<p class="readguide">{getattr(C,"READGUIDE","이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.")}</p>')
         elif t=='part':
             ic=f'<img class="partimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
             intro=f'<p class="pintro">{esc(el[4])}</p>' if len(el)>4 and el[4] else ''
@@ -119,9 +119,9 @@ def build():
         f'date: "{datetime.date.today().isoformat()}"\n'
         f'publisher: "{C.AUTHOR}"\n'
         f'rights: "© {C.AUTHOR}. 무단 복제·전재·배포 금지. 투자 교육·실전 기록 목적(투자 권유·수익 보장 아님)."\n'
-        f'description: "AI 투자 루틴과 개인투자자의 판단 구조화 기록 — {C.SUBTITLE}"\n'
-        'subject:\n  - AI 투자\n  - 주식투자\n  - 투자 루틴\n  - 섹터 분석\n  - 포트폴리오\n  - 개인투자자\n'
-        "---\n", encoding="utf-8")
+        f'description: "{getattr(C,"DESCRIPTION","AI 투자 루틴과 개인투자자의 판단 구조화 기록 — "+C.SUBTITLE)}"\n'
+        + "subject:\n"+"".join(f"  - {k}\n" for k in getattr(C,"KEYWORDS",["AI 투자","주식투자","투자 루틴","섹터 분석","포트폴리오","개인투자자"]))
+        + "---\n", encoding="utf-8")
     out=BUILD/C.EPUB_OUT
     subprocess.run([
         "pandoc", str(src), "--metadata-file", str(meta), "-f","html","-t","epub3","-o",str(out),

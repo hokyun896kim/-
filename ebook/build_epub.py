@@ -46,6 +46,16 @@ def render_elements():
             body="".join(f'<tr><td class="{ca}">{esc(a)}</td><td class="{cb}">{esc(b)}</td></tr>' for _,a,b in rows)
             cp=f'<p class="tcap">→ {esc(cap)}</p>' if cap else ''
             out.append(f'<table class="compare"><tr><th>{esc(h[1])}</th><th>{esc(h[2])}</th></tr>{body}</table>{cp}')
+        elif t=='gtable':
+            rows,hdr=el[1],el[2]; twocol=all(len(r)==2 for r in rows); trs=[]
+            for ri,row in enumerate(rows):
+                cs=""
+                for ci,c in enumerate(row):
+                    if hdr and ri==0: cs+=f'<th class="hd">{esc(c)}</th>'
+                    elif (not hdr) and twocol and ci==0: cs+=f'<th class="rl">{esc(c)}</th>'
+                    else: cs+=f'<td>{esc(c)}</td>'
+                trs.append(f'<tr>{cs}</tr>')
+            out.append(f'<table class="gtbl">{"".join(trs)}</table>')
         elif t=='cards':
             cards="".join(f'<div class="card"><span class="cidx">{i}</span><h4>{esc(x[0])}</h4><p>{esc(x[1])}</p></div>'
                           for i,x in enumerate(el[1],1))

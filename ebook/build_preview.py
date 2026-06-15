@@ -89,6 +89,17 @@ def render():
             capt=f'<p class="tcap">{esc(caption)}</p>' if caption else ''
             parts.append(f'<table class="compare"><thead><tr><th>{esc(headers[1])}</th>'
                          f'<th>{esc(headers[2])}</th></tr></thead><tbody>{body}</tbody></table>{capt}')
+        elif t=='gtable':
+            rows,hdr=el[1],el[2]; twocol=all(len(r)==2 for r in rows)
+            trs=[]
+            for ri,row in enumerate(rows):
+                cs=""
+                for ci,c in enumerate(row):
+                    if hdr and ri==0: cs+=f'<th class="hd">{esc(c)}</th>'
+                    elif (not hdr) and twocol and ci==0: cs+=f'<th class="rl">{esc(c)}</th>'
+                    else: cs+=f'<td>{esc(c)}</td>'
+                trs.append(f'<tr>{cs}</tr>')
+            parts.append(f'<table class="gtbl">{"".join(trs)}</table>')
         elif t=='cards':
             body="".join(f'<div class="card"><span class="cidx">{i}</span><h4>{esc(x[0])}</h4>'
                          f'<p>{esc(x[1])}</p></div>' for i,x in enumerate(el[1],1))

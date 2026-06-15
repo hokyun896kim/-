@@ -141,6 +141,21 @@ def compare(doc,headers,rows,good_right,caption=''):
     if caption:
         cp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=2,after=0); run(cp,"→ "+caption,font=HEAD,size=9.4,bold=True,color=ACCENTD)
     spacer(doc)
+def gtable(doc,rows,hdr):
+    if not rows: return
+    ncol=max(len(r) for r in rows); twocol=all(len(r)==2 for r in rows)
+    t=doc.add_table(rows=len(rows),cols=ncol); t.alignment=WD_TABLE_ALIGNMENT.CENTER; t.style='Table Grid'
+    for ri,row in enumerate(rows):
+        for ci in range(ncol):
+            cell=t.cell(ri,ci); cmar(cell); txt=row[ci] if ci<len(row) else ""
+            p=cell.paragraphs[0]; p.paragraph_format.space_after=Pt(0); p.paragraph_format.line_spacing=1.3
+            if hdr and ri==0:
+                shade(cell,NAVY); run(p,txt,font=HEAD,size=9.3,bold=True,color="FFFFFF")
+            elif (not hdr) and twocol and ci==0:
+                shade(cell,"F3F0E9"); run(p,txt,font=HEAD,size=9.3,bold=True,color=NAVY)
+            else:
+                run(p,txt,size=9.3,color="3A3631")
+    spacer(doc)
 def cards(doc,items):
     for i,(title,desc) in enumerate(items,1):
         t=doc.add_table(rows=1,cols=2); t.alignment=WD_TABLE_ALIGNMENT.CENTER; nobord(t)
@@ -278,6 +293,7 @@ def build():
         elif t=='callout': callout(doc, el[1], el[2])
         elif t=='compare': compare(doc, el[1], el[2], el[3], el[4] if len(el)>4 else '')
         elif t=='cards': cards(doc, el[1])
+        elif t=='gtable': gtable(doc, el[1], el[2])
         elif t=='modebar': modebar(doc, el[1])
         elif t=='flow': flow(doc, el[1])
         elif t=='dodont': dodont(doc, el[1], el[2], el[3])

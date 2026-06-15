@@ -87,3 +87,9 @@ ul.numlist .ln{font-family:sans-serif;font-weight:700;color:#9C6B33;margin-right
 .disclaimer .tag{font-family:sans-serif;font-weight:700;font-size:.78em;color:#9C6B33;display:block;margin-bottom:.4em}
 .readkey{text-align:center;font-family:sans-serif;font-weight:700;color:#163B4E;margin:1.4em 0 .3em}
 .readguide{text-align:center;color:#6E6A63;font-size:.92em}
+table.gtbl{width:100%;border-collapse:collapse;margin:1em 0;font-size:.9em}
+table.gtbl th,table.gtbl td{border:1px solid #DED8CC;padding:.45em .5em;vertical-align:top;text-align:left}
+table.gtbl .hd{background:#163B4E;color:#fff;font-family:sans-serif}
+table.gtbl .rl{background:#F3F0E9;color:#163B4E;font-family:sans-serif;width:30%}
+
+table.gtbl td:first-child{white-space:nowrap}

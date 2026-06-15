@@ -32,6 +32,22 @@ DISCLAIMER=[
 
 def _is_heading(b): return bool(re.match(r'^#{1,4}\s', b.strip()))
 
+def _is_table(s):
+    lines=[l for l in s.splitlines() if l.strip()]
+    return len(lines)>=2 and sum(1 for l in lines if l.strip().startswith('|'))>=2
+
+def _parse_table(s):
+    rows=[]; header=False
+    for l in s.splitlines():
+        t=l.strip()
+        if not t.startswith('|'): continue
+        if re.fullmatch(r'[\|\-\:\s]+', t) and '-' in t:
+            if rows: header=True
+            continue
+        rows.append([clean(c) for c in t.strip('|').split('|')])
+    # 빈 열 제거(양끝)
+    return rows, header
+
 def _render_blocks(blocks):
     """일반 본문 블록 → para(병합)/bullets/numlist 요소."""
     E=[]; buf=[]
@@ -43,6 +59,8 @@ def _render_blocks(blocks):
     for b in blocks:
         s=b.strip()
         if not s: continue
+        if _is_table(s):
+            flush(); rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); continue
         if re.search(r'(?m)^\d+\.\s', s):
             flush(); E.append(('numlist',[(n,clean(x)) for n,x in re.findall(r'(?m)^(\d+)\.\s+(.+)$',s)])); continue
         if re.match(r'^[-*]\s+', s):
@@ -134,6 +152,8 @@ def _body(md):
         if m:
             flush(); label=clean(m.group(1)); body,k=_collect(blocks,k+1)
             E += _dispatch(label, body); continue
+        if _is_table(s):
+            flush(); rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
         buf.append(clean(s))
         if len(" ".join(buf))>=300: flush()
         k+=1
@@ -154,7 +174,8 @@ def _dispatch(label, body):
         return [('endnote', _endnote_lines(body))]
     if label.startswith("프롬프트"):
         out=[('h3', label)]
-        if body: out.append(('prompt', " ".join(clean(b) for b in body)))
+        if body: out.append(('prompt', clean(body[0])))   # 첫 블록만 프롬프트
+        out += _render_blocks(body[1:])                    # 나머지는 본문
         return out
     # 그 외(실습·6단계 프레임·바로 쓰는 질문·좋은 AI 질문·하루 10분·①②③·마무리·저자의 노트 등)
     return [('h3', label)] + _render_blocks(body)
@@ -164,6 +185,8 @@ def _appendix(md):
     E=[('h1big','appendix','부록 · AI 경제 읽기 도구상자','clipboard')]
     for b in blocks[1:]:
         s=b.strip()
+        if _is_table(s):
+            rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); continue
         m=re.match(r'^##\s+(\d+)\.\s*(.+)', s)
         if m: E.append(('cat', m.group(1), clean(m.group(2)))); continue
         m=re.match(r'^#{2,4}\s+(.+)', s)

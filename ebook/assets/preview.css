@@ -131,6 +131,11 @@ table.compare .col-bad{background:var(--badbg)}
 p.tcap{margin:-3mm 0 5mm;text-align:center;font-family:"Noto Sans CJK KR";font-weight:700;
  font-size:9.4pt;color:var(--accentd)}
 p.tcap::before{content:"→ "}
+table.gtbl{width:100%;border-collapse:collapse;margin:4mm 0;font-size:9.3pt;page-break-inside:avoid}
+table.gtbl th,table.gtbl td{border:1px solid var(--line);padding:2.2mm 2.6mm;vertical-align:top;text-align:left;line-height:1.45}
+table.gtbl td{color:#3a3631}
+table.gtbl .hd{background:var(--navy);color:#fff;font-family:"Noto Sans CJK KR";font-weight:700}
+table.gtbl .rl{background:#F3F0E9;color:var(--navy);font-family:"Noto Sans CJK KR";font-weight:700;width:28%}
 
 .cardgrid{margin:5mm 0;font-size:0}
 .card{display:inline-block;width:48%;vertical-align:top;font-size:10.5pt;border:1px solid var(--line);border-radius:8px;
@@ -184,3 +189,5 @@ ul.numlist .ln{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--accent
 .writeline{border-bottom:1px solid #D3CCBD;height:0;margin:4mm 4mm 4mm 2mm;page-break-before:avoid;page-break-inside:avoid}
 h3{page-break-after:avoid}
 ul.bullets,ul.numlist{page-break-inside:avoid}
+
+table.gtbl td:first-child{white-space:nowrap}

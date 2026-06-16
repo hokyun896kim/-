@@ -190,8 +190,12 @@ def steps(name,ttl,items,note):  # 가로 단계
         b.append(f'<rect x="{x:.0f}" y="{y-50}" width="{bw}" height="100" rx="12" fill="#fff" stroke="{LINE}" stroke-width="1.5"/>')
         b.append(f'<circle cx="{x+24:.0f}" cy="{y-26}" r="14" fill="{ACCENT}"/>')
         b.append(T(x+24,y-21,str(i+1),13,"#fff",700))
-        for j,ln in enumerate(wrap(t,8)):
-            b.append(T(x+bw/2,y+2+j*18,ln,13,NAVY,700))
+        tl=wrap(t,8); dl=wrap(d,9) if d else []
+        ty=y-2 if dl else y-2+(1-len(tl))*9   # 설명 없으면 박스 가운데로
+        for j,ln in enumerate(tl):
+            b.append(T(x+bw/2,ty+j*18,ln,13,NAVY,700))
+        for j,ln in enumerate(dl):
+            b.append(T(x+bw/2,ty+len(tl)*18+3+j*15,ln,11,MUT))
         if i<n-1:
             ax=x+bw+gap/2
             b.append(f'<path d="M{x+bw+6:.0f} {y} H{x+bw+gap-6:.0f}" stroke="{ACCENT}" stroke-width="2"/>')

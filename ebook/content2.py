@@ -189,28 +189,35 @@ def _body(md):
             if force or pcount[0]>=th: E.append(el)
             else: rem.append((th,el))
         pending[:]=rem
+    held=[]                      # '이 장의 정리'를 장 끝으로 미뤄 일관되게 마무리
+    def flush():
+        place(True)
+        if held: E.extend(held); held.clear()
     while k<n:
         s=blocks[k].strip()
         m=re.match(r'^#\s+PART\s*(\d+)', s)
         if m:
-            place(True); num=m.group(1); title=""
+            flush(); num=m.group(1); title=""
             if k+1<n and re.match(r'^##\s', blocks[k+1]):
                 title=clean(re.sub(r'^##\s*','',blocks[k+1].strip())); k+=1
             E.append(('part', num, title, '', PART_SUM.get(int(num),''))); k+=1; continue
         m=re.match(r'^#\s+(\d+)장\.\s*(.+)', s)
         if m:
-            place(True)                      # 이전 장 미배치분 보강
+            flush()                          # 이전 장: 도식 보강 + 정리 박스 배치
             cn=int(m.group(1)); E.append(('chapter', cn, clean(m.group(2)), '')); setup(cn); k+=1; continue
         m=re.match(r'^#{2,3}\s+(.+)', s)     # 소제목(##/###)
         if m:
             label=clean(m.group(1)); body,k=_collect(blocks,k+1)
-            E += _dispatch(label, body); continue
+            if '마무리' in label: flush()    # 부(部) 마무리 앞에 장 정리를 먼저 둔다
+            for el in _dispatch(label, body):
+                (held if el and el[0]=='endnote' else E).append(el)
+            continue
         if _is_table(s):
             rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
         E.append(('para', clean(s), False)); pcount[0]+=1
         place()                              # 임계값 도달한 도식 배치
         k+=1
-    place(True)
+    flush()
     return E
 
 def _dispatch(label, body):

@@ -11,7 +11,8 @@ h3{font-family:sans-serif;color:#21566E;margin:1em 0 .3em}
 .csub{text-align:center;font-family:sans-serif;font-weight:700;color:#163B4E;font-size:1.05em;margin:-.2em 0 1em}
 .heroimg{display:block;margin:0 auto .6em;width:22%;max-width:120px}
 .partimg{display:block;margin:1em auto;width:30%;max-width:150px}
-.pintro{text-align:center;font-style:italic;color:#21566E;max-width:80%;margin:.6em auto 0}
+.pintro{text-align:center;font-style:italic;color:#21566E;max-width:88%;margin:1em auto 0;
+ background:#F6ECD6;border-top:3px solid #C0894B;border-radius:10px;padding:.9em 1.1em;line-height:1.7}
 
 .keybox{background:#F6F1E7;border-left:4px solid #C0894B;border-radius:6px;padding:.7em .9em;margin:1em 0}
 .keybox .klabel{font-family:sans-serif;font-weight:700;font-size:.8em;color:#9C6B33;display:block;margin-bottom:.3em}
@@ -57,8 +58,9 @@ ol.flow b{color:#163B4E;font-family:sans-serif}
 blockquote.pull{margin:1.3em 1em;text-align:center;border:0}
 blockquote.pull p{font-style:italic;font-weight:600;font-size:1.15em;color:#163B4E;margin:0;border-top:2px solid #C0894B;border-bottom:2px solid #C0894B;padding:.7em 0}
 
-.endnote{background:#FBF7EF;border-top:2px solid #C0894B;border-bottom:1px solid #DED8CC;padding:.7em .9em;margin:1.4em 0}
-.endnote .enlabel{font-family:sans-serif;font-weight:700;font-size:.8em;color:#9C6B33;display:block;text-align:center;margin-bottom:.4em}
+.endnote{background:#F6ECD6;border:1px solid #DBC49A;border-radius:11px;padding:1em 1.1em;margin:1.6em 0;text-align:center}
+.endnote .enlabel{font-family:sans-serif;font-weight:700;font-size:.74em;letter-spacing:.08em;color:#fff;
+ background:#C0894B;display:inline-block;border-radius:20px;padding:.25em 1em;margin-bottom:.6em}
 .endnote ol{margin:0;padding-left:1.3em}
 .endnote li{font-family:sans-serif;font-weight:700;color:#163B4E;margin:.25em 0}
 

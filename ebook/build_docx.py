@@ -34,6 +34,8 @@ def _set(el, tag, **a):
     el.append(e); return e
 def shade(cell,c):
     _set(cell._tc.get_or_add_tcPr(),'w:shd',**{'w:val':'clear','w:color':'auto','w:fill':c})
+def run_shd(r,c):  # 런 배경색(필 라벨 흉내)
+    _set(r._element.get_or_add_rPr(),'w:shd',**{'w:val':'clear','w:color':'auto','w:fill':c})
 def cmar(cell,t=80,b=80,l=120,r=120):
     m=_set(cell._tc.get_or_add_tcPr(),'w:tcMar')
     for s,v in (('top',t),('bottom',b),('start',l),('end',r)):
@@ -218,8 +220,10 @@ def part_page(doc,num,title,icon='',intro=''):
     run(h,f"{num}부",font=HEAD,size=13,bold=True,color=ACCENT)
     h2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=0); run(h2,title,font=HEAD,size=19,bold=True,color=NAVY)
     if intro:
-        pi=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=9,after=0,line=1.6)
-        pi.paragraph_format.left_indent=Mm(20); pi.paragraph_format.right_indent=Mm(20)
+        spacer(doc,6)
+        c=box(doc,"F6ECD6"); borders(c,ACCENT,18,sides=('top',))
+        pi=c.paragraphs[0]; pi.alignment=WD_ALIGN_PARAGRAPH.CENTER
+        pi.paragraph_format.space_after=Pt(0); pi.paragraph_format.line_spacing=1.6
         run(pi,intro,font=BODY,size=11,italic=True,color=NAVY2)
 
 # ---------- TOC ----------
@@ -304,12 +308,12 @@ def build():
             rl=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=8); rl.paragraph_format.left_indent=Mm(58); rl.paragraph_format.right_indent=Mm(58); botborder(rl,ACCENT,16)
         elif t=='endnote':
             lines=el[1] if isinstance(el[1],(list,tuple)) else [el[1]]
-            c=box(doc,"FBF7EF",ACCENT)
-            lp=c.paragraphs[0]; lp.paragraph_format.space_after=Pt(3)
-            run(lp,"이 장의 정리",font=HEAD,size=8.5,bold=True,color=ACCENTD)
+            c=box(doc,"F6ECD6"); borders(c,"DBC49A",6)
+            lp=c.paragraphs[0]; lp.alignment=WD_ALIGN_PARAGRAPH.CENTER; lp.paragraph_format.space_after=Pt(4)
+            run_shd(run(lp,"  이 장의 정리  ",font=HEAD,size=8.5,bold=True,color="FFFFFF"),ACCENT)
             for i,s in enumerate(lines,1):
                 ep=(c.paragraphs[0] if False else c.add_paragraph())
-                ep.paragraph_format.space_after=Pt(2); ep.paragraph_format.line_spacing=1.4
+                ep.paragraph_format.space_after=Pt(2); ep.paragraph_format.line_spacing=1.45
                 run(ep,f"{i}.  ",font=HEAD,size=10.5,bold=True,color=ACCENTD)
                 run(ep,s,font=HEAD,size=10.5,bold=True,color=NAVY)
             spacer(doc)

@@ -52,8 +52,11 @@ h2.chaptit.major{bookmark-level:1}         /* 프롤로그·에필로그·부록
 .partpage .partimg{width:34mm;height:34mm;margin-bottom:9mm}
 .partpage .pno{font-family:"Noto Sans CJK KR";font-weight:800;font-size:13pt;color:var(--accent);letter-spacing:.2em;margin-bottom:5mm}
 h1.part{margin:0;padding:0 12mm;font-family:"Noto Sans CJK KR";font-weight:800;font-size:19pt;color:var(--navy);line-height:1.5}
-.partpage .pintro{margin:9mm auto 0;max-width:96mm;font-family:"Noto Serif CJK KR";font-style:italic;
- font-size:11pt;line-height:1.7;color:var(--navy2)}
+.partpage .pintro{position:relative;margin:11mm auto 0;max-width:94mm;
+ font-family:"Noto Serif CJK KR";font-style:italic;font-size:11pt;line-height:1.75;color:var(--navy2);
+ background:linear-gradient(135deg,#FAF3E2,#F4E7CC);border-radius:13px;padding:6mm 8mm}
+.partpage .pintro::before{content:"";position:absolute;left:50%;top:-1.4px;transform:translateX(-50%);
+ width:18mm;height:2.6px;background:var(--accent);border-radius:3px}
 .chapopen .csub{margin:3mm auto 0;max-width:110mm;font-family:"Noto Sans CJK KR";font-weight:700;
  font-size:13pt;line-height:1.45;color:var(--navy)}
 .chapopen{page-break-before:always;text-align:center;margin:2mm 0 6mm}
@@ -87,12 +90,13 @@ blockquote.pull p{margin:0;font-family:"Noto Serif CJK KR";font-style:italic;fon
  font-size:15pt;line-height:1.55;color:var(--navy);text-align:center}
 blockquote.pull::after{content:"";display:block;width:16mm;height:2px;background:var(--accent);margin:4mm auto 0}
 
-.endnote{margin:7mm 0 2mm;padding:3.5mm 5mm;border-top:2px solid var(--accent);border-bottom:1px solid var(--line);
- background:#FBF7EF;page-break-inside:avoid;text-align:center}
-.endnote .enlabel{display:block;font-family:"Noto Sans CJK KR";font-weight:800;font-size:8pt;letter-spacing:.08em;
- color:var(--accentd);margin-bottom:2mm}
-.endnote ol{margin:0;padding-left:6mm;text-align:left}
-.endnote ol li{font-family:"Noto Sans CJK KR";font-weight:700;font-size:10.3pt;color:var(--navy);line-height:1.55;padding:1mm 0}
+.endnote{margin:8mm 0 2mm;padding:5mm 6mm 4.5mm;border:0;border-radius:13px;
+ background:linear-gradient(135deg,#FAF2DE,#F1E2C3);box-shadow:inset 0 0 0 1.5px rgba(192,137,75,.28);
+ page-break-inside:avoid;text-align:center}
+.endnote .enlabel{display:inline-block;font-family:"Noto Sans CJK KR";font-weight:800;font-size:7.8pt;letter-spacing:.13em;
+ color:#fff;background:var(--accent);padding:1.2mm 4mm;border-radius:20px;margin-bottom:3.5mm}
+.endnote ol{margin:0 auto;padding-left:6mm;max-width:106mm;text-align:left;display:inline-block}
+.endnote ol li{font-family:"Noto Sans CJK KR";font-weight:700;font-size:10.6pt;color:var(--navy);line-height:1.6;padding:1mm 0}
 .endnote ol li::marker{color:var(--accentd);font-weight:800}
 
 .apxnote{margin:4mm 0 5mm;padding:3.5mm 4.5mm;background:var(--tint);border-left:4px solid var(--navy2);

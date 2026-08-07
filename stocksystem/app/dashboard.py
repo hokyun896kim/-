@@ -36,7 +36,7 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
-from stocksystem.analysis.scoring import RECO_LABELS
+from stocksystem.analysis.scoring import RECO_LABELS, apply_sector_neutral
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
 from stocksystem.portfolio import (
@@ -74,14 +74,20 @@ html, body, [class*="css"] {{ font-size: 15px; }}
 [data-testid="stMetricValue"], [data-testid="stMetricDelta"],
 [data-testid="stDataFrame"], .ticker-tape {{ font-family: {MONO}; }}
 
-/* 탭: 터미널 느낌 */
-.stTabs [data-baseweb="tab-list"] {{ gap: 4px; border-bottom: 1px solid {C_GRID};
-    background: #0d1119; }}
-.stTabs [data-baseweb="tab"] {{
-    font-size: 1.0rem; font-weight: 700; padding: 9px 16px; color: #8b93a7;
-    border-radius: 6px 6px 0 0; letter-spacing: .3px; }}
-.stTabs [aria-selected="true"] {{
-    background: #131722; color: {C_ACCENT} !important;
+/* 화면 전환 네비 (segmented_control) — 기존 탭과 같은 터미널 느낌 */
+[data-testid="stSegmentedControl"] {{ margin-bottom: 10px; }}
+[data-testid="stSegmentedControl"] > div {{
+    gap: 4px; flex-wrap: wrap; background: #0d1119;
+    border-bottom: 1px solid {C_GRID}; padding: 2px 2px 0; }}
+[data-testid="stSegmentedControl"] button {{
+    font-size: 1.0rem !important; font-weight: 700 !important;
+    padding: 9px 16px !important; color: #8b93a7 !important;
+    background: transparent !important; border: none !important;
+    border-radius: 6px 6px 0 0 !important; letter-spacing: .3px; }}
+[data-testid="stSegmentedControl"] button:hover {{ color: #d1d4dc !important; }}
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[kind="segmented_controlActive"] {{
+    background: #131722 !important; color: {C_ACCENT} !important;
     box-shadow: inset 0 -2px 0 {C_ACCENT}; }}
 
 /* 지표(metric) 패널 */
@@ -297,9 +303,11 @@ def cached_index_quote(symbol, provider_name):
 @st.cache_data(ttl=600, show_spinner=False)
 def cached_screener(symbols, provider_name, period):
     provider = get_provider(provider_name)
+    results = [analyze_symbol(s, provider, cfg, period) for s in symbols]
+    # 섹터 상대평가는 여러 종목을 함께 봐야 성립한다 (config 로 켜고 끈다)
+    apply_sector_neutral(results, cfg)
     rows = []
-    for s in symbols:
-        r = analyze_symbol(s, provider, cfg, period)
+    for r in results:
         row = r.summary_row()
         row["시가총액"] = r.market_cap
         row["섹터"] = r.sector
@@ -452,14 +460,28 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-(tab0, tab_eb, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
- tab4) = st.tabs(
-    ["🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
-     "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
-     "🩺 포트폴리오 닥터", "📖 투자 가이드"])
+# ---- 화면 전환 ----
+#
+# st.tabs 를 쓰지 않는 이유: st.tabs 는 보고 있지 않은 탭의 본문까지 **매 rerun
+# 마다 전부 실행**한다. 12개 탭이 모두 돌면 캐시가 빈 첫 방문에 yfinance 호출이
+# 45~60건 나가고(특히 .info 는 건당 1~3초), Streamlit Community Cloud 의 공용
+# IP 는 Yahoo 에게 429 로 막히기 쉽다.
+#
+# segmented_control 은 선택된 화면 하나만 렌더링하므로 첫 로드 비용이 그 화면
+# 몫으로 줄어든다. 대신 화면 전환 때 rerun 이 일어나지만, 데이터는 이미
+# @st.cache_data 에 있어 두 번째부터는 즉시 그려진다.
+PAGES = [
+    "🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
+    "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
+    "🩺 포트폴리오 닥터", "🔬 검증", "📖 투자 가이드",
+]
+page = st.segmented_control("화면", PAGES, default=PAGES[0],
+                            label_visibility="collapsed", key="nav")
+if not page:                      # 선택 해제 시 첫 화면으로
+    page = PAGES[0]
 
 # ============================ 탭 0: 시장 (지수) ============================
-with tab0:
+if page == "🌎 시장":
     st.subheader("시장 분석 — 나스닥 · S&P 500")
 
     INDICES = [("SPY", "S&P 500"), ("QQQ", "나스닥 100"), ("DIA", "다우존스")]
@@ -532,15 +554,19 @@ with tab0:
         render_index_detail(res, news)
 
 # ============================ 탭 1: 스크리너 ============================
-with tab1:
+if page == "📊 스크리너":
     st.subheader("시가총액 상위 기업 스크리너")
     cc = st.columns([1.2, 1.4, 1.2, 1])
     top_pct = cc[0].select_slider(
         "시가총액 상위", options=[10, 25, 50, 75, 100], value=50,
         format_func=lambda x: f"상위 {x}%")
     sector = cc[1].selectbox("섹터", ["전체"] + sectors())
-    max_n = cc[2].slider("분석 종목 수", 5, 60, 25, step=5,
-                         help="실시간(yahoo) 모드에서 많을수록 느려집니다")
+    # 기본값 15: 종목당 price_history + .info 2회가 나가고 .info 는 건당 1~3초라
+    # 25종목이면 첫 조회에 50회·1분 이상 걸린다. Streamlit Cloud 공용 IP 는 그
+    # 정도 연속 호출에서 Yahoo 429 를 맞기 쉬워 보수적으로 잡았다.
+    max_n = cc[2].slider("분석 종목 수", 5, 60, 15, step=5,
+                         help="실시간(yahoo) 모드에서 많을수록 느려집니다 "
+                              "(종목당 약 2회 조회)")
     sort_by = cc[3].selectbox("정렬", ["종합점수", "시가총액", "기술점수",
                                        "펀더멘털점수"])
 
@@ -614,7 +640,7 @@ with tab1:
                     if valid.notna().any() else "—")
 
 # ============================ 탭 2: 종목 상세 ============================
-with tab2:
+if page == "🔍 종목 상세":
     uni_syms = [u.symbol for u in load_universe()]
     csel = st.columns([2, 3])
     sel = csel[0].selectbox("유니버스에서 선택", uni_syms)
@@ -826,7 +852,7 @@ with tab2:
             st.info("뉴스 데이터가 없습니다. (실시간 모드에서 더 잘 동작합니다)")
 
 # ============================ 탭 5: 백테스트 ============================
-with tab5:
+if page == "🧪 백테스트":
     st.subheader("전략 백테스트")
     st.caption("과거 데이터에 매매 전략을 적용해 '실제로 돈을 벌었을지' 검증하고 "
                "단순 보유(Buy&Hold)와 비교합니다.")
@@ -908,7 +934,7 @@ with tab5:
                    "슬리피지를 단순화한 모델입니다.")
 
 # ============================ 탭 3: 모의매매 ============================
-with tab3:
+if page == "💰 모의매매":
     broker = get_broker()
     st.subheader("모의매매 계좌")
     held = list(broker.positions.keys())
@@ -967,7 +993,7 @@ with tab3:
         st.rerun()
 
 # ============================ 탭: 선취매 레이더 ============================
-with tab_eb:
+if page == "🐦 선취매 레이더":
     st.subheader("🐦 선취매 레이더 — 남보다 먼저, 느긋하게")
     st.markdown(
         "대부분의 화면은 *이미 오른* 종목을 보여줘 늦게 사게 만듭니다. 이 레이더는 "
@@ -1019,7 +1045,7 @@ with tab_eb:
                    "잠복주는 8-K·뉴스로 '왜 조용한지' 확인이 핵심입니다.")
 
 # ============================ 탭: 헤게모니 스프레드 ============================
-with tab_heg:
+if page == "👑 헤게모니":
     st.subheader("👑 헤게모니 스프레드 — 이익 레버리지 발굴")
     st.markdown(
         "**헤게모니 스프레드 = 영업이익 증가율(YoY) − 매출 증가율(YoY)**. "
@@ -1121,7 +1147,7 @@ with tab_heg:
                "분기TTM은 8분기 확보 시에만(무료 데이터 한계로 일부 —).")
 
 # ============================ 탭: 종목 비교 레이더 ============================
-with tab_cmp:
+if page == "🎯 비교":
     st.subheader("종목 비교 — 투자 DNA 레이더")
     st.caption("여러 종목의 가치·성장·수익성·모멘텀·안정성을 5각형으로 한눈에 비교합니다.")
     uni = [u.symbol for u in load_universe()]
@@ -1170,7 +1196,7 @@ with tab_cmp:
                    "모멘텀=주가추세, 안정성=낮은 변동성/부채.")
 
 # ============================ 탭: 몬테카를로 시뮬레이터 ============================
-with tab_sim:
+if page == "🔮 시뮬레이터":
     st.subheader("🔮 타임머신 & 미래 시뮬레이터")
 
     st.markdown("#### ⏪ 과거에 투자했다면? (타임머신)")
@@ -1249,7 +1275,7 @@ with tab_sim:
         st.warning(f"시뮬레이션 실패: {e}")
 
 # ============================ 탭: 포트폴리오 닥터 ============================
-with tab_doc:
+if page == "🩺 포트폴리오 닥터":
     st.subheader("🩺 포트폴리오 닥터")
     st.caption("보유 종목을 입력하면 분산·집중도·리스크를 진단하고 개선점을 제안합니다.")
 
@@ -1312,8 +1338,135 @@ with tab_doc:
     else:
         st.info("위에 보유 종목을 입력하세요. 예: `AAPL, 5000`")
 
+# ============================ 탭: 검증 ============================
+if page == "🔬 검증":
+    st.subheader("🔬 점수 검증 — 이 점수로 정말 돈을 벌 수 있나")
+    st.markdown(
+        "다른 탭의 점수·추천은 전부 **'그럴듯한 규칙'** 으로 만들어진 숫자입니다. "
+        "이 탭은 그 규칙이 실제로 미래 수익률을 예측했는지를 과거 데이터로 "
+        "측정한 결과만 보여줍니다.\n\n"
+        "**IC(순위상관)** = 점수 순위와 이후 수익률 순위가 얼마나 맞았나 "
+        "(0이면 무작위). **t값** |t|≥2 면 통계적으로 유의. "
+        "**롱숏** = 최상위 구간 − 최하위 구간 초과수익률.")
+
+    VAL_PATH = ROOT / "data" / "validation.json"
+    if not VAL_PATH.exists():
+        st.warning(
+            "아직 검증 결과가 없습니다. 이 앱의 점수는 **예측력이 확인되지 "
+            "않은 상태**이며, 스크리너 랭킹과 '적극 매수' 배너를 매매 근거로 "
+            "쓰면 안 됩니다.")
+        st.markdown(
+            "**검증을 돌리는 방법** (Yahoo 접속이 되는 환경에서):\n"
+            "```bash\n"
+            "python research_cli.py --top 80 --period 5y --compare \\\n"
+            "    --out data/validation.json\n"
+            "```\n"
+            "또는 GitHub 저장소의 **Actions → Validate Score Predictiveness "
+            "→ Run workflow** 를 누르면 매주 자동으로도 갱신됩니다.")
+    else:
+        import json as _json
+        try:
+            payload = _json.loads(VAL_PATH.read_text(encoding="utf-8"))
+        except Exception as e:
+            payload = None
+            st.error(f"검증 결과 파일을 읽지 못했습니다: {e}")
+
+        if payload:
+            st.caption(
+                f"측정 시각 **{payload.get('generated_at', '—')}** · "
+                f"데이터 {payload.get('provider', '—')} · "
+                f"종목 {payload.get('n_symbols', '—')}개 · "
+                f"기간 {payload.get('period', '—')} · "
+                f"벤치마크 {payload.get('benchmark', '—')}")
+            if payload.get("provider") == "sample":
+                st.error("⚠️ 합성 데이터(sample)로 측정된 결과입니다. "
+                         "실제 시장과 무관하니 판단 근거로 쓰지 마세요.")
+
+            results = payload.get("results", {})
+            if not results:
+                st.info("결과가 비어 있습니다.")
+            else:
+                hs = sorted({h for r in results.values()
+                             for h in r.get("horizons", {})}, key=int)
+                pick = st.radio("예측 구간 (거래일)", hs, horizontal=True,
+                                index=len(hs) - 1 if hs else 0)
+
+                # --- 점수별 요약 비교 ---
+                st.markdown("#### 어느 신호가 실제로 수익을 냈나")
+                rows = []
+                for name, r in results.items():
+                    hr = r.get("horizons", {}).get(str(pick))
+                    if not hr:
+                        continue
+                    rows.append({
+                        "점수": name,
+                        "IC": hr.get("ic_mean"),
+                        "t값": hr.get("ic_t"),
+                        "롱숏(%p)": hr.get("long_short"),
+                        "단조성": hr.get("monotonicity"),
+                        "유의": "✓" if hr.get("significant") else "✗",
+                        "관측일": hr.get("n_dates"),
+                    })
+                if rows:
+                    vdf = pd.DataFrame(rows)
+                    st.dataframe(
+                        vdf.style
+                        .map(score_bg_pp, subset=["롱숏(%p)"])
+                        .format({"IC": fmt("{:+.4f}"), "t값": fmt("{:+.2f}"),
+                                 "롱숏(%p)": fmt("{:+.2f}"),
+                                 "단조성": fmt("{:+.2f}")}),
+                        width='stretch', hide_index=True)
+
+                # --- 점수 구간별 실제 수익률 ---
+                st.markdown("#### 점수 구간별 실제 초과수익률")
+                sel_score = st.selectbox("점수 선택", list(results))
+                hr = results[sel_score].get("horizons", {}).get(str(pick))
+                if hr:
+                    brows = [{
+                        "점수 구간": b["label"],
+                        "표본": b["n"],
+                        "평균 초과수익": b["mean_excess"],
+                        "중앙 초과수익": b["median_excess"],
+                        "승률(%)": b["hit_rate"],
+                        "절대수익": b["mean_raw"],
+                    } for b in hr.get("buckets", [])]
+                    bdf = pd.DataFrame(brows)
+                    st.dataframe(
+                        bdf.style
+                        .map(score_bg_pp, subset=["평균 초과수익",
+                                                  "중앙 초과수익"])
+                        .format({"평균 초과수익": fmt("{:+.2f}%"),
+                                 "중앙 초과수익": fmt("{:+.2f}%"),
+                                 "승률(%)": fmt("{:.0f}"),
+                                 "절대수익": fmt("{:+.2f}%")}),
+                        width='stretch', hide_index=True)
+
+                    bar = go.Figure(go.Bar(
+                        x=[b["label"] for b in hr["buckets"]],
+                        y=[b["mean_excess"] for b in hr["buckets"]],
+                        marker_color=[
+                            C_UP if (b["mean_excess"] or 0) >= 0 else C_DOWN
+                            for b in hr["buckets"]]))
+                    bar.update_layout(
+                        height=320, paper_bgcolor=C_PANEL,
+                        plot_bgcolor=C_PANEL,
+                        margin=dict(l=10, r=10, t=40, b=10),
+                        title=f"{sel_score} — 향후 {pick}거래일 평균 초과수익률"
+                              f" (왼쪽이 낮은 점수)")
+                    st.plotly_chart(bar, width='stretch')
+
+                    st.markdown(f"**판정:** {results[sel_score].get('verdict')}")
+                    for w in results[sel_score].get("warnings", []):
+                        st.caption(f"⚠️ {w}")
+
+    st.divider()
+    st.caption(
+        "검증되지 않은 점수는 '틀렸다'가 아니라 **'맞는지 모른다'** 입니다. "
+        "이 탭에 유의한(✓) 결과가 뜨기 전까지는 스크리너 랭킹을 참고 지표로만 "
+        "쓰고, 매매 근거로 삼지 마세요.")
+
 # ============================ 탭 4: 투자 가이드 ============================
-with tab4:
+if page == "📖 투자 가이드":
     st.subheader("📖 개인투자자를 위한 사용 가이드")
     st.markdown("""
 이 시스템은 **기술적 분석(차트)** 과 **기본적 분석(재무)** 을 합쳐 0~100점

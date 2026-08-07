@@ -107,6 +107,26 @@ class FundamentalResult:
     metric_scores: dict[str, float] = field(default_factory=dict)
     fundamentals: Fundamentals | None = None
     notes: list[str] = field(default_factory=list)
+    sector_neutral: bool = False                   # 섹터 상대평가 적용 여부
+
+
+# 섹터에 따라 정상 범위가 크게 다른 지표들.
+#
+# 절대 구간으로 채점하면 은행(PER 13)·통신(PER 10)이 자동으로 고득점하고
+# 반도체·소프트웨어(PER 35+)는 자동으로 감점된다. 실제로 이 시스템은
+# NVDA(65.0)보다 VZ형 통신주(71.0)를, MSFT(65.6)보다 JPM형 은행(76.5)을
+# 높게 매겼다. 의도한 밸류 팩터 베팅이 아니라 채점표의 부작용이다.
+# sector_neutral=True 면 같은 섹터 안에서의 백분위로 바꿔 이 편향을 없앤다.
+SECTOR_RELATIVE_METRICS = ("PER", "PBR", "부채비율")
+
+# 값이 낮을수록 좋은 지표 (백분위를 뒤집어야 한다)
+_LOWER_IS_BETTER = {"PER", "PBR", "부채비율"}
+
+_METRIC_ATTR = {
+    "PER": "trailing_pe",
+    "PBR": "price_to_book",
+    "부채비율": "debt_to_equity",
+}
 
 
 def analyze(f: Fundamentals) -> FundamentalResult:
@@ -143,3 +163,83 @@ def analyze(f: Fundamentals) -> FundamentalResult:
     return FundamentalResult(symbol=f.symbol, score=score,
                              metric_scores=metric_scores,
                              fundamentals=f, notes=notes)
+
+
+# --------------------------- 섹터 상대평가 ---------------------------
+def _percentile_scores(values: dict[str, float], lower_is_better: bool
+                       ) -> dict[str, float]:
+    """같은 섹터 안에서의 백분위를 0~100 점으로 환산한다.
+
+    동점은 평균 순위를 준다. 표본이 1개면 중립(50)으로 둔다.
+    """
+    n = len(values)
+    if n == 0:
+        return {}
+    if n == 1:
+        return {k: 50.0 for k in values}
+    items = sorted(values.items(), key=lambda kv: kv[1])
+    # 동점 처리: 같은 값끼리 평균 순위
+    ranks: dict[str, float] = {}
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and items[j + 1][1] == items[i][1]:
+            j += 1
+        avg_rank = (i + j) / 2.0
+        for k in range(i, j + 1):
+            ranks[items[k][0]] = avg_rank
+        i = j + 1
+    out = {}
+    for sym, r in ranks.items():
+        pct = r / (n - 1)                    # 0(최저) ~ 1(최고)
+        out[sym] = round((1 - pct if lower_is_better else pct) * 100, 1)
+    return out
+
+
+def analyze_cross_section(items: list[Fundamentals], *,
+                          sector_neutral: bool = True,
+                          min_peers: int = 4) -> list[FundamentalResult]:
+    """여러 종목을 함께 채점한다. 밸류에이션 지표는 섹터 상대평가로.
+
+    sector_neutral=False 면 기존 analyze() 를 종목별로 부른 것과 동일하다.
+    한 섹터의 유효 표본이 min_peers 미만이면 그 섹터는 절대 구간으로 폴백한다
+    (표본 3개짜리 백분위는 신뢰할 수 없다).
+    """
+    results = [analyze(f) for f in items]
+    if not sector_neutral or len(items) < min_peers:
+        return results
+
+    by_symbol = {r.symbol: r for r in results}
+    fund_by_symbol = {f.symbol: f for f in items}
+
+    # 섹터별로 묶는다 (섹터 미상은 상대평가 대상에서 제외)
+    sectors: dict[str, list[str]] = {}
+    for f in items:
+        if f.sector:
+            sectors.setdefault(f.sector, []).append(f.symbol)
+
+    for metric in SECTOR_RELATIVE_METRICS:
+        attr = _METRIC_ATTR[metric]
+        for sector, syms in sectors.items():
+            # 양수 값만 상대평가한다. 적자(PER<=0)를 '가장 싸다'로 랭킹하면
+            # 정반대 결론이 나오므로 절대 채점의 페널티를 그대로 유지한다.
+            vals = {}
+            for s in syms:
+                v = getattr(fund_by_symbol[s], attr, None)
+                if v is not None and v > 0:
+                    vals[s] = float(v)
+            if len(vals) < min_peers:
+                continue                      # 표본 부족 → 절대 구간 유지
+            pct = _percentile_scores(vals, metric in _LOWER_IS_BETTER)
+            for s, sc in pct.items():
+                if metric in by_symbol[s].metric_scores:
+                    by_symbol[s].metric_scores[metric] = sc
+
+    # 바뀐 지표 점수로 종합점수 재계산
+    for r in results:
+        ms = r.metric_scores
+        if ms:
+            tw = sum(_WEIGHTS[k] for k in ms)
+            r.score = round(sum(ms[k] * _WEIGHTS[k] for k in ms) / tw, 1)
+        r.sector_neutral = True
+    return results

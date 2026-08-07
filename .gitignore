@@ -12,6 +12,8 @@ data/*.json
 data/*.csv
 data/*.parquet
 !data/.gitkeep
+# 검증 결과는 산출물이 아니라 기록이다 — 커밋해서 대시보드가 읽는다
+!data/validation.json
 
 # OS / 에디터
 .DS_Store

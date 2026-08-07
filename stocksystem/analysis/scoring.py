@@ -175,9 +175,50 @@ def analyze_full(symbol: str, provider: DataProvider, cfg: Config,
     return res
 
 
+def _reweight(res: StockAnalysis, cfg: Config) -> None:
+    """펀더멘털 점수가 바뀐 뒤 종합점수·추천을 다시 계산한다."""
+    wt, wf = cfg.weights.technical, cfg.weights.fundamental
+    if res.technical and res.fundamental:
+        total = (res.technical.score * wt + res.fundamental.score * wf) / (wt + wf)
+    elif res.technical:
+        total = res.technical.score
+    elif res.fundamental:
+        total = res.fundamental.score
+    else:
+        total = 50.0
+    res.total_score = round(total, 1)
+    res.recommendation = _classify(res.total_score, cfg)
+    res.recommendation_label = RECO_LABELS[res.recommendation]
+
+
+def apply_sector_neutral(results: list[StockAnalysis], cfg: Config
+                         ) -> list[StockAnalysis]:
+    """여러 종목을 함께 놓고 펀더멘털을 섹터 상대평가로 다시 매긴다.
+
+    cfg.fundamental.sector_neutral 이 False 면 아무것도 하지 않는다.
+    섹터 비교는 표본이 여럿 있어야 성립하므로 종목 단위 분석에서는 쓸 수 없고,
+    스크리너처럼 한 번에 여러 종목을 볼 때만 의미가 있다.
+    """
+    if not cfg.fundamental.sector_neutral:
+        return results
+    items = [r.fundamental.fundamentals for r in results
+             if r.fundamental and r.fundamental.fundamentals]
+    if len(items) < cfg.fundamental.min_peers:
+        return results
+    rescored = {f.symbol: f for f in fa.analyze_cross_section(
+        items, sector_neutral=True, min_peers=cfg.fundamental.min_peers)}
+    for r in results:
+        new = rescored.get(r.symbol)
+        if new is not None:
+            r.fundamental = new
+            _reweight(r, cfg)
+    return results
+
+
 def analyze_watchlist(symbols: list[str], provider: DataProvider,
                       cfg: Config, period: str = "1y") -> list[StockAnalysis]:
     """관심종목 전체를 분석하고 종합점수 내림차순으로 정렬해 반환."""
     results = [analyze_symbol(s, provider, cfg, period) for s in symbols]
+    apply_sector_neutral(results, cfg)
     results.sort(key=lambda r: r.total_score, reverse=True)
     return results

@@ -1,0 +1,85 @@
+name: Validate Score Predictiveness
+
+# 점수의 예측력을 실데이터로 측정해 data/validation.json 에 커밋한다.
+#
+# 로컬/샌드박스에서는 Yahoo 접속이 막히는 경우가 많아 검증을 돌릴 수 없다.
+# GitHub Actions 러너는 외부 네트워크가 열려 있으므로 여기서 돌린다.
+# 결과 JSON 은 대시보드 '🔬 검증' 탭이 그대로 읽어 보여준다.
+
+on:
+  schedule:
+    - cron: '0 8 * * 6'        # 매주 토 08:00 UTC = 토 17:00 KST
+  workflow_dispatch:
+    inputs:
+      top:
+        description: '시총 상위 N종목'
+        required: false
+        default: '80'
+      period:
+        description: '분석 기간 (5y / 10y / max)'
+        required: false
+        default: '5y'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: validate-scores
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 자체 테스트 (하네스가 멀쩡한지 먼저 확인)
+        run: pytest -q tests/test_eventstudy.py tests/test_technical.py
+
+      - name: 이벤트 스터디 실행
+        run: |
+          python research_cli.py \
+            --top "${{ github.event.inputs.top || '80' }}" \
+            --period "${{ github.event.inputs.period || '5y' }}" \
+            --horizons 20 60 \
+            --compare \
+            --out data/validation.json \
+            | tee validation_report.txt
+
+      - name: 리포트를 요약에 첨부
+        if: always()
+        run: |
+          {
+            echo '## 점수 예측력 검증 결과'
+            echo '```'
+            cat validation_report.txt || echo '(리포트 없음)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 결과 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data/validation.json; then
+            echo "변경 없음 — 커밋 생략"
+            exit 0
+          fi
+          git add data/validation.json
+          git commit -m "chore(research): 점수 예측력 검증 결과 갱신 ($(date -u +%Y-%m-%d))"
+          for i in 1 2 3 4; do
+            git push && break
+            echo "push 실패 — ${i}회차, 재시도 대기"
+            sleep $((2 ** i))
+            git pull --rebase || true
+          done

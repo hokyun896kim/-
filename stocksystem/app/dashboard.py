@@ -36,7 +36,7 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
-from stocksystem.analysis.scoring import RECO_LABELS
+from stocksystem.analysis.scoring import RECO_LABELS, apply_sector_neutral
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
 from stocksystem.portfolio import (
@@ -297,9 +297,11 @@ def cached_index_quote(symbol, provider_name):
 @st.cache_data(ttl=600, show_spinner=False)
 def cached_screener(symbols, provider_name, period):
     provider = get_provider(provider_name)
+    results = [analyze_symbol(s, provider, cfg, period) for s in symbols]
+    # 섹터 상대평가는 여러 종목을 함께 봐야 성립한다 (config 로 켜고 끈다)
+    apply_sector_neutral(results, cfg)
     rows = []
-    for s in symbols:
-        r = analyze_symbol(s, provider, cfg, period)
+    for r in results:
         row = r.summary_row()
         row["시가총액"] = r.market_cap
         row["섹터"] = r.sector
@@ -453,10 +455,10 @@ def render_index_detail(res, news):
 render_ticker(cfg.watchlist, provider_name)
 
 (tab0, tab_eb, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
- tab4) = st.tabs(
+ tab_val, tab4) = st.tabs(
     ["🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
      "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
-     "🩺 포트폴리오 닥터", "📖 투자 가이드"])
+     "🩺 포트폴리오 닥터", "🔬 검증", "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
 with tab0:
@@ -1311,6 +1313,133 @@ with tab_doc:
                 st.markdown(f"- {s}")
     else:
         st.info("위에 보유 종목을 입력하세요. 예: `AAPL, 5000`")
+
+# ============================ 탭: 검증 ============================
+with tab_val:
+    st.subheader("🔬 점수 검증 — 이 점수로 정말 돈을 벌 수 있나")
+    st.markdown(
+        "다른 탭의 점수·추천은 전부 **'그럴듯한 규칙'** 으로 만들어진 숫자입니다. "
+        "이 탭은 그 규칙이 실제로 미래 수익률을 예측했는지를 과거 데이터로 "
+        "측정한 결과만 보여줍니다.\n\n"
+        "**IC(순위상관)** = 점수 순위와 이후 수익률 순위가 얼마나 맞았나 "
+        "(0이면 무작위). **t값** |t|≥2 면 통계적으로 유의. "
+        "**롱숏** = 최상위 구간 − 최하위 구간 초과수익률.")
+
+    VAL_PATH = ROOT / "data" / "validation.json"
+    if not VAL_PATH.exists():
+        st.warning(
+            "아직 검증 결과가 없습니다. 이 앱의 점수는 **예측력이 확인되지 "
+            "않은 상태**이며, 스크리너 랭킹과 '적극 매수' 배너를 매매 근거로 "
+            "쓰면 안 됩니다.")
+        st.markdown(
+            "**검증을 돌리는 방법** (Yahoo 접속이 되는 환경에서):\n"
+            "```bash\n"
+            "python research_cli.py --top 80 --period 5y --compare \\\n"
+            "    --out data/validation.json\n"
+            "```\n"
+            "또는 GitHub 저장소의 **Actions → Validate Score Predictiveness "
+            "→ Run workflow** 를 누르면 매주 자동으로도 갱신됩니다.")
+    else:
+        import json as _json
+        try:
+            payload = _json.loads(VAL_PATH.read_text(encoding="utf-8"))
+        except Exception as e:
+            payload = None
+            st.error(f"검증 결과 파일을 읽지 못했습니다: {e}")
+
+        if payload:
+            st.caption(
+                f"측정 시각 **{payload.get('generated_at', '—')}** · "
+                f"데이터 {payload.get('provider', '—')} · "
+                f"종목 {payload.get('n_symbols', '—')}개 · "
+                f"기간 {payload.get('period', '—')} · "
+                f"벤치마크 {payload.get('benchmark', '—')}")
+            if payload.get("provider") == "sample":
+                st.error("⚠️ 합성 데이터(sample)로 측정된 결과입니다. "
+                         "실제 시장과 무관하니 판단 근거로 쓰지 마세요.")
+
+            results = payload.get("results", {})
+            if not results:
+                st.info("결과가 비어 있습니다.")
+            else:
+                hs = sorted({h for r in results.values()
+                             for h in r.get("horizons", {})}, key=int)
+                pick = st.radio("예측 구간 (거래일)", hs, horizontal=True,
+                                index=len(hs) - 1 if hs else 0)
+
+                # --- 점수별 요약 비교 ---
+                st.markdown("#### 어느 신호가 실제로 수익을 냈나")
+                rows = []
+                for name, r in results.items():
+                    hr = r.get("horizons", {}).get(str(pick))
+                    if not hr:
+                        continue
+                    rows.append({
+                        "점수": name,
+                        "IC": hr.get("ic_mean"),
+                        "t값": hr.get("ic_t"),
+                        "롱숏(%p)": hr.get("long_short"),
+                        "단조성": hr.get("monotonicity"),
+                        "유의": "✓" if hr.get("significant") else "✗",
+                        "관측일": hr.get("n_dates"),
+                    })
+                if rows:
+                    vdf = pd.DataFrame(rows)
+                    st.dataframe(
+                        vdf.style
+                        .map(score_bg_pp, subset=["롱숏(%p)"])
+                        .format({"IC": fmt("{:+.4f}"), "t값": fmt("{:+.2f}"),
+                                 "롱숏(%p)": fmt("{:+.2f}"),
+                                 "단조성": fmt("{:+.2f}")}),
+                        width='stretch', hide_index=True)
+
+                # --- 점수 구간별 실제 수익률 ---
+                st.markdown("#### 점수 구간별 실제 초과수익률")
+                sel_score = st.selectbox("점수 선택", list(results))
+                hr = results[sel_score].get("horizons", {}).get(str(pick))
+                if hr:
+                    brows = [{
+                        "점수 구간": b["label"],
+                        "표본": b["n"],
+                        "평균 초과수익": b["mean_excess"],
+                        "중앙 초과수익": b["median_excess"],
+                        "승률(%)": b["hit_rate"],
+                        "절대수익": b["mean_raw"],
+                    } for b in hr.get("buckets", [])]
+                    bdf = pd.DataFrame(brows)
+                    st.dataframe(
+                        bdf.style
+                        .map(score_bg_pp, subset=["평균 초과수익",
+                                                  "중앙 초과수익"])
+                        .format({"평균 초과수익": fmt("{:+.2f}%"),
+                                 "중앙 초과수익": fmt("{:+.2f}%"),
+                                 "승률(%)": fmt("{:.0f}"),
+                                 "절대수익": fmt("{:+.2f}%")}),
+                        width='stretch', hide_index=True)
+
+                    bar = go.Figure(go.Bar(
+                        x=[b["label"] for b in hr["buckets"]],
+                        y=[b["mean_excess"] for b in hr["buckets"]],
+                        marker_color=[
+                            C_UP if (b["mean_excess"] or 0) >= 0 else C_DOWN
+                            for b in hr["buckets"]]))
+                    bar.update_layout(
+                        height=320, paper_bgcolor=C_PANEL,
+                        plot_bgcolor=C_PANEL,
+                        margin=dict(l=10, r=10, t=40, b=10),
+                        title=f"{sel_score} — 향후 {pick}거래일 평균 초과수익률"
+                              f" (왼쪽이 낮은 점수)")
+                    st.plotly_chart(bar, width='stretch')
+
+                    st.markdown(f"**판정:** {results[sel_score].get('verdict')}")
+                    for w in results[sel_score].get("warnings", []):
+                        st.caption(f"⚠️ {w}")
+
+    st.divider()
+    st.caption(
+        "검증되지 않은 점수는 '틀렸다'가 아니라 **'맞는지 모른다'** 입니다. "
+        "이 탭에 유의한(✓) 결과가 뜨기 전까지는 스크리너 랭킹을 참고 지표로만 "
+        "쓰고, 매매 근거로 삼지 마세요.")
 
 # ============================ 탭 4: 투자 가이드 ============================
 with tab4:

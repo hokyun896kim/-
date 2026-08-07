@@ -44,6 +44,22 @@ class Recommendation:
 
 
 @dataclass
+class FundamentalConfig:
+    """펀더멘털 채점 방식.
+
+    sector_neutral=False (기본): PER/PBR/부채비율을 절대 구간으로 채점.
+      섹터 무관 고정 기준이라 은행·통신이 구조적으로 고득점하고 고성장
+      기술주가 감점된다 — 의도치 않은 밸류 팩터 베팅이 섞인다.
+    sector_neutral=True: 같은 섹터 안에서의 백분위로 채점해 그 편향을 없앤다.
+
+    어느 쪽이 실제로 나은지는 point-in-time 재무 데이터가 없어 아직 검증
+    불가다. 그래서 기본값은 기존 동작(False)으로 두고 옵트인으로 제공한다.
+    """
+    sector_neutral: bool = False
+    min_peers: int = 4
+
+
+@dataclass
 class PaperTrading:
     initial_cash: float = 100_000
     commission: float = 0.0
@@ -54,6 +70,7 @@ class Config:
     watchlist: list[str] = field(default_factory=lambda: ["AAPL", "MSFT", "NVDA"])
     data_provider: str = "yahoo"
     technical: TechnicalConfig = field(default_factory=TechnicalConfig)
+    fundamental: FundamentalConfig = field(default_factory=FundamentalConfig)
     weights: Weights = field(default_factory=Weights)
     recommendation: Recommendation = field(default_factory=Recommendation)
     paper_trading: PaperTrading = field(default_factory=PaperTrading)
@@ -79,6 +96,7 @@ def load_config(path: str | Path | None = None) -> Config:
         watchlist=raw.get("watchlist") or Config().watchlist,
         data_provider=raw.get("data_provider", "yahoo"),
         technical=_build(TechnicalConfig, raw.get("technical")),
+        fundamental=_build(FundamentalConfig, raw.get("fundamental")),
         weights=_build(Weights, raw.get("weights")),
         recommendation=_build(Recommendation, raw.get("recommendation")),
         paper_trading=_build(PaperTrading, raw.get("paper_trading")),

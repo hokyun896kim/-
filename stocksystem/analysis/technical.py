@@ -64,6 +64,16 @@ def bollinger(series: pd.Series, period: int = 20,
 
 
 # ----------------------------- 종합 -----------------------------
+# 신호의 성격 분류.
+#
+# 이 둘은 철학이 정반대다. 추세추종은 "오를수록 사라", 역추세는 "빠질수록 사라"
+# 라고 말한다. 기존 score_series() 는 다섯을 그냥 산술평균했기 때문에, 강하게
+# 오르는 종목은 역추세 신호에 20점 깎이고 급락 중인 종목은 20점 얹어 받았다.
+# 어느 쪽이 실제로 수익을 냈는지는 stocksystem.research.eventstudy 로 측정한다.
+TREND_SIGNALS = ("추세(SMA교차)", "가격위치", "MACD")
+REVERSION_SIGNALS = ("RSI", "볼린저")
+
+
 @dataclass
 class TechnicalResult:
     symbol: str
@@ -71,6 +81,8 @@ class TechnicalResult:
     indicators: pd.DataFrame           # 지표가 붙은 가격 DataFrame
     signals: dict[str, str] = field(default_factory=dict)  # 지표별 매수/중립/매도
     latest: dict[str, float] = field(default_factory=dict) # 최신 지표 값
+    trend_score: float | None = None      # 추세추종 신호만의 점수
+    reversion_score: float | None = None  # 역추세 신호만의 점수
 
 
 def compute_indicators(df: pd.DataFrame, cfg: TechnicalConfig) -> pd.DataFrame:
@@ -127,13 +139,51 @@ def signal_frame(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.DataFrame:
     return out
 
 
-def score_series(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.Series:
+def _subset_score(sf: pd.DataFrame, names) -> pd.Series:
+    """signal_frame 의 일부 컬럼만으로 0~100 점수 시계열을 만든다."""
+    cols = [c for c in names if c in sf.columns]
+    if not cols:
+        return pd.Series(np.nan, index=sf.index)
+    return sf[cols].mean(axis=1, skipna=True) * 100
+
+
+def trend_score_series(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.Series:
+    """추세추종 신호(SMA교차·가격위치·MACD)만의 점수 시계열."""
+    return _subset_score(signal_frame(ind, cfg), TREND_SIGNALS)
+
+
+def reversion_score_series(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.Series:
+    """역추세 신호(RSI·볼린저)만의 점수 시계열."""
+    return _subset_score(signal_frame(ind, cfg), REVERSION_SIGNALS)
+
+
+def score_series(ind: pd.DataFrame, cfg: TechnicalConfig,
+                 trend_weight: float | None = None) -> pd.Series:
     """기간 전체에 대한 기술 종합점수(0~100) 시계열.
 
-    가용한 신호들의 평균. analyze().score 와 마지막 값이 일치한다.
+    trend_weight=None (기본): 가용한 다섯 신호의 단순평균 — 기존 동작 그대로.
+    trend_weight=w  (0~1)   : 추세 w · 역추세 (1-w) 로 가중. w=1.0 이면 순수
+                              추세추종, w=0.0 이면 순수 역추세가 된다.
+
+    analyze().score 와 마지막 값이 일치한다 (trend_weight=None 일 때).
     """
     sf = signal_frame(ind, cfg)
-    return sf.mean(axis=1, skipna=True) * 100
+    if trend_weight is None:
+        return sf.mean(axis=1, skipna=True) * 100
+    w = float(min(max(trend_weight, 0.0), 1.0))
+    tr = _subset_score(sf, TREND_SIGNALS)
+    rv = _subset_score(sf, REVERSION_SIGNALS)
+    # 가용한 쪽의 가중치만 남기고 재정규화한다.
+    #
+    # MACD 는 첫날부터 값이 있지만 RSI·볼린저는 14~20일이 지나야 나온다.
+    # 그래서 초반 구간엔 추세만 존재하는데, 여기서 "없는 쪽을 있는 쪽으로
+    # 메우는" 식으로 처리하면 trend_weight=0(순수 역추세)인데도 추세 점수가
+    # 새어 들어온다. 가중치가 0인 성분은 절대 결과에 들어가면 안 된다.
+    wt = pd.Series(np.where(tr.notna(), w, 0.0), index=sf.index)
+    wr = pd.Series(np.where(rv.notna(), 1.0 - w, 0.0), index=sf.index)
+    total = wt + wr
+    num = tr.fillna(0.0) * wt + rv.fillna(0.0) * wr
+    return (num / total).where(total > 0)
 
 
 def analyze(df: pd.DataFrame, cfg: TechnicalConfig,
@@ -178,6 +228,12 @@ def analyze(df: pd.DataFrame, cfg: TechnicalConfig,
             signals["볼린저"] = "neutral"
 
     score = _score_from_signals(signals)
+    trend_s = _score_from_signals(
+        {k: v for k, v in signals.items() if k in TREND_SIGNALS}) \
+        if any(k in signals for k in TREND_SIGNALS) else None
+    rev_s = _score_from_signals(
+        {k: v for k, v in signals.items() if k in REVERSION_SIGNALS}) \
+        if any(k in signals for k in REVERSION_SIGNALS) else None
     latest = {
         "close": float(last["Close"]),
         "rsi": float(r) if pd.notna(r) else float("nan"),
@@ -187,4 +243,5 @@ def analyze(df: pd.DataFrame, cfg: TechnicalConfig,
         f"sma{cfg.sma_long}": float(s_long) if pd.notna(s_long) else float("nan"),
     }
     return TechnicalResult(symbol=symbol, score=score, indicators=ind,
-                           signals=signals, latest=latest)
+                           signals=signals, latest=latest,
+                           trend_score=trend_s, reversion_score=rev_s)

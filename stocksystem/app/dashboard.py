@@ -10,6 +10,7 @@
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
+from stocksystem.analysis import chart_reader as cr
 from stocksystem.analysis.scoring import RECO_LABELS
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
@@ -359,6 +361,13 @@ period = st.sidebar.selectbox("차트 기간", ["6mo", "1y", "2y", "5y"], index=
 if st.sidebar.button("🔄 데이터 새로고침", width='stretch'):
     st.cache_data.clear()
     st.rerun()
+
+# 테마 프리셋 (config.yaml 의 presets)
+if cfg.presets:
+    with st.sidebar.expander("📌 종목 프리셋", expanded=False):
+        for _pname, _ptickers in cfg.presets.items():
+            st.markdown(f"**{_pname}**")
+            st.caption(", ".join(_ptickers))
 st.sidebar.caption(
     "※ 본 시스템은 교육·연구용입니다. 점수·추천은 투자자문이 아니며 "
     "최종 판단과 책임은 본인에게 있습니다.")
@@ -452,10 +461,10 @@ def render_index_detail(res, news):
 # 상단 실시간 티커 테이프 (관심종목)
 render_ticker(cfg.watchlist, provider_name)
 
-(tab0, tab_eb, tab1, tab_heg, tab2, tab_cmp, tab5, tab_sim, tab3, tab_doc,
- tab4) = st.tabs(
+(tab0, tab_eb, tab1, tab_heg, tab2, tab_read, tab_cmp, tab5, tab_sim, tab3,
+ tab_doc, tab4) = st.tabs(
     ["🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
-     "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
+     "🔬 차트 판독", "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
      "🩺 포트폴리오 닥터", "📖 투자 가이드"])
 
 # ============================ 탭 0: 시장 (지수) ============================
@@ -1120,19 +1129,198 @@ with tab_heg:
     st.caption("⚠️ 스냅샷 아님 — yfinance 손익계산서로 매번 새로 계산합니다. "
                "분기TTM은 8분기 확보 시에만(무료 데이터 한계로 일부 —).")
 
+# ============================ 탭: 차트 판독 ============================
+with tab_read:
+    st.subheader("🔬 차트 판독 — 미너비니 SEPA·VCP")
+    st.caption("증권사 앱·트레이딩뷰 등에서 캡처한 차트 이미지를 올리면, "
+               "Claude 비전 모델이 마크 미너비니의 트렌드 템플릿·스테이지·"
+               "VCP(변동성 수축)·피벗을 판독하고 손절/목표/손익비를 제안합니다.")
+
+    if cfg.presets:
+        with st.expander("📌 판독해 볼 만한 미너비니 주도주 (보고서 종목)"):
+            for _pn, _pt in cfg.presets.items():
+                st.markdown(f"**{_pn}** — {', '.join(_pt)}")
+            st.caption("위 종목 차트를 증권사 앱/트레이딩뷰에서 캡처해 올려보세요. "
+                       "재무 지표는 `📊 스크리너`·`👑 헤게모니` 탭과 함께 보면 좋습니다.")
+
+    # API 키: secrets → 환경변수 → 직접 입력 순으로 확보
+    secret_key = None
+    try:
+        secret_key = st.secrets.get("ANTHROPIC_API_KEY")  # type: ignore
+    except Exception:
+        secret_key = None
+    env_key = secret_key or os.environ.get("ANTHROPIC_API_KEY")
+
+    if not env_key:
+        env_key = st.text_input(
+            "Anthropic API 키", type="password",
+            help="console.anthropic.com 에서 발급. 배포 시에는 Streamlit "
+                 "secrets 또는 환경변수 ANTHROPIC_API_KEY 로 설정하면 입력이 "
+                 "생략됩니다. 입력값은 저장되지 않습니다.")
+
+    up = st.file_uploader(
+        "차트 이미지 업로드 (PNG · JPG · WEBP)",
+        type=["png", "jpg", "jpeg", "webp"])
+    note = st.text_input(
+        "참고 맥락 (선택)",
+        placeholder="예: AAPL 일봉 6개월 / 나스닥 선물 4시간봉")
+
+    rc = st.columns([1, 3])
+    go_read = rc[0].button("🔬 판독하기", type="primary",
+                           width='stretch', disabled=up is None)
+
+    if up is not None:
+        st.image(up, caption="업로드한 차트", width='stretch')
+
+    if go_read and up is not None:
+        if not env_key:
+            st.error("먼저 Anthropic API 키를 입력하거나 환경변수로 설정하세요.")
+        else:
+            mt = up.type or "image/png"
+            if mt not in ("image/png", "image/jpeg", "image/webp", "image/gif"):
+                mt = "image/png"
+            try:
+                with st.spinner("AI가 차트를 판독하는 중... (10~30초)"):
+                    reading = cr.read_chart(
+                        up.getvalue(), media_type=mt,
+                        context_note=note, api_key=env_key)
+            except cr.ChartReaderError as e:
+                st.error(f"판독 실패: {e}")
+                reading = None
+            except Exception as e:  # 예기치 못한 오류
+                st.error(f"판독 중 오류가 발생했습니다: {e}")
+                reading = None
+
+            if reading is not None:
+                if not reading.is_chart:
+                    st.warning("이미지를 주가 차트로 판독하기 어렵습니다. "
+                               "차트가 선명하게 보이는 캡처로 다시 시도해보세요.")
+
+                # 상단 요약 지표 — 행동 권고 중심
+                act_color = {
+                    "피벗 돌파 매수": "#14532d", "관찰 대기": "#a16207",
+                    "추격 금지": "#b45309", "회피": "#7f1d1d"}.get(
+                        reading.action, "#a16207")
+                mc = st.columns(4)
+                mc[0].metric("행동 권고", reading.action)
+                mc[1].metric("스테이지", reading.stage)
+                mc[2].metric("종합 신호", reading.signal)
+                mc[3].metric("확신도", f"{reading.confidence}/100")
+                st.markdown(
+                    f"<div style='height:6px;border-radius:3px;background:"
+                    f"{act_color};margin:-6px 0 8px 0'></div>",
+                    unsafe_allow_html=True)
+
+                st.markdown(f"#### 📋 요약\n{reading.summary}")
+                if reading.stage_reason:
+                    st.markdown(f"**스테이지 근거** — {reading.stage_reason}")
+
+                # 진입·리스크 규율
+                st.markdown("#### 🎯 진입 · 리스크 (미너비니 규율)")
+                tc = st.columns(4)
+                tc[0].metric("피벗", reading.pivot_point or "—")
+                tc[1].metric("손절", reading.stop_loss or "—")
+                tc[2].metric("목표", reading.target or "—")
+                tc[3].metric("손익비", reading.risk_reward or "—")
+                if reading.entry_pivot:
+                    st.caption(f"진입 조건 — {reading.entry_pivot}")
+                if reading.action == "추격 금지":
+                    st.warning("⛔ 피벗을 이미 +5% 이상 벗어나 확장된 상태입니다. "
+                               "미너비니 규율상 추격 매수 금지 — 다음 베이스를 "
+                               "기다리세요.")
+
+                # 트렌드 템플릿 체크리스트
+                st.markdown(f"#### ✅ 트렌드 템플릿 — {reading.trend_template_summary}")
+                if reading.trend_template:
+                    _ico = {"충족": "🟢", "미충족": "🔴", "불명확": "⚪"}
+                    for t in reading.trend_template:
+                        st.markdown(
+                            f"- {_ico.get(t.get('status'), '⚪')} "
+                            f"**{t.get('criterion', '')}** — {t.get('note', '')}")
+                else:
+                    st.caption("차트에서 확인 가능한 트렌드 템플릿 항목이 없습니다.")
+
+                # VCP 변동성 수축
+                vstat = "✅ 식별됨" if reading.vcp_detected else "❌ 미식별"
+                st.markdown(f"#### 📐 VCP 변동성 수축 — {vstat}")
+                if reading.vcp_contractions:
+                    vdf = pd.DataFrame([
+                        {"단계": c.get("label", ""),
+                         "조정폭": c.get("depth", ""),
+                         "비고": c.get("note", "")}
+                        for c in reading.vcp_contractions])
+                    st.dataframe(vdf, width='stretch', hide_index=True)
+                st.markdown(f"- **거래량 감소(Volume Dry-Up)**: "
+                            f"{reading.volume_dry_up}")
+                if reading.vcp_note:
+                    st.markdown(reading.vcp_note)
+
+                lr = st.columns(2)
+                with lr[0]:
+                    st.markdown("#### 🟢 지지 구간")
+                    if reading.support_levels:
+                        for s in reading.support_levels:
+                            st.markdown(f"- {s}")
+                    else:
+                        st.caption("뚜렷한 지지 구간이 식별되지 않았습니다.")
+                with lr[1]:
+                    st.markdown("#### 🔴 저항 구간")
+                    if reading.resistance_levels:
+                        for s in reading.resistance_levels:
+                            st.markdown(f"- {s}")
+                    else:
+                        st.caption("뚜렷한 저항 구간이 식별되지 않았습니다.")
+
+                if reading.key_observations:
+                    st.markdown("#### 🔑 핵심 관찰")
+                    for k in reading.key_observations:
+                        st.markdown(f"- {k}")
+
+                sc = st.columns(2)
+                with sc[0]:
+                    st.markdown("#### 📈 상방 시나리오")
+                    st.markdown(reading.bullish_scenario or "—")
+                with sc[1]:
+                    st.markdown("#### 📉 하방 시나리오")
+                    st.markdown(reading.bearish_scenario or "—")
+
+                if reading.risks:
+                    st.markdown("#### ⚠️ 유의 리스크")
+                    for r in reading.risks:
+                        st.markdown(f"- {r}")
+
+                st.caption(f"판독 모델: {reading.model} · 본 분석은 교육·연구용 "
+                           "참고 자료이며 투자자문이 아닙니다.")
+    elif up is None:
+        st.info("위에서 차트 이미지를 업로드한 뒤 **판독하기** 를 눌러주세요.")
+
 # ============================ 탭: 종목 비교 레이더 ============================
 with tab_cmp:
     st.subheader("종목 비교 — 투자 DNA 레이더")
     st.caption("여러 종목의 가치·성장·수익성·모멘텀·안정성을 5각형으로 한눈에 비교합니다.")
     uni = [u.symbol for u in load_universe()]
-    picks = st.multiselect("비교할 종목 (2~4개 권장)", uni,
-                           default=["AAPL", "MSFT", "NVDA"], max_selections=4)
+
+    # 프리셋 빠른 선택 (config.yaml presets)
+    if cfg.presets:
+        pcols = st.columns([2, 1])
+        psel = pcols[0].selectbox("프리셋 빠른 선택", ["—"] + list(cfg.presets),
+                                  key="cmp_preset")
+        if pcols[1].button("프리셋 적용", width='stretch',
+                           disabled=(psel == "—")):
+            # 유니버스에 있는 티커만, 레이더 가독성을 위해 최대 5개
+            st.session_state.cmp_picks = [
+                t for t in cfg.presets[psel] if t in uni][:5]
+            st.rerun()
+
+    picks = st.multiselect("비교할 종목 (2~5개 권장)", uni,
+                           default=["AAPL", "MSFT", "NVDA"], max_selections=5,
+                           key="cmp_picks")
     if len(picks) < 2:
         st.info("2개 이상 선택해주세요.")
     else:
         with st.spinner("팩터 분석 중..."):
             profiles = cached_factors(tuple(picks), provider_name)
-        palette = [C_ACCENT, C_AMBER, "#ef5da8", "#8b5cf6"]
+        palette = [C_ACCENT, C_AMBER, "#ef5da8", "#8b5cf6", "#38bdf8"]
         rfig = go.Figure()
         cats = fct.FACTORS + [fct.FACTORS[0]]
         for i, p in enumerate(profiles):

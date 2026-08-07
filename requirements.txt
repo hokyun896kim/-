@@ -10,6 +10,9 @@ vaderSentiment>=3.3.2
 streamlit>=1.30
 plotly>=5.18
 
+# 차트 판독 (Claude 비전 모델)
+anthropic>=0.49
+
 # 설정/유틸
 PyYAML>=6.0
 

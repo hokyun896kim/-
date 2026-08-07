@@ -28,7 +28,8 @@ from pathlib import Path
 from stocksystem.config import load_config
 from stocksystem.data import get_provider
 from stocksystem.data.universe import load_universe
-from stocksystem.research import SCORERS, compare_scorers, run_event_study
+from stocksystem.research import (SCORERS, bonferroni_t, compare_scorers,
+                                  run_event_study)
 
 
 def _progress(done: int, total: int, sym: str) -> None:
@@ -108,9 +109,12 @@ def main() -> int:
         print(" 점수별 비교 — 어느 신호가 실제로 수익을 냈는가")
         print("═" * 74)
         h = max(args.horizons)
+        # 점수 N종 × 구간 M개 = 가설 N*M 개를 동시에 검정하고 있다.
+        n_tests = len(results) * len(args.horizons)
+        t_crit = bonferroni_t(n_tests)
         print(f"{'점수':<22}{'IC':>10}{'t값':>9}{'롱숏':>11}"
-              f"{'단조성':>9}{'유의':>7}")
-        print("─" * 74)
+              f"{'단조성':>9}{'유의':>7}{'보정후':>8}")
+        print("─" * 82)
         for name, r in results.items():
             hr = r.horizons.get(h)
             if not hr:
@@ -121,10 +125,18 @@ def main() -> int:
                   else f"{hr.long_short:+.2f}%p")
             mo = ("—" if hr.monotonicity != hr.monotonicity
                   else f"{hr.monotonicity:+.2f}")
+            survives = (hr.ic_t == hr.ic_t and abs(hr.ic_t) >= t_crit)
             print(f"{name:<22}{ic:>10}{t:>9}{ls:>11}{mo:>9}"
-                  f"{'✓' if hr.significant else '✗':>7}")
-        print("─" * 74)
-        print(f"(향후 {h}거래일 기준. IC=순위상관, |t|>=2 면 통계적으로 유의)")
+                  f"{'✓' if hr.significant else '✗':>7}"
+                  f"{'✓' if survives else '✗':>8}")
+        print("─" * 82)
+        print(f"(향후 {h}거래일 기준. IC=순위상관)")
+        print(f"  유의   = 보정 없는 |t|>=2.00 — 단일 가설 기준")
+        print(f"  보정후 = 다중검정 보정 |t|>={t_crit:.2f} "
+              f"(가설 {n_tests}개, Bonferroni α=0.05)")
+        print(f"  ※ 가설을 {n_tests}개 검정하면 그중 하나가 우연히 |t|>=2 를")
+        print(f"     넘을 확률이 26%% 다. '보정후 ✓' 만 발견으로 취급하세요."
+              .replace("%%", "%"))
 
     if args.out:
         payload = {

@@ -69,6 +69,20 @@ def _rank_ic(scores: pd.Series, rets: pd.Series) -> float:
     return float(np.corrcoef(a.to_numpy(), b.to_numpy())[0, 1])
 
 
+def bonferroni_t(n_tests: int, alpha: float = 0.05) -> float:
+    """다중검정 보정 임계 t값 (정규근사, 양측).
+
+    점수 3종 × 구간 2개를 한 번에 돌리면 가설을 6개 검정하는 셈이다. 그중
+    최소 하나가 우연히 |t|>=1.96 을 넘을 확률은 5% 가 아니라 26% 다. 보정
+    없이 ✓ 를 붙이면 잡음을 발견으로 착각하게 된다.
+
+    n_tests=1 → 1.96, 6 → 2.64, 12 → 2.87.
+    """
+    from statistics import NormalDist
+    k = max(1, int(n_tests))
+    return float(NormalDist().inv_cdf(1 - alpha / (2 * k)))
+
+
 def _monotonicity(means: list[float]) -> float:
     """구간 순서 대비 평균수익률의 순위상관. 1.0 이면 완벽한 단조 증가."""
     vals = [(i, m) for i, m in enumerate(means) if m == m]  # NaN 제외

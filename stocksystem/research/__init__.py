@@ -9,10 +9,10 @@
 """
 from .eventstudy import (
     SCORERS, BucketStat, EventStudyResult, HorizonResult,
-    analyze_panel, build_panel, compare_scorers, forward_excess,
-    run_event_study,
+    analyze_panel, bonferroni_t, build_panel, compare_scorers,
+    forward_excess, run_event_study,
 )
 
 __all__ = ["SCORERS", "BucketStat", "EventStudyResult", "HorizonResult",
-           "analyze_panel", "build_panel", "compare_scorers",
+           "analyze_panel", "bonferroni_t", "build_panel", "compare_scorers",
            "forward_excess", "run_event_study"]

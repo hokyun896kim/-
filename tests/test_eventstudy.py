@@ -242,3 +242,27 @@ def test_compare_scorers_runs_all():
     # 추세장이므로 추세추종이 역추세보다 IC 가 높아야 한다
     assert (out["추세추종만"].horizons[20].ic_mean
             > out["역추세만"].horizons[20].ic_mean)
+
+
+# ----------------------------- 다중검정 보정 -----------------------------
+def test_bonferroni_threshold_grows_with_test_count():
+    """가설이 많아질수록 임계값이 엄격해져야 한다."""
+    assert es.bonferroni_t(1) == pytest.approx(1.96, abs=0.01)
+    assert es.bonferroni_t(6) == pytest.approx(2.64, abs=0.01)
+    assert es.bonferroni_t(1) < es.bonferroni_t(3) < es.bonferroni_t(12)
+
+
+def test_bonferroni_handles_degenerate_counts():
+    assert es.bonferroni_t(0) == es.bonferroni_t(1)
+    assert es.bonferroni_t(-5) == es.bonferroni_t(1)
+
+
+def test_marginal_result_fails_correction():
+    """t=2.24 는 단일 가설이면 유의하지만 가설 6개에서는 살아남지 못한다.
+
+    실측에서 '역추세만'이 정확히 이 상황이었다. 보정 없이 ✓ 를 믿으면
+    잡음을 발견으로 착각한다.
+    """
+    t_observed = 2.24
+    assert t_observed >= 2.0                      # 보정 전 기준은 통과
+    assert t_observed < es.bonferroni_t(6)        # 보정 후 기준은 미달

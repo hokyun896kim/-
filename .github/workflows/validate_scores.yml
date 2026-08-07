@@ -18,7 +18,9 @@ on:
       period:
         description: '분석 기간 (5y / 10y / max)'
         required: false
-        default: '5y'
+        # 독립 관측일이 표본 수를 좌우한다. 5y·60일 구간이면 비중첩 표본이
+        # 19개뿐이라 t값을 신뢰하기 어렵다. 기본을 max 로 두어 표본을 늘린다.
+        default: 'max'
   # 채점/검증 코드가 바뀌는 PR 에서는 자동으로 돌려 예측력 변화를 바로 본다.
   # workflow_dispatch 는 워크플로 파일이 **기본 브랜치에** 있어야 등록되므로,
   # 아직 병합 전인 지금은 PR 트리거가 유일한 실행 경로다.
@@ -65,7 +67,7 @@ jobs:
         run: |
           python research_cli.py \
             --top "${{ github.event.inputs.top || '80' }}" \
-            --period "${{ github.event.inputs.period || '5y' }}" \
+            --period "${{ github.event.inputs.period || 'max' }}" \
             --horizons 20 60 \
             --compare \
             --out data/validation.json \
@@ -91,7 +93,10 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- data/validation.json; then
+          # git diff 는 **미추적 파일을 보지 못한다.** 처음 만들어지는
+          # validation.json 에 git diff --quiet 를 쓰면 항상 '변경 없음'이
+          # 나와 영영 커밋되지 않는다. status --porcelain 으로 봐야 한다.
+          if [ -z "$(git status --porcelain -- data/validation.json)" ]; then
             echo "변경 없음 — 커밋 생략"
             exit 0
           fi

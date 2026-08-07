@@ -74,14 +74,20 @@ html, body, [class*="css"] {{ font-size: 15px; }}
 [data-testid="stMetricValue"], [data-testid="stMetricDelta"],
 [data-testid="stDataFrame"], .ticker-tape {{ font-family: {MONO}; }}
 
-/* 탭: 터미널 느낌 */
-.stTabs [data-baseweb="tab-list"] {{ gap: 4px; border-bottom: 1px solid {C_GRID};
-    background: #0d1119; }}
-.stTabs [data-baseweb="tab"] {{
-    font-size: 1.0rem; font-weight: 700; padding: 9px 16px; color: #8b93a7;
-    border-radius: 6px 6px 0 0; letter-spacing: .3px; }}
-.stTabs [aria-selected="true"] {{
-    background: #131722; color: {C_ACCENT} !important;
+/* 화면 전환 네비 (segmented_control) — 기존 탭과 같은 터미널 느낌 */
+[data-testid="stSegmentedControl"] {{ margin-bottom: 10px; }}
+[data-testid="stSegmentedControl"] > div {{
+    gap: 4px; flex-wrap: wrap; background: #0d1119;
+    border-bottom: 1px solid {C_GRID}; padding: 2px 2px 0; }}
+[data-testid="stSegmentedControl"] button {{
+    font-size: 1.0rem !important; font-weight: 700 !important;
+    padding: 9px 16px !important; color: #8b93a7 !important;
+    background: transparent !important; border: none !important;
+    border-radius: 6px 6px 0 0 !important; letter-spacing: .3px; }}
+[data-testid="stSegmentedControl"] button:hover {{ color: #d1d4dc !important; }}
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[kind="segmented_controlActive"] {{
+    background: #131722 !important; color: {C_ACCENT} !important;
     box-shadow: inset 0 -2px 0 {C_ACCENT}; }}
 
 /* 지표(metric) 패널 */
@@ -555,8 +561,12 @@ if page == "📊 스크리너":
         "시가총액 상위", options=[10, 25, 50, 75, 100], value=50,
         format_func=lambda x: f"상위 {x}%")
     sector = cc[1].selectbox("섹터", ["전체"] + sectors())
-    max_n = cc[2].slider("분석 종목 수", 5, 60, 25, step=5,
-                         help="실시간(yahoo) 모드에서 많을수록 느려집니다")
+    # 기본값 15: 종목당 price_history + .info 2회가 나가고 .info 는 건당 1~3초라
+    # 25종목이면 첫 조회에 50회·1분 이상 걸린다. Streamlit Cloud 공용 IP 는 그
+    # 정도 연속 호출에서 Yahoo 429 를 맞기 쉬워 보수적으로 잡았다.
+    max_n = cc[2].slider("분석 종목 수", 5, 60, 15, step=5,
+                         help="실시간(yahoo) 모드에서 많을수록 느려집니다 "
+                              "(종목당 약 2회 조회)")
     sort_by = cc[3].selectbox("정렬", ["종합점수", "시가총액", "기술점수",
                                        "펀더멘털점수"])
 

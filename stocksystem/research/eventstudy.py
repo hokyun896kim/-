@@ -320,28 +320,17 @@ def _bucketize(scores: pd.Series, excess: pd.Series, raw: pd.Series,
     return out
 
 
-def run_event_study(symbols, provider: DataProvider, cfg: Config, *,
-                    score_name: str = "종합기술점수(현행)",
-                    horizons=(20, 60), period: str = "5y",
-                    benchmark: str = "SPY", bands=None,
-                    stride: int | None = None,
-                    scorers: dict | None = None,
-                    progress=None) -> EventStudyResult:
-    """점수 하나에 대해 이벤트 스터디를 수행한다.
+def analyze_panel(panel, score_name: str, *, horizons=(20, 60),
+                  benchmark: str = "SPY", bands=None,
+                  stride: int | None = None) -> EventStudyResult:
+    """이미 만들어둔 패널에서 점수 하나를 분석한다.
 
-    stride: 샘플링 간격(거래일). None 이면 각 horizon 과 동일하게 잡아
-            수익률 구간이 겹치지 않게 한다 (t값 과대평가 방지).
+    시세 수집과 분석을 분리해 둔 이유: 여러 점수를 비교할 때 같은 시세를
+    점수 개수만큼 다시 받는 낭비를 막기 위해서다. 80종목 × 3점수면
+    240회가 80회로 줄고, Yahoo 429 위험도 그만큼 낮아진다.
     """
+    close, score_dfs, bench, failed = panel
     bands = bands or DEFAULT_BANDS
-    scorers = scorers or SCORERS
-    if score_name not in scorers:
-        raise KeyError(f"알 수 없는 점수: {score_name}. "
-                       f"가능한 값: {list(scorers)}")
-
-    close, score_dfs, bench, failed = build_panel(
-        symbols, provider, cfg, period=period,
-        scorers={score_name: scorers[score_name]},
-        benchmark=benchmark, progress=progress)
     scores = score_dfs.get(score_name)
     if scores is None or scores.empty:
         raise ValueError("점수 패널이 비어 있습니다 — 시세를 받지 못했습니다.")
@@ -413,16 +402,46 @@ def run_event_study(symbols, provider: DataProvider, cfg: Config, *,
     return res
 
 
+def run_event_study(symbols, provider: DataProvider, cfg: Config, *,
+                    score_name: str = "종합기술점수(현행)",
+                    horizons=(20, 60), period: str = "5y",
+                    benchmark: str = "SPY", bands=None,
+                    stride: int | None = None,
+                    scorers: dict | None = None,
+                    panel=None,
+                    progress=None) -> EventStudyResult:
+    """점수 하나에 대해 이벤트 스터디를 수행한다.
+
+    stride: 샘플링 간격(거래일). None 이면 각 horizon 과 동일하게 잡아
+            수익률 구간이 겹치지 않게 한다 (t값 과대평가 방지).
+    panel:  build_panel() 결과를 넘기면 시세를 다시 받지 않는다.
+    """
+    scorers = scorers or SCORERS
+    if score_name not in scorers:
+        raise KeyError(f"알 수 없는 점수: {score_name}. "
+                       f"가능한 값: {list(scorers)}")
+    if panel is None:
+        panel = build_panel(symbols, provider, cfg, period=period,
+                            scorers={score_name: scorers[score_name]},
+                            benchmark=benchmark, progress=progress)
+    return analyze_panel(panel, score_name, horizons=horizons,
+                         benchmark=benchmark, bands=bands, stride=stride)
+
+
 def compare_scorers(symbols, provider: DataProvider, cfg: Config, *,
                     horizons=(20, 60), period: str = "5y",
                     benchmark: str = "SPY", scorers: dict | None = None,
+                    bands=None, stride: int | None = None,
                     progress=None) -> dict[str, EventStudyResult]:
-    """여러 점수를 같은 표본으로 비교한다 (추세 vs 역추세 판정용)."""
+    """여러 점수를 **같은 시세 한 벌로** 비교한다 (추세 vs 역추세 판정용).
+
+    build_panel 이 모든 점수를 한 번에 계산하므로 시세 수집은 1회뿐이다.
+    """
     scorers = scorers or SCORERS
-    out = {}
-    for name in scorers:
-        out[name] = run_event_study(
-            symbols, provider, cfg, score_name=name, horizons=horizons,
-            period=period, benchmark=benchmark, scorers=scorers,
-            progress=progress)
-    return out
+    panel = build_panel(symbols, provider, cfg, period=period,
+                        scorers=scorers, benchmark=benchmark,
+                        progress=progress)
+    return {name: analyze_panel(panel, name, horizons=horizons,
+                                benchmark=benchmark, bands=bands,
+                                stride=stride)
+            for name in scorers}

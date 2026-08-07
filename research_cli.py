@@ -28,7 +28,7 @@ from pathlib import Path
 from stocksystem.config import load_config
 from stocksystem.data import get_provider
 from stocksystem.data.universe import load_universe
-from stocksystem.research import SCORERS, run_event_study
+from stocksystem.research import SCORERS, compare_scorers, run_event_study
 
 
 def _progress(done: int, total: int, sym: str) -> None:
@@ -79,17 +79,23 @@ def main() -> int:
               "의미가 없습니다.", file=sys.stderr)
 
     results = {}
-    for name in targets:
-        print(f"\n▶ {name} 시세 수집 중...", file=sys.stderr)
-        try:
-            res = run_event_study(
-                symbols, provider, cfg, score_name=name,
+    print(f"\n▶ 시세 수집 중 (점수 {len(targets)}종을 같은 시세로 평가)...",
+          file=sys.stderr)
+    try:
+        if len(targets) > 1:
+            # 시세를 한 번만 받아 모든 점수에 재사용한다
+            results = compare_scorers(
+                symbols, provider, cfg, horizons=tuple(args.horizons),
+                period=args.period, benchmark=args.benchmark,
+                progress=_progress)
+        else:
+            results = {targets[0]: run_event_study(
+                symbols, provider, cfg, score_name=targets[0],
                 horizons=tuple(args.horizons), period=args.period,
-                benchmark=args.benchmark, progress=_progress)
-        except Exception as e:
-            print(f"  실패: {e}", file=sys.stderr)
-            continue
-        results[name] = res
+                benchmark=args.benchmark, progress=_progress)}
+    except Exception as e:
+        print(f"  실패: {e}", file=sys.stderr)
+    for res in results.values():
         print(res.report())
 
     if not results:

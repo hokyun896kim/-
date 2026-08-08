@@ -54,7 +54,7 @@ def main() -> int:
                     help="예측 구간, 거래일 (기본 20 60)")
     ap.add_argument("--benchmark", default="SPY",
                     help="초과수익률 기준 (기본 SPY)")
-    ap.add_argument("--score", default="종합기술점수(현행)",
+    ap.add_argument("--score", default="역추세만 (현행 기본)",
                     choices=list(SCORERS), help="검증할 점수")
     ap.add_argument("--compare", action="store_true",
                     help="모든 점수를 비교 (추세 vs 역추세 판정)")

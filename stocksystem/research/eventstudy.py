@@ -50,10 +50,17 @@ DEFAULT_BANDS = [
 ]
 
 # 검증 대상 점수들. 추세/역추세를 따로 재야 어느 쪽이 수익을 냈는지 알 수 있다.
+#
+# "현행 설정"(cfg.trend_weight 를 그대로 쓰는 점수)을 따로 두지 않는 이유:
+# 기본값이 trend_weight=0.0 이라 그 점수는 '역추세만' 과 **완전히 동일**하다.
+# 같은 계열을 두 번 넣으면 비교표에 중복 행이 생기고, 다중검정 가설 수만 늘어
+# Bonferroni 임계값이 불필요하게 엄격해진다(3개면 2.39, 4개면 2.50).
+# 대신 옛 기본값(균등평균)을 넣어 "무엇을 왜 뺐는지" 가 표에서 바로 보이게 한다.
 SCORERS = {
-    "종합기술점수(현행)": lambda ind, cfg: ta.score_series(ind, cfg),
+    "균등평균(옛 기본)": lambda ind, cfg: ta.score_series(ind, cfg,
+                                                     trend_weight=None),
     "추세추종만": lambda ind, cfg: ta.trend_score_series(ind, cfg),
-    "역추세만": lambda ind, cfg: ta.reversion_score_series(ind, cfg),
+    "역추세만 (현행 기본)": lambda ind, cfg: ta.reversion_score_series(ind, cfg),
 }
 
 
@@ -516,7 +523,7 @@ def analyze_panel(panel, score_name: str, *, horizons=(20, 60),
 
 
 def run_event_study(symbols, provider: DataProvider, cfg: Config, *,
-                    score_name: str = "종합기술점수(현행)",
+                    score_name: str = "역추세만 (현행 기본)",
                     horizons=(20, 60), period: str = "5y",
                     benchmark: str = "SPY", bands=None,
                     stride: int | None = None,

@@ -165,7 +165,7 @@ def test_no_false_positive_on_random_walk():
     """랜덤워크에서는 '유의한 예측력'을 주장하면 안 된다."""
     res = es.run_event_study(
         SYMS, _RandomWalkProvider(n_days=2500, seed=3), Config(),
-        score_name="종합기술점수(현행)", horizons=(20,), period="5y",
+        score_name="역추세만 (현행 기본)", horizons=(20,), period="5y",
         benchmark=BENCH)
     h = res.horizons[20]
     assert not h.significant, (
@@ -208,7 +208,7 @@ def test_bucket_stats_are_correct():
 def test_result_serializes_and_reports():
     res = es.run_event_study(
         SYMS[:6], _RandomWalkProvider(n_days=1500, seed=1), Config(),
-        score_name="종합기술점수(현행)", horizons=(20, 60), period="5y",
+        score_name="역추세만 (현행 기본)", horizons=(20, 60), period="5y",
         benchmark=BENCH)
     d = res.to_dict()
     assert set(d["horizons"]) == {"20", "60"}
@@ -241,7 +241,7 @@ def test_compare_scorers_runs_all():
     assert set(out) == set(es.SCORERS)
     # 추세장이므로 추세추종이 역추세보다 IC 가 높아야 한다
     assert (out["추세추종만"].horizons[20].ic_mean
-            > out["역추세만"].horizons[20].ic_mean)
+            > out["역추세만 (현행 기본)"].horizons[20].ic_mean)
 
 
 # ----------------------------- 다중검정 보정 -----------------------------
@@ -374,7 +374,7 @@ def test_cost_metrics_are_nan_safe():
 def test_report_and_dict_include_new_metrics():
     res = es.run_event_study(
         SYMS[:8], _RandomWalkProvider(n_days=1500, seed=2), Config(),
-        score_name="종합기술점수(현행)", horizons=(20,), period="5y",
+        score_name="역추세만 (현행 기본)", horizons=(20,), period="5y",
         benchmark=BENCH)
     d = res.to_dict()["horizons"]["20"]
     for k in ("universe_mean", "breakeven_cost", "annual_long_short_gross",
@@ -383,3 +383,31 @@ def test_report_and_dict_include_new_metrics():
     assert "mean_demeaned" in d["buckets"][0]
     text = res.report()
     assert "편향제거" in text and "손익분기" in text
+
+
+def test_scorers_have_no_duplicate_series():
+    """★ 스코어러끼리 완전히 같은 시계열이면 안 된다.
+
+    trend_weight 기본값이 0.0 이 되면서 '현행 설정' 점수가 '역추세만' 과
+    똑같아졌다. 중복 행은 비교표를 오해하게 만들고, 다중검정 가설 수만 늘려
+    Bonferroni 임계값을 불필요하게 엄격하게 만든다.
+    """
+    from stocksystem.config import Config as C
+    cfg = C()
+    ind = ta_compute(_MomentumProvider(n_days=800, seed=4), cfg)
+    series = {n: fn(ind, cfg.technical).dropna() for n, fn in es.SCORERS.items()}
+    names = list(series)
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            assert not series[a].equals(series[b]), f"{a} 와 {b} 가 동일"
+
+
+def test_default_scorer_matches_shipped_config():
+    """기본 스코어러는 실제 배포 설정의 점수와 같아야 한다."""
+    from stocksystem.config import load_config
+    cfg = load_config()
+    assert cfg.technical.trend_weight == 0.0
+    ind = ta_compute(_RandomWalkProvider(n_days=600, seed=6), cfg)
+    shipped = ta.score_series(ind, cfg.technical).dropna()
+    default_scorer = es.SCORERS["역추세만 (현행 기본)"](ind, cfg.technical).dropna()
+    assert shipped.equals(default_scorer)

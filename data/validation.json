@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-08T00:34:07+00:00",
+  "generated_at": "2026-08-08T08:42:18+00:00",
   "provider": "yahoo",
   "period": "max",
   "benchmark": "SPY",
@@ -140,9 +140,9 @@
               "label": "보유 (40~60)",
               "n": 9870,
               "mean_excess": 0.674,
-              "median_excess": 0.294,
+              "median_excess": 0.293,
               "hit_rate": 52.1,
-              "mean_raw": 1.643,
+              "mean_raw": 1.644,
               "mean_demeaned": 0.064,
               "hit_rate_demeaned": 48.3
             },
@@ -354,7 +354,7 @@
               "mean_excess": 0.951,
               "median_excess": 0.62,
               "hit_rate": 54.3,
-              "mean_raw": 1.813,
+              "mean_raw": 1.812,
               "mean_demeaned": 0.267,
               "hit_rate_demeaned": 49.6
             },

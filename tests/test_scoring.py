@@ -20,7 +20,7 @@ def test_summary_row_keys():
     cfg = load_config()
     res = analyze_symbol("MSFT", SampleProvider(), cfg)
     row = res.summary_row()
-    for key in ["종목", "현재가", "종합점수", "기술점수", "펀더멘털점수", "추천"]:
+    for key in ["종목", "현재가", "종합점수", "기술점수", "펀더멘털점수", "등급"]:
         assert key in row
 
 

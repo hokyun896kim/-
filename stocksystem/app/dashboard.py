@@ -36,7 +36,8 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
-from stocksystem.analysis.scoring import RECO_LABELS, apply_sector_neutral
+from stocksystem.analysis.scoring import (BULLISH_KEYS, RECO_LABELS,
+                                          apply_sector_neutral)
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
 from stocksystem.portfolio import (
@@ -612,7 +613,7 @@ if page == "📊 스크리너":
         df = df.sort_values(
             sort_by if sort_by in df else "종합점수", ascending=False)
         display_cols = ["종목", "이름", "섹터", "현재가", "종합점수",
-                        "기술점수", "펀더멘털점수", "추천"]
+                        "기술점수", "펀더멘털점수", "등급"]
         df = df[[c for c in display_cols if c in df.columns]]
 
         def color_reco(val):
@@ -622,7 +623,7 @@ if page == "📊 스크리너":
             return ""
 
         styled = (df.style
-                  .map(color_reco, subset=["추천"])
+                  .map(color_reco, subset=["등급"])
                   .map(score_bg, subset=[c for c in
                        ["종합점수", "기술점수", "펀더멘털점수"] if c in df])
                   .format({"현재가": fmt("${:.2f}"), "종합점수": fmt("{:.0f}"),
@@ -633,11 +634,17 @@ if page == "📊 스크리너":
         m = st.columns(3)
         valid = pd.to_numeric(df["종합점수"], errors="coerce")
         m[0].metric("평균 종합점수", f"{valid.mean():.0f}")
-        buys = df["추천"].isin(["적극 매수", "매수"]).sum()
-        m[1].metric("매수 추천", f"{buys} / {len(df)}")
+        bullish_labels = [RECO_LABELS[k] for k in BULLISH_KEYS]
+        buys = df["등급"].isin(bullish_labels).sum() if "등급" in df else 0
+        m[1].metric("상위권 등급", f"{buys} / {len(df)}")
         m[2].metric("최고 점수 종목",
                     df.loc[valid.idxmax(), "종목"]
                     if valid.notna().any() else "—")
+        st.caption(
+            "⚠️ 이 랭킹은 **매매 추천이 아닙니다.** 검증 결과 종합점수는 "
+            "미래 수익률을 예측하지 못했습니다 (IC −0.016, 다중검정 보정 후 "
+            "유의성 없음). 후보를 좁히는 필터로만 쓰고, 매수 근거로 삼지 "
+            "마세요. → 🔬 검증 화면")
 
 # ============================ 탭 2: 종목 상세 ============================
 if page == "🔍 종목 상세":
@@ -674,17 +681,26 @@ if page == "🔍 종목 상세":
 
         key = res.recommendation
         st.markdown(
-            f"<div style='padding:16px;border-radius:14px;"
-            f"background:{RECO_COLOR[key]};color:white;font-size:24px;"
-            f"text-align:center;margin:10px 0;letter-spacing:.3px;"
+            f"<div style='padding:14px 16px;border-radius:14px;"
+            f"background:{RECO_COLOR[key]};color:white;font-size:22px;"
+            f"text-align:center;margin:10px 0 4px;letter-spacing:.3px;"
             f"box-shadow:0 2px 8px rgba(16,24,40,.15);'>"
-            f"<b>추천: {res.recommendation_label}</b>"
-            f"<span style='font-size:17px;opacity:.92;'>"
-            f"&nbsp;&nbsp;· 종합 {res.total_score:.0f}점</span></div>",
+            f"<span style='font-size:14px;opacity:.85;'>종합점수 구간</span>"
+            f"<br><b>{res.recommendation_label}</b>"
+            f"<span style='font-size:16px;opacity:.92;'>"
+            f"&nbsp;&nbsp;· {res.total_score:.0f}점</span></div>",
             unsafe_allow_html=True)
+        st.caption(
+            "⚠️ 이 등급은 **매매 추천이 아니라 점수 구간에서의 위치**입니다. "
+            "과거 데이터로 측정한 결과 이 점수는 미래 수익률을 예측하지 "
+            "못했습니다 (IC −0.016, 다중검정 보정 후 유의성 없음). "
+            "기술 점수는 기본 설정에서 **과매수·과매도 성분만** 씁니다 — "
+            "추세 성분은 검증에서 예측 방향이 반대로 나와 제외했습니다. "
+            "→ 🔬 검증 화면")
 
         if res.reasons:
-            with st.expander("📌 이렇게 판단했어요 (근거)", expanded=True):
+            with st.expander("📌 점수 근거 (예측이 아니라 현재 지표 요약)",
+                             expanded=True):
                 for r in res.reasons:
                     st.write("•", r)
 
@@ -1357,7 +1373,7 @@ if page == "🔬 검증":
     if not VAL_PATH.exists():
         st.warning(
             "아직 검증 결과가 없습니다. 이 앱의 점수는 **예측력이 확인되지 "
-            "않은 상태**이며, 스크리너 랭킹과 '적극 매수' 배너를 매매 근거로 "
+            "않은 상태**이며, 스크리너 랭킹과 종목상세 등급을 매매 근거로 "
             "쓰면 안 됩니다.")
         st.markdown(
             "**검증을 돌리는 방법** (Yahoo 접속이 되는 환경에서):\n"

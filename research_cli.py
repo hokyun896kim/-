@@ -59,6 +59,8 @@ def main() -> int:
     ap.add_argument("--compare", action="store_true",
                     help="모든 점수를 비교 (추세 vs 역추세 판정)")
     ap.add_argument("--provider", help="데이터 소스 (yahoo/sample)")
+    ap.add_argument("--cost", type=float, default=0.05,
+                    help="왕복 거래비용(%%), 편도 아님 (기본 0.05 = 5bp)")
     ap.add_argument("--out", help="결과 JSON 저장 경로")
     args = ap.parse_args()
 
@@ -112,25 +114,31 @@ def main() -> int:
         # 점수 N종 × 구간 M개 = 가설 N*M 개를 동시에 검정하고 있다.
         n_tests = len(results) * len(args.horizons)
         t_crit = bonferroni_t(n_tests)
-        print(f"{'점수':<22}{'IC':>10}{'t값':>9}{'롱숏':>11}"
-              f"{'단조성':>9}{'유의':>7}{'보정후':>8}")
-        print("─" * 82)
+        print(f"{'점수':<22}{'IC':>10}{'t값':>9}{'롱숏(보정)':>12}"
+              f"{'연환산순':>10}{'단조성':>8}{'유의':>6}{'보정후':>7}")
+        print("─" * 86)
         for name, r in results.items():
             hr = r.horizons.get(h)
             if not hr:
                 continue
             ic = "—" if hr.ic_mean != hr.ic_mean else f"{hr.ic_mean:+.4f}"
             t = "—" if hr.ic_t != hr.ic_t else f"{hr.ic_t:+.2f}"
-            ls = ("—" if hr.long_short != hr.long_short
-                  else f"{hr.long_short:+.2f}%p")
+            ls = ("—" if hr.spread != hr.spread else f"{hr.spread:+.3f}%p")
+            net = hr.annualized_long_short(args.cost)
+            net_s = "—" if net != net else f"{net:+.2f}%"
             mo = ("—" if hr.monotonicity != hr.monotonicity
                   else f"{hr.monotonicity:+.2f}")
             survives = (hr.ic_t == hr.ic_t and abs(hr.ic_t) >= t_crit)
-            print(f"{name:<22}{ic:>10}{t:>9}{ls:>11}{mo:>9}"
-                  f"{'✓' if hr.significant else '✗':>7}"
-                  f"{'✓' if survives else '✗':>8}")
-        print("─" * 82)
+            print(f"{name:<22}{ic:>10}{t:>9}{ls:>12}{net_s:>10}{mo:>8}"
+                  f"{'✓' if hr.significant else '✗':>6}"
+                  f"{'✓' if survives else '✗':>7}")
+        print("─" * 86)
         print(f"(향후 {h}거래일 기준. IC=순위상관)")
+        print(f"  롱숏(보정) = 날짜별 유니버스 평균을 뺀 스프레드. 유니버스가")
+        print(f"               '현재 시총 상위' 라 통째로 지수를 이기는 몫을 제거.")
+        print(f"  연환산순   = 왕복 {args.cost:.2f}%% 거래비용 차감 후 연 수익률."
+              .replace("%%", "%"))
+        print(f"               공매도 차입비용은 미포함 — 실제로는 더 나쁩니다.")
         print(f"  유의   = 보정 없는 |t|>=2.00 — 단일 가설 기준")
         print(f"  보정후 = 다중검정 보정 |t|>={t_crit:.2f} "
               f"(가설 {n_tests}개, Bonferroni α=0.05)")

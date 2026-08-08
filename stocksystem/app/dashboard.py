@@ -1346,8 +1346,12 @@ if page == "🔬 검증":
         "이 탭은 그 규칙이 실제로 미래 수익률을 예측했는지를 과거 데이터로 "
         "측정한 결과만 보여줍니다.\n\n"
         "**IC(순위상관)** = 점수 순위와 이후 수익률 순위가 얼마나 맞았나 "
-        "(0이면 무작위). **t값** |t|≥2 면 통계적으로 유의. "
-        "**롱숏** = 최상위 구간 − 최하위 구간 초과수익률.")
+        "(0이면 무작위). **t값** |t|≥2 면 유의(다중검정 보정 전). "
+        "**롱숏(보정)** = 최상위 − 최하위 구간, 날짜별 유니버스 평균을 뺀 값. "
+        "**연환산순** = 왕복 5bp 거래비용 차감 후 연 수익률.\n\n"
+        "⚠️ `universe.csv` 는 **현재** 시총 상위 종목이라 통째로 지수를 "
+        "이깁니다(실측 연 +7.7%). 그 몫을 빼야 점수의 순수 기여분이 보입니다 — "
+        "'편향제거' 열이 그것입니다.")
 
     VAL_PATH = ROOT / "data" / "validation.json"
     if not VAL_PATH.exists():
@@ -1402,7 +1406,9 @@ if page == "🔬 검증":
                         "점수": name,
                         "IC": hr.get("ic_mean"),
                         "t값": hr.get("ic_t"),
-                        "롱숏(%p)": hr.get("long_short"),
+                        "롱숏(보정)": hr.get("long_short_demeaned",
+                                          hr.get("long_short")),
+                        "연환산순(%)": hr.get("annual_long_short_net_5bp"),
                         "단조성": hr.get("monotonicity"),
                         "유의": "✓" if hr.get("significant") else "✗",
                         "관측일": hr.get("n_dates"),
@@ -1411,9 +1417,10 @@ if page == "🔬 검증":
                     vdf = pd.DataFrame(rows)
                     st.dataframe(
                         vdf.style
-                        .map(score_bg_pp, subset=["롱숏(%p)"])
+                        .map(score_bg_pp, subset=["롱숏(보정)", "연환산순(%)"])
                         .format({"IC": fmt("{:+.4f}"), "t값": fmt("{:+.2f}"),
-                                 "롱숏(%p)": fmt("{:+.2f}"),
+                                 "롱숏(보정)": fmt("{:+.3f}"),
+                                 "연환산순(%)": fmt("{:+.2f}"),
                                  "단조성": fmt("{:+.2f}")}),
                         width='stretch', hide_index=True)
 
@@ -1426,33 +1433,32 @@ if page == "🔬 검증":
                         "점수 구간": b["label"],
                         "표본": b["n"],
                         "평균 초과수익": b["mean_excess"],
-                        "중앙 초과수익": b["median_excess"],
+                        "편향제거": b.get("mean_demeaned"),
                         "승률(%)": b["hit_rate"],
                         "절대수익": b["mean_raw"],
                     } for b in hr.get("buckets", [])]
                     bdf = pd.DataFrame(brows)
                     st.dataframe(
                         bdf.style
-                        .map(score_bg_pp, subset=["평균 초과수익",
-                                                  "중앙 초과수익"])
+                        .map(score_bg_pp, subset=["평균 초과수익", "편향제거"])
                         .format({"평균 초과수익": fmt("{:+.2f}%"),
-                                 "중앙 초과수익": fmt("{:+.2f}%"),
+                                 "편향제거": fmt("{:+.2f}%"),
                                  "승률(%)": fmt("{:.0f}"),
                                  "절대수익": fmt("{:+.2f}%")}),
                         width='stretch', hide_index=True)
 
                     bar = go.Figure(go.Bar(
                         x=[b["label"] for b in hr["buckets"]],
-                        y=[b["mean_excess"] for b in hr["buckets"]],
+                        y=[b.get("mean_demeaned") for b in hr["buckets"]],
                         marker_color=[
-                            C_UP if (b["mean_excess"] or 0) >= 0 else C_DOWN
-                            for b in hr["buckets"]]))
+                            C_UP if (b.get("mean_demeaned") or 0) >= 0
+                            else C_DOWN for b in hr["buckets"]]))
                     bar.update_layout(
                         height=320, paper_bgcolor=C_PANEL,
                         plot_bgcolor=C_PANEL,
                         margin=dict(l=10, r=10, t=40, b=10),
-                        title=f"{sel_score} — 향후 {pick}거래일 평균 초과수익률"
-                              f" (왼쪽이 낮은 점수)")
+                        title=f"{sel_score} — 향후 {pick}거래일 초과수익률"
+                              f" (유니버스 편향 제거, 왼쪽이 낮은 점수)")
                     st.plotly_chart(bar, width='stretch')
 
                     st.markdown(f"**판정:** {results[sel_score].get('verdict')}")

@@ -165,7 +165,7 @@ def test_no_false_positive_on_random_walk():
     """랜덤워크에서는 '유의한 예측력'을 주장하면 안 된다."""
     res = es.run_event_study(
         SYMS, _RandomWalkProvider(n_days=2500, seed=3), Config(),
-        score_name="종합기술점수(현행)", horizons=(20,), period="5y",
+        score_name="역추세만 (현행 기본)", horizons=(20,), period="5y",
         benchmark=BENCH)
     h = res.horizons[20]
     assert not h.significant, (
@@ -208,7 +208,7 @@ def test_bucket_stats_are_correct():
 def test_result_serializes_and_reports():
     res = es.run_event_study(
         SYMS[:6], _RandomWalkProvider(n_days=1500, seed=1), Config(),
-        score_name="종합기술점수(현행)", horizons=(20, 60), period="5y",
+        score_name="역추세만 (현행 기본)", horizons=(20, 60), period="5y",
         benchmark=BENCH)
     d = res.to_dict()
     assert set(d["horizons"]) == {"20", "60"}
@@ -241,7 +241,7 @@ def test_compare_scorers_runs_all():
     assert set(out) == set(es.SCORERS)
     # 추세장이므로 추세추종이 역추세보다 IC 가 높아야 한다
     assert (out["추세추종만"].horizons[20].ic_mean
-            > out["역추세만"].horizons[20].ic_mean)
+            > out["역추세만 (현행 기본)"].horizons[20].ic_mean)
 
 
 # ----------------------------- 다중검정 보정 -----------------------------
@@ -266,3 +266,148 @@ def test_marginal_result_fails_correction():
     t_observed = 2.24
     assert t_observed >= 2.0                      # 보정 전 기준은 통과
     assert t_observed < es.bonferroni_t(6)        # 보정 후 기준은 미달
+
+
+# ----------------------------- 유니버스 편향 제거 -----------------------------
+def test_demean_removes_common_drift():
+    """모든 종목이 함께 오른 만큼은 신호의 공로가 아니다."""
+    idx = pd.bdate_range("2021-01-01", periods=3)
+    ex = pd.DataFrame({"A": [10.0, 10.0, 10.0],
+                       "B": [10.0, 10.0, 10.0],
+                       "C": [10.0, 10.0, 10.0]}, index=idx)
+    out = es.demean_cross_section(ex)
+    assert (out.abs() < 1e-9).all().all()   # 공통 상승은 전부 제거
+
+
+def test_demean_preserves_relative_spread():
+    idx = pd.bdate_range("2021-01-01", periods=2)
+    ex = pd.DataFrame({"A": [12.0, 22.0], "B": [8.0, 18.0]}, index=idx)
+    out = es.demean_cross_section(ex)
+    # 원래 격차 4%p 는 그대로, 공통 수준(10, 20)만 사라진다
+    assert out["A"].tolist() == pytest.approx([2.0, 2.0])
+    assert out["B"].tolist() == pytest.approx([-2.0, -2.0])
+
+
+def test_demean_is_per_date_not_global():
+    """날짜마다 다른 시장 수익률을 각각 제거해야 한다."""
+    idx = pd.bdate_range("2021-01-01", periods=2)
+    ex = pd.DataFrame({"A": [1.0, 100.0], "B": [-1.0, 98.0]}, index=idx)
+    out = es.demean_cross_section(ex)
+    assert out.loc[idx[1], "A"] == pytest.approx(1.0)   # 둘째 날 평균 99 제거
+
+
+def test_universe_bias_is_recorded_and_removed():
+    """유니버스 평균이 기록되고, 편향제거 값이 그만큼 낮아져야 한다.
+
+    구간별 편향제거 값은 `평균초과 − 유니버스평균` 과 정확히 같지는 않다.
+    날짜마다 다른 시장 수익률을 각각 빼기 때문이고, 그게 전역 상수를 빼는
+    것보다 정확하다. 여기서는 방향만 검증한다.
+    """
+    res = es.run_event_study(
+        SYMS, _MomentumProvider(n_days=2000, seed=11), Config(),
+        score_name="추세추종만", horizons=(20,), period="5y", benchmark=BENCH)
+    h = res.horizons[20]
+    assert h.universe_mean == h.universe_mean           # NaN 아님
+    filled = [b for b in h.buckets if b.n]
+    assert filled
+    # 유니버스 평균만큼 전반적으로 낮아진다
+    for b in filled:
+        assert b.mean_demeaned < b.mean_excess or h.universe_mean <= 0
+    # 편향제거 가중평균은 0 에 가까워야 한다 (공통 성분이 사라졌으므로)
+    tot = sum(b.n for b in filled)
+    wavg = sum(b.mean_demeaned * b.n for b in filled) / tot
+    assert abs(wavg) < 0.5
+
+
+def test_demeaned_long_short_is_recorded_and_can_differ():
+    """편향제거 롱숏은 원시 롱숏과 다를 수 있다 — 그게 핵심이다.
+
+    추세 점수는 상승장에 최상위 구간이, 하락장에 최하위 구간이 몰린다.
+    원시 스프레드는 '신호의 힘'과 '구간이 채워지는 시점의 시장 상황'을
+    섞어버리므로, 날짜별로 보정한 쪽이 신호의 순수 기여분이다.
+    """
+    res = es.run_event_study(
+        SYMS, _MomentumProvider(n_days=2000, seed=11), Config(),
+        score_name="추세추종만", horizons=(20,), period="5y", benchmark=BENCH)
+    h = res.horizons[20]
+    assert h.long_short_demeaned == h.long_short_demeaned   # NaN 아님
+    # 수익 계산은 편향제거 쪽을 쓴다
+    assert h.spread == h.long_short_demeaned
+    assert h.breakeven_cost == pytest.approx(h.long_short_demeaned / 2)
+
+
+# ----------------------------- 거래비용 -----------------------------
+def test_annualized_long_short_scales_by_horizon():
+    h20 = es.HorizonResult(horizon=20, buckets=[], ic_mean=0, ic_std=0,
+                           ic_t=0, n_dates=1, n_obs=1, long_short=1.0,
+                           monotonicity=0)
+    h60 = es.HorizonResult(horizon=60, buckets=[], ic_mean=0, ic_std=0,
+                           ic_t=0, n_dates=1, n_obs=1, long_short=1.0,
+                           monotonicity=0)
+    # 같은 스프레드라도 20일 구간이 연 3배 더 자주 반복된다
+    assert h20.annualized_long_short() == pytest.approx(
+        3 * h60.annualized_long_short(), rel=1e-6)
+
+
+def test_transaction_cost_eats_into_return():
+    h = es.HorizonResult(horizon=20, buckets=[], ic_mean=0, ic_std=0, ic_t=0,
+                         n_dates=1, n_obs=1, long_short=0.343, monotonicity=0)
+    assert h.annualized_long_short() > h.annualized_long_short(0.05) > \
+        h.annualized_long_short(0.10)
+
+
+def test_breakeven_cost_zeroes_the_return():
+    """손익분기 비용을 물리면 정확히 0 이 돼야 한다."""
+    h = es.HorizonResult(horizon=20, buckets=[], ic_mean=0, ic_std=0, ic_t=0,
+                         n_dates=1, n_obs=1, long_short=0.343, monotonicity=0)
+    assert h.annualized_long_short(h.breakeven_cost) == pytest.approx(0.0)
+
+
+def test_cost_metrics_are_nan_safe():
+    h = es.HorizonResult(horizon=20, buckets=[], ic_mean=0, ic_std=0, ic_t=0,
+                         n_dates=1, n_obs=1, long_short=float("nan"),
+                         monotonicity=0)
+    assert h.breakeven_cost != h.breakeven_cost
+    assert h.annualized_long_short() != h.annualized_long_short()
+
+
+def test_report_and_dict_include_new_metrics():
+    res = es.run_event_study(
+        SYMS[:8], _RandomWalkProvider(n_days=1500, seed=2), Config(),
+        score_name="역추세만 (현행 기본)", horizons=(20,), period="5y",
+        benchmark=BENCH)
+    d = res.to_dict()["horizons"]["20"]
+    for k in ("universe_mean", "breakeven_cost", "annual_long_short_gross",
+              "annual_long_short_net_5bp"):
+        assert k in d
+    assert "mean_demeaned" in d["buckets"][0]
+    text = res.report()
+    assert "편향제거" in text and "손익분기" in text
+
+
+def test_scorers_have_no_duplicate_series():
+    """★ 스코어러끼리 완전히 같은 시계열이면 안 된다.
+
+    trend_weight 기본값이 0.0 이 되면서 '현행 설정' 점수가 '역추세만' 과
+    똑같아졌다. 중복 행은 비교표를 오해하게 만들고, 다중검정 가설 수만 늘려
+    Bonferroni 임계값을 불필요하게 엄격하게 만든다.
+    """
+    from stocksystem.config import Config as C
+    cfg = C()
+    ind = ta_compute(_MomentumProvider(n_days=800, seed=4), cfg)
+    series = {n: fn(ind, cfg.technical).dropna() for n, fn in es.SCORERS.items()}
+    names = list(series)
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            assert not series[a].equals(series[b]), f"{a} 와 {b} 가 동일"
+
+
+def test_default_scorer_matches_shipped_config():
+    """기본 스코어러는 실제 배포 설정의 점수와 같아야 한다."""
+    from stocksystem.config import load_config
+    cfg = load_config()
+    assert cfg.technical.trend_weight == 0.0
+    ind = ta_compute(_RandomWalkProvider(n_days=600, seed=6), cfg)
+    shipped = ta.score_series(ind, cfg.technical).dropna()
+    default_scorer = es.SCORERS["역추세만 (현행 기본)"](ind, cfg.technical).dropna()
+    assert shipped.equals(default_scorer)

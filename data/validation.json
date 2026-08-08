@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-07T16:24:19+00:00",
+  "generated_at": "2026-08-08T00:34:07+00:00",
   "provider": "yahoo",
   "period": "max",
   "benchmark": "SPY",
   "n_symbols": 80,
   "results": {
-    "종합기술점수(현행)": {
-      "score_name": "종합기술점수(현행)",
+    "균등평균(옛 기본)": {
+      "score_name": "균등평균(옛 기본)",
       "benchmark": "SPY",
       "symbols": [
         "AAPL",
@@ -108,6 +108,11 @@
           "n_dates": 421,
           "n_obs": 30447,
           "long_short": -0.167,
+          "universe_mean": 0.611,
+          "long_short_demeaned": -0.133,
+          "breakeven_cost": -0.0665,
+          "annual_long_short_gross": -1.67,
+          "annual_long_short_net_5bp": -2.93,
           "monotonicity": -0.8,
           "significant": true,
           "buckets": [
@@ -117,7 +122,9 @@
               "mean_excess": 0.711,
               "median_excess": 0.453,
               "hit_rate": 52.8,
-              "mean_raw": 1.473
+              "mean_raw": 1.473,
+              "mean_demeaned": 0.057,
+              "hit_rate_demeaned": 48.2
             },
             {
               "label": "매도 (25~40)",
@@ -125,7 +132,9 @@
               "mean_excess": 0.982,
               "median_excess": 0.54,
               "hit_rate": 54.2,
-              "mean_raw": 2.045
+              "mean_raw": 2.045,
+              "mean_demeaned": 0.311,
+              "hit_rate_demeaned": 49.5
             },
             {
               "label": "보유 (40~60)",
@@ -133,7 +142,9 @@
               "mean_excess": 0.674,
               "median_excess": 0.294,
               "hit_rate": 52.1,
-              "mean_raw": 1.644
+              "mean_raw": 1.643,
+              "mean_demeaned": 0.064,
+              "hit_rate_demeaned": 48.3
             },
             {
               "label": "매수 (60~75)",
@@ -141,7 +152,9 @@
               "mean_excess": 0.497,
               "median_excess": 0.129,
               "hit_rate": 50.9,
-              "mean_raw": 1.355
+              "mean_raw": 1.355,
+              "mean_demeaned": -0.096,
+              "hit_rate_demeaned": 47.1
             },
             {
               "label": "적극매수 (75~100)",
@@ -149,7 +162,9 @@
               "mean_excess": 0.544,
               "median_excess": 0.123,
               "hit_rate": 50.9,
-              "mean_raw": 1.642
+              "mean_raw": 1.642,
+              "mean_demeaned": -0.076,
+              "hit_rate_demeaned": 46.8
             }
           ]
         },
@@ -160,6 +175,11 @@
           "n_dates": 139,
           "n_obs": 10051,
           "long_short": -0.133,
+          "universe_mean": 1.845,
+          "long_short_demeaned": 0.134,
+          "breakeven_cost": 0.067,
+          "annual_long_short_gross": 0.56,
+          "annual_long_short_net_5bp": 0.14,
           "monotonicity": -0.6,
           "significant": false,
           "buckets": [
@@ -169,7 +189,9 @@
               "mean_excess": 1.976,
               "median_excess": 1.425,
               "hit_rate": 54.4,
-              "mean_raw": 4.61
+              "mean_raw": 4.61,
+              "mean_demeaned": 0.011,
+              "hit_rate_demeaned": 49.0
             },
             {
               "label": "매도 (25~40)",
@@ -177,7 +199,9 @@
               "mean_excess": 2.608,
               "median_excess": 1.645,
               "hit_rate": 54.9,
-              "mean_raw": 5.388
+              "mean_raw": 5.388,
+              "mean_demeaned": 0.591,
+              "hit_rate_demeaned": 50.2
             },
             {
               "label": "보유 (40~60)",
@@ -185,7 +209,9 @@
               "mean_excess": 2.316,
               "median_excess": 1.478,
               "hit_rate": 55.4,
-              "mean_raw": 5.002
+              "mean_raw": 5.002,
+              "mean_demeaned": 0.365,
+              "hit_rate_demeaned": 48.9
             },
             {
               "label": "매수 (60~75)",
@@ -193,7 +219,9 @@
               "mean_excess": 1.35,
               "median_excess": 0.6,
               "hit_rate": 52.2,
-              "mean_raw": 4.079
+              "mean_raw": 4.079,
+              "mean_demeaned": -0.402,
+              "hit_rate_demeaned": 45.5
             },
             {
               "label": "적극매수 (75~100)",
@@ -201,7 +229,9 @@
               "mean_excess": 1.844,
               "median_excess": 0.722,
               "hit_rate": 51.8,
-              "mean_raw": 5.236
+              "mean_raw": 5.236,
+              "mean_demeaned": 0.145,
+              "hit_rate_demeaned": 46.1
             }
           ]
         }
@@ -310,6 +340,11 @@
           "n_dates": 421,
           "n_obs": 30447,
           "long_short": -0.57,
+          "universe_mean": 0.611,
+          "long_short_demeaned": -0.447,
+          "breakeven_cost": -0.2236,
+          "annual_long_short_gross": -5.63,
+          "annual_long_short_net_5bp": -6.89,
           "monotonicity": -1.0,
           "significant": true,
           "buckets": [
@@ -319,7 +354,9 @@
               "mean_excess": 0.951,
               "median_excess": 0.62,
               "hit_rate": 54.3,
-              "mean_raw": 1.812
+              "mean_raw": 1.813,
+              "mean_demeaned": 0.267,
+              "hit_rate_demeaned": 49.6
             },
             {
               "label": "매도 (25~40)",
@@ -327,7 +364,9 @@
               "mean_excess": 0.666,
               "median_excess": 0.223,
               "hit_rate": 51.6,
-              "mean_raw": 1.681
+              "mean_raw": 1.681,
+              "mean_demeaned": 0.044,
+              "hit_rate_demeaned": 47.8
             },
             {
               "label": "보유 (40~60)",
@@ -335,7 +374,9 @@
               "mean_excess": null,
               "median_excess": null,
               "hit_rate": null,
-              "mean_raw": null
+              "mean_raw": null,
+              "mean_demeaned": null,
+              "hit_rate_demeaned": null
             },
             {
               "label": "매수 (60~75)",
@@ -343,7 +384,9 @@
               "mean_excess": 0.608,
               "median_excess": 0.356,
               "hit_rate": 52.5,
-              "mean_raw": 1.526
+              "mean_raw": 1.526,
+              "mean_demeaned": -0.005,
+              "hit_rate_demeaned": 48.3
             },
             {
               "label": "적극매수 (75~100)",
@@ -351,7 +394,9 @@
               "mean_excess": 0.381,
               "median_excess": -0.087,
               "hit_rate": 49.3,
-              "mean_raw": 1.277
+              "mean_raw": 1.277,
+              "mean_demeaned": -0.18,
+              "hit_rate_demeaned": 45.8
             }
           ]
         },
@@ -362,6 +407,11 @@
           "n_dates": 139,
           "n_obs": 10051,
           "long_short": -1.056,
+          "universe_mean": 1.845,
+          "long_short_demeaned": -0.832,
+          "breakeven_cost": -0.4161,
+          "annual_long_short_gross": -3.49,
+          "annual_long_short_net_5bp": -3.91,
           "monotonicity": -1.0,
           "significant": true,
           "buckets": [
@@ -371,7 +421,9 @@
               "mean_excess": 2.526,
               "median_excess": 1.831,
               "hit_rate": 55.8,
-              "mean_raw": 5.31
+              "mean_raw": 5.31,
+              "mean_demeaned": 0.559,
+              "hit_rate_demeaned": 51.0
             },
             {
               "label": "매도 (25~40)",
@@ -379,7 +431,9 @@
               "mean_excess": 2.417,
               "median_excess": 1.552,
               "hit_rate": 55.6,
-              "mean_raw": 5.006
+              "mean_raw": 5.006,
+              "mean_demeaned": 0.431,
+              "hit_rate_demeaned": 48.5
             },
             {
               "label": "보유 (40~60)",
@@ -387,7 +441,9 @@
               "mean_excess": null,
               "median_excess": null,
               "hit_rate": null,
-              "mean_raw": null
+              "mean_raw": null,
+              "mean_demeaned": null,
+              "hit_rate_demeaned": null
             },
             {
               "label": "매수 (60~75)",
@@ -395,7 +451,9 @@
               "mean_excess": 1.472,
               "median_excess": 0.69,
               "hit_rate": 52.6,
-              "mean_raw": 4.083
+              "mean_raw": 4.083,
+              "mean_demeaned": -0.31,
+              "hit_rate_demeaned": 46.4
             },
             {
               "label": "적극매수 (75~100)",
@@ -403,14 +461,16 @@
               "mean_excess": 1.47,
               "median_excess": 0.54,
               "hit_rate": 51.8,
-              "mean_raw": 4.597
+              "mean_raw": 4.597,
+              "mean_demeaned": -0.273,
+              "hit_rate_demeaned": 45.1
             }
           ]
         }
       }
     },
-    "역추세만": {
-      "score_name": "역추세만",
+    "역추세만 (현행 기본)": {
+      "score_name": "역추세만 (현행 기본)",
       "benchmark": "SPY",
       "symbols": [
         "AAPL",
@@ -512,6 +572,11 @@
           "n_dates": 421,
           "n_obs": 30447,
           "long_short": 0.343,
+          "universe_mean": 0.611,
+          "long_short_demeaned": 0.136,
+          "breakeven_cost": 0.068,
+          "annual_long_short_gross": 1.71,
+          "annual_long_short_net_5bp": 0.45,
           "monotonicity": 0.4,
           "significant": true,
           "buckets": [
@@ -521,7 +586,9 @@
               "mean_excess": 0.63,
               "median_excess": -0.029,
               "hit_rate": 49.7,
-              "mean_raw": 1.231
+              "mean_raw": 1.231,
+              "mean_demeaned": 0.171,
+              "hit_rate_demeaned": 46.5
             },
             {
               "label": "매도 (25~40)",
@@ -529,7 +596,9 @@
               "mean_excess": 0.29,
               "median_excess": -0.077,
               "hit_rate": 49.4,
-              "mean_raw": 1.214
+              "mean_raw": 1.214,
+              "mean_demeaned": -0.267,
+              "hit_rate_demeaned": 45.8
             },
             {
               "label": "보유 (40~60)",
@@ -537,7 +606,9 @@
               "mean_excess": 0.608,
               "median_excess": 0.305,
               "hit_rate": 52.1,
-              "mean_raw": 1.548
+              "mean_raw": 1.548,
+              "mean_demeaned": -0.027,
+              "hit_rate_demeaned": 48.0
             },
             {
               "label": "매수 (60~75)",
@@ -545,7 +616,9 @@
               "mean_excess": null,
               "median_excess": null,
               "hit_rate": null,
-              "mean_raw": null
+              "mean_raw": null,
+              "mean_demeaned": null,
+              "hit_rate_demeaned": null
             },
             {
               "label": "적극매수 (75~100)",
@@ -553,7 +626,9 @@
               "mean_excess": 0.973,
               "median_excess": 0.511,
               "hit_rate": 53.7,
-              "mean_raw": 1.992
+              "mean_raw": 1.992,
+              "mean_demeaned": 0.307,
+              "hit_rate_demeaned": 49.4
             }
           ]
         },
@@ -564,6 +639,11 @@
           "n_dates": 139,
           "n_obs": 10051,
           "long_short": -0.17,
+          "universe_mean": 1.845,
+          "long_short_demeaned": -0.392,
+          "breakeven_cost": -0.1962,
+          "annual_long_short_gross": -1.65,
+          "annual_long_short_net_5bp": -2.07,
           "monotonicity": -0.2,
           "significant": false,
           "buckets": [
@@ -573,7 +653,9 @@
               "mean_excess": 2.543,
               "median_excess": 1.08,
               "hit_rate": 53.7,
-              "mean_raw": 5.159
+              "mean_raw": 5.159,
+              "mean_demeaned": 0.908,
+              "hit_rate_demeaned": 47.1
             },
             {
               "label": "매도 (25~40)",
@@ -581,7 +663,9 @@
               "mean_excess": 1.01,
               "median_excess": 0.344,
               "hit_rate": 51.4,
-              "mean_raw": 4.075
+              "mean_raw": 4.075,
+              "mean_demeaned": -0.852,
+              "hit_rate_demeaned": 44.8
             },
             {
               "label": "보유 (40~60)",
@@ -589,7 +673,9 @@
               "mean_excess": 1.886,
               "median_excess": 1.011,
               "hit_rate": 53.6,
-              "mean_raw": 4.614
+              "mean_raw": 4.614,
+              "mean_demeaned": 0.025,
+              "hit_rate_demeaned": 47.2
             },
             {
               "label": "매수 (60~75)",
@@ -597,7 +683,9 @@
               "mean_excess": null,
               "median_excess": null,
               "hit_rate": null,
-              "mean_raw": null
+              "mean_raw": null,
+              "mean_demeaned": null,
+              "hit_rate_demeaned": null
             },
             {
               "label": "적극매수 (75~100)",
@@ -605,7 +693,9 @@
               "mean_excess": 2.373,
               "median_excess": 1.861,
               "hit_rate": 55.7,
-              "mean_raw": 5.058
+              "mean_raw": 5.058,
+              "mean_demeaned": 0.515,
+              "hit_rate_demeaned": 50.2
             }
           ]
         }

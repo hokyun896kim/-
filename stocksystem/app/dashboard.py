@@ -36,7 +36,8 @@ from stocksystem.analysis import factors as fct
 from stocksystem.analysis import montecarlo as mcarlo
 from stocksystem.analysis import hegemony as hg
 from stocksystem.analysis import earlybird as eb
-from stocksystem.analysis.scoring import RECO_LABELS, apply_sector_neutral
+from stocksystem.analysis.scoring import (BULLISH_KEYS, RECO_LABELS,
+                                          apply_sector_neutral)
 from stocksystem.backtest import STRATEGIES, run_backtest
 from stocksystem.portfolio.analytics import analyze_portfolio
 from stocksystem.portfolio import (
@@ -612,7 +613,7 @@ if page == "📊 스크리너":
         df = df.sort_values(
             sort_by if sort_by in df else "종합점수", ascending=False)
         display_cols = ["종목", "이름", "섹터", "현재가", "종합점수",
-                        "기술점수", "펀더멘털점수", "추천"]
+                        "기술점수", "펀더멘털점수", "등급"]
         df = df[[c for c in display_cols if c in df.columns]]
 
         def color_reco(val):
@@ -622,7 +623,7 @@ if page == "📊 스크리너":
             return ""
 
         styled = (df.style
-                  .map(color_reco, subset=["추천"])
+                  .map(color_reco, subset=["등급"])
                   .map(score_bg, subset=[c for c in
                        ["종합점수", "기술점수", "펀더멘털점수"] if c in df])
                   .format({"현재가": fmt("${:.2f}"), "종합점수": fmt("{:.0f}"),
@@ -633,11 +634,17 @@ if page == "📊 스크리너":
         m = st.columns(3)
         valid = pd.to_numeric(df["종합점수"], errors="coerce")
         m[0].metric("평균 종합점수", f"{valid.mean():.0f}")
-        buys = df["추천"].isin(["적극 매수", "매수"]).sum()
-        m[1].metric("매수 추천", f"{buys} / {len(df)}")
+        bullish_labels = [RECO_LABELS[k] for k in BULLISH_KEYS]
+        buys = df["등급"].isin(bullish_labels).sum() if "등급" in df else 0
+        m[1].metric("상위권 등급", f"{buys} / {len(df)}")
         m[2].metric("최고 점수 종목",
                     df.loc[valid.idxmax(), "종목"]
                     if valid.notna().any() else "—")
+        st.caption(
+            "⚠️ 이 랭킹은 **매매 추천이 아닙니다.** 검증 결과 종합점수는 "
+            "미래 수익률을 예측하지 못했습니다 (IC −0.016, 다중검정 보정 후 "
+            "유의성 없음). 후보를 좁히는 필터로만 쓰고, 매수 근거로 삼지 "
+            "마세요. → 🔬 검증 화면")
 
 # ============================ 탭 2: 종목 상세 ============================
 if page == "🔍 종목 상세":
@@ -674,17 +681,26 @@ if page == "🔍 종목 상세":
 
         key = res.recommendation
         st.markdown(
-            f"<div style='padding:16px;border-radius:14px;"
-            f"background:{RECO_COLOR[key]};color:white;font-size:24px;"
-            f"text-align:center;margin:10px 0;letter-spacing:.3px;"
+            f"<div style='padding:14px 16px;border-radius:14px;"
+            f"background:{RECO_COLOR[key]};color:white;font-size:22px;"
+            f"text-align:center;margin:10px 0 4px;letter-spacing:.3px;"
             f"box-shadow:0 2px 8px rgba(16,24,40,.15);'>"
-            f"<b>추천: {res.recommendation_label}</b>"
-            f"<span style='font-size:17px;opacity:.92;'>"
-            f"&nbsp;&nbsp;· 종합 {res.total_score:.0f}점</span></div>",
+            f"<span style='font-size:14px;opacity:.85;'>종합점수 구간</span>"
+            f"<br><b>{res.recommendation_label}</b>"
+            f"<span style='font-size:16px;opacity:.92;'>"
+            f"&nbsp;&nbsp;· {res.total_score:.0f}점</span></div>",
             unsafe_allow_html=True)
+        st.caption(
+            "⚠️ 이 등급은 **매매 추천이 아니라 점수 구간에서의 위치**입니다. "
+            "과거 데이터로 측정한 결과 이 점수는 미래 수익률을 예측하지 "
+            "못했습니다 (IC −0.016, 다중검정 보정 후 유의성 없음). "
+            "기술 점수는 기본 설정에서 **과매수·과매도 성분만** 씁니다 — "
+            "추세 성분은 검증에서 예측 방향이 반대로 나와 제외했습니다. "
+            "→ 🔬 검증 화면")
 
         if res.reasons:
-            with st.expander("📌 이렇게 판단했어요 (근거)", expanded=True):
+            with st.expander("📌 점수 근거 (예측이 아니라 현재 지표 요약)",
+                             expanded=True):
                 for r in res.reasons:
                     st.write("•", r)
 
@@ -1346,14 +1362,18 @@ if page == "🔬 검증":
         "이 탭은 그 규칙이 실제로 미래 수익률을 예측했는지를 과거 데이터로 "
         "측정한 결과만 보여줍니다.\n\n"
         "**IC(순위상관)** = 점수 순위와 이후 수익률 순위가 얼마나 맞았나 "
-        "(0이면 무작위). **t값** |t|≥2 면 통계적으로 유의. "
-        "**롱숏** = 최상위 구간 − 최하위 구간 초과수익률.")
+        "(0이면 무작위). **t값** |t|≥2 면 유의(다중검정 보정 전). "
+        "**롱숏(보정)** = 최상위 − 최하위 구간, 날짜별 유니버스 평균을 뺀 값. "
+        "**연환산순** = 왕복 5bp 거래비용 차감 후 연 수익률.\n\n"
+        "⚠️ `universe.csv` 는 **현재** 시총 상위 종목이라 통째로 지수를 "
+        "이깁니다(실측 연 +7.7%). 그 몫을 빼야 점수의 순수 기여분이 보입니다 — "
+        "'편향제거' 열이 그것입니다.")
 
     VAL_PATH = ROOT / "data" / "validation.json"
     if not VAL_PATH.exists():
         st.warning(
             "아직 검증 결과가 없습니다. 이 앱의 점수는 **예측력이 확인되지 "
-            "않은 상태**이며, 스크리너 랭킹과 '적극 매수' 배너를 매매 근거로 "
+            "않은 상태**이며, 스크리너 랭킹과 종목상세 등급을 매매 근거로 "
             "쓰면 안 됩니다.")
         st.markdown(
             "**검증을 돌리는 방법** (Yahoo 접속이 되는 환경에서):\n"
@@ -1402,7 +1422,9 @@ if page == "🔬 검증":
                         "점수": name,
                         "IC": hr.get("ic_mean"),
                         "t값": hr.get("ic_t"),
-                        "롱숏(%p)": hr.get("long_short"),
+                        "롱숏(보정)": hr.get("long_short_demeaned",
+                                          hr.get("long_short")),
+                        "연환산순(%)": hr.get("annual_long_short_net_5bp"),
                         "단조성": hr.get("monotonicity"),
                         "유의": "✓" if hr.get("significant") else "✗",
                         "관측일": hr.get("n_dates"),
@@ -1411,9 +1433,10 @@ if page == "🔬 검증":
                     vdf = pd.DataFrame(rows)
                     st.dataframe(
                         vdf.style
-                        .map(score_bg_pp, subset=["롱숏(%p)"])
+                        .map(score_bg_pp, subset=["롱숏(보정)", "연환산순(%)"])
                         .format({"IC": fmt("{:+.4f}"), "t값": fmt("{:+.2f}"),
-                                 "롱숏(%p)": fmt("{:+.2f}"),
+                                 "롱숏(보정)": fmt("{:+.3f}"),
+                                 "연환산순(%)": fmt("{:+.2f}"),
                                  "단조성": fmt("{:+.2f}")}),
                         width='stretch', hide_index=True)
 
@@ -1426,33 +1449,32 @@ if page == "🔬 검증":
                         "점수 구간": b["label"],
                         "표본": b["n"],
                         "평균 초과수익": b["mean_excess"],
-                        "중앙 초과수익": b["median_excess"],
+                        "편향제거": b.get("mean_demeaned"),
                         "승률(%)": b["hit_rate"],
                         "절대수익": b["mean_raw"],
                     } for b in hr.get("buckets", [])]
                     bdf = pd.DataFrame(brows)
                     st.dataframe(
                         bdf.style
-                        .map(score_bg_pp, subset=["평균 초과수익",
-                                                  "중앙 초과수익"])
+                        .map(score_bg_pp, subset=["평균 초과수익", "편향제거"])
                         .format({"평균 초과수익": fmt("{:+.2f}%"),
-                                 "중앙 초과수익": fmt("{:+.2f}%"),
+                                 "편향제거": fmt("{:+.2f}%"),
                                  "승률(%)": fmt("{:.0f}"),
                                  "절대수익": fmt("{:+.2f}%")}),
                         width='stretch', hide_index=True)
 
                     bar = go.Figure(go.Bar(
                         x=[b["label"] for b in hr["buckets"]],
-                        y=[b["mean_excess"] for b in hr["buckets"]],
+                        y=[b.get("mean_demeaned") for b in hr["buckets"]],
                         marker_color=[
-                            C_UP if (b["mean_excess"] or 0) >= 0 else C_DOWN
-                            for b in hr["buckets"]]))
+                            C_UP if (b.get("mean_demeaned") or 0) >= 0
+                            else C_DOWN for b in hr["buckets"]]))
                     bar.update_layout(
                         height=320, paper_bgcolor=C_PANEL,
                         plot_bgcolor=C_PANEL,
                         margin=dict(l=10, r=10, t=40, b=10),
-                        title=f"{sel_score} — 향후 {pick}거래일 평균 초과수익률"
-                              f" (왼쪽이 낮은 점수)")
+                        title=f"{sel_score} — 향후 {pick}거래일 초과수익률"
+                              f" (유니버스 편향 제거, 왼쪽이 낮은 점수)")
                     st.plotly_chart(bar, width='stretch')
 
                     st.markdown(f"**판정:** {results[sel_score].get('verdict')}")

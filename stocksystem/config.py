@@ -27,6 +27,15 @@ class TechnicalConfig:
     macd_signal: int = 9
     bb_period: int = 20
     bb_std: float = 2.0
+    # 기술 점수에서 추세추종 성분(SMA교차·가격위치·MACD)에 줄 가중치.
+    #
+    # 0.0 이 기본값이다. 검증 결과 추세추종 성분은 **예측 방향이 반대**였다 —
+    # 80종목 전 기간에서 단조성 -1.00(다섯 구간이 완벽한 역순), IC t=-3.04
+    # (다중검정 보정 통과), 유니버스 편향 제거 후 연 -6.89%. 20일·60일
+    # 양쪽에서 일관됐다. 근거: data/validation.json, 대시보드 🔬 검증 화면.
+    #
+    # 1.0 = 순수 추세추종, 0.5 = 다섯 신호 균등평균(옛 기본값).
+    trend_weight: float = 0.0
 
 
 @dataclass

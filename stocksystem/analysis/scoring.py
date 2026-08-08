@@ -13,14 +13,27 @@ from . import fundamental as fa
 from . import sentiment as se
 from . import technical as ta
 
-# 추천 라벨 (한글/영문)
+# 등급 라벨.
+#
+# 예전에는 "적극 매수 / 매수 / 보유 / 매도 / 적극 매도" 였다. 이벤트 스터디로
+# 측정해보니 이 점수는 **미래 수익률을 예측하지 못한다** — 80종목 전 기간에서
+# IC -0.016, 다중검정 보정 후 유의성 없음 (data/validation.json).
+# 매매 지시처럼 읽히는 라벨은 근거보다 강한 주장이라, 지금 지표가 어떤 상태인지
+# 서술하는 말로 바꿨다. 키(strong_buy 등)는 하위호환을 위해 유지한다.
+# 방향을 가리키는 말(강세/약세)도 쓰지 않는다. trend_weight=0 이 기본이라
+# 기술 점수는 사실상 과매수·과매도 게이지인데, 여기에 펀더멘털이 절반 섞인다.
+# 그 합성물을 "강세"라고 부르면 급락 중인 우량주가 "강세"로 표시된다.
+# 점수 구간에서의 위치만 말하는 것이 지금 근거로 할 수 있는 전부다.
 RECO_LABELS = {
-    "strong_buy": "적극 매수",
-    "buy": "매수",
-    "hold": "보유",
-    "sell": "매도",
-    "strong_sell": "적극 매도",
+    "strong_buy": "상위",
+    "buy": "중상",
+    "hold": "중립",
+    "sell": "중하",
+    "strong_sell": "하위",
 }
+
+# 상위권으로 분류되는 등급 (스크리너 요약용). 라벨 문자열을 하드코딩하지 말 것.
+BULLISH_KEYS = ("strong_buy", "buy")
 
 
 @dataclass
@@ -53,7 +66,7 @@ class StockAnalysis:
             "종합점수": self.total_score,
             "기술점수": tech,
             "펀더멘털점수": fund,
-            "추천": self.recommendation_label,
+            "등급": self.recommendation_label,
         }
         if self.news is not None:
             row["뉴스분위기"] = self.news.score

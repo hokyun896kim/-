@@ -35,6 +35,7 @@ import numpy as np
 import pandas as pd
 
 from ..analysis import technical as ta
+from ..backtest.engine import TRADING_DAYS
 from ..config import Config
 from ..data.base import DataProvider
 
@@ -49,10 +50,17 @@ DEFAULT_BANDS = [
 ]
 
 # 검증 대상 점수들. 추세/역추세를 따로 재야 어느 쪽이 수익을 냈는지 알 수 있다.
+#
+# "현행 설정"(cfg.trend_weight 를 그대로 쓰는 점수)을 따로 두지 않는 이유:
+# 기본값이 trend_weight=0.0 이라 그 점수는 '역추세만' 과 **완전히 동일**하다.
+# 같은 계열을 두 번 넣으면 비교표에 중복 행이 생기고, 다중검정 가설 수만 늘어
+# Bonferroni 임계값이 불필요하게 엄격해진다(3개면 2.39, 4개면 2.50).
+# 대신 옛 기본값(균등평균)을 넣어 "무엇을 왜 뺐는지" 가 표에서 바로 보이게 한다.
 SCORERS = {
-    "종합기술점수(현행)": lambda ind, cfg: ta.score_series(ind, cfg),
+    "균등평균(옛 기본)": lambda ind, cfg: ta.score_series(ind, cfg,
+                                                     trend_weight=None),
     "추세추종만": lambda ind, cfg: ta.trend_score_series(ind, cfg),
-    "역추세만": lambda ind, cfg: ta.reversion_score_series(ind, cfg),
+    "역추세만 (현행 기본)": lambda ind, cfg: ta.reversion_score_series(ind, cfg),
 }
 
 
@@ -104,6 +112,8 @@ class BucketStat:
     median_excess: float
     hit_rate: float            # 초과수익 > 0 비율 (%)
     mean_raw: float            # 벤치마크 차감 전 평균 수익률 (%)
+    mean_demeaned: float = float("nan")   # 유니버스 편향 제거 후 (%)
+    hit_rate_demeaned: float = float("nan")
 
 
 @dataclass
@@ -117,11 +127,46 @@ class HorizonResult:
     n_obs: int                 # 전체 종목-일 관측치
     long_short: float          # 최상위 구간 − 최하위 구간 (%p)
     monotonicity: float        # 구간이 순서대로 우상향하는가 (-1~1)
+    universe_mean: float = float("nan")   # 유니버스 전체 평균 초과수익 (%)
+    # 날짜별 편향제거 후의 롱숏. 이쪽이 더 정확하다 — 추세 점수는 상승장에
+    # 최상위 구간이, 하락장에 최하위 구간이 몰린다. 원시 스프레드는 "신호의
+    # 힘"과 "구간이 채워지는 시점의 시장 상황"을 섞어버린다.
+    long_short_demeaned: float = float("nan")
 
     @property
     def significant(self) -> bool:
         """|t| >= 2 를 통상적인 유의 기준으로 본다."""
         return self.ic_t == self.ic_t and abs(self.ic_t) >= 2.0
+
+    @property
+    def periods_per_year(self) -> float:
+        return TRADING_DAYS / self.horizon if self.horizon else float("nan")
+
+    @property
+    def spread(self) -> float:
+        """수익 계산에 쓸 스프레드. 편향제거 값이 있으면 그쪽을 쓴다."""
+        if self.long_short_demeaned == self.long_short_demeaned:
+            return self.long_short_demeaned
+        return self.long_short
+
+    def annualized_long_short(self, round_trip_cost: float = 0.0) -> float:
+        """롱숏 스프레드의 연 환산 수익률(%). round_trip_cost 는 편도가 아닌 왕복(%).
+
+        롱·숏 두 다리를 매 리밸런싱마다 갈아탄다고 보고 비용을 2배로 문다.
+        공매도 차입비용은 포함하지 않는다 — 실제로는 더 나쁘다.
+        """
+        s = self.spread
+        if s != s:
+            return float("nan")
+        return (s - 2 * round_trip_cost) * self.periods_per_year
+
+    @property
+    def breakeven_cost(self) -> float:
+        """롱숏이 본전이 되는 왕복 거래비용(%). 이보다 비싸면 남는 게 없다."""
+        s = self.spread
+        if s != s:
+            return float("nan")
+        return s / 2.0
 
 
 @dataclass
@@ -177,6 +222,19 @@ class EventStudyResult:
                     "n_obs": r.n_obs,
                     "long_short": None if r.long_short != r.long_short
                     else round(r.long_short, 3),
+                    "universe_mean": None if r.universe_mean != r.universe_mean
+                    else round(r.universe_mean, 3),
+                    "long_short_demeaned": None
+                    if r.long_short_demeaned != r.long_short_demeaned
+                    else round(r.long_short_demeaned, 3),
+                    "breakeven_cost": None if r.breakeven_cost != r.breakeven_cost
+                    else round(r.breakeven_cost, 4),
+                    "annual_long_short_gross": None
+                    if r.annualized_long_short() != r.annualized_long_short()
+                    else round(r.annualized_long_short(), 2),
+                    "annual_long_short_net_5bp": None
+                    if r.annualized_long_short(0.05) != r.annualized_long_short(0.05)
+                    else round(r.annualized_long_short(0.05), 2),
                     "monotonicity": None if r.monotonicity != r.monotonicity
                     else round(r.monotonicity, 3),
                     "significant": r.significant,
@@ -189,7 +247,13 @@ class EventStudyResult:
                          "hit_rate": None if b.hit_rate != b.hit_rate
                          else round(b.hit_rate, 1),
                          "mean_raw": None if b.mean_raw != b.mean_raw
-                         else round(b.mean_raw, 3)}
+                         else round(b.mean_raw, 3),
+                         "mean_demeaned": None
+                         if b.mean_demeaned != b.mean_demeaned
+                         else round(b.mean_demeaned, 3),
+                         "hit_rate_demeaned": None
+                         if b.hit_rate_demeaned != b.hit_rate_demeaned
+                         else round(b.hit_rate_demeaned, 1)}
                         for b in r.buckets
                     ],
                 }
@@ -210,15 +274,17 @@ class EventStudyResult:
             r = self.horizons[h]
             L.append(f"── 향후 {h}거래일 " + "─" * 56)
             L.append(f"{'점수 구간':<20}{'표본':>7}{'평균초과':>10}"
-                     f"{'중앙초과':>10}{'승률':>8}{'절대수익':>10}")
+                     f"{'편향제거':>10}{'승률':>8}{'절대수익':>10}")
             L.append("─" * 74)
             for b in r.buckets:
                 if b.n == 0:
                     L.append(f"{b.label:<20}{0:>7}{'—':>10}{'—':>10}"
                              f"{'—':>8}{'—':>10}")
                     continue
+                dm = ("—" if b.mean_demeaned != b.mean_demeaned
+                      else f"{b.mean_demeaned:+.2f}%")
                 L.append(f"{b.label:<20}{b.n:>7}{b.mean_excess:>+9.2f}%"
-                         f"{b.median_excess:>+9.2f}%{b.hit_rate:>7.0f}%"
+                         f"{dm:>10}{b.hit_rate:>7.0f}%"
                          f"{b.mean_raw:>+9.2f}%")
             L.append("─" * 74)
             ic_s = "—" if r.ic_mean != r.ic_mean else f"{r.ic_mean:+.4f}"
@@ -231,6 +297,19 @@ class EventStudyResult:
                      f"단조성 {mono_s}   롱숏 {ls_s}")
             L.append(f"  독립 관측일 {r.n_dates}일 · 전체 관측치 {r.n_obs}개 · "
                      f"유의성 {'있음 ✓' if r.significant else '없음 ✗'}")
+            um = ("—" if r.universe_mean != r.universe_mean
+                  else f"{r.universe_mean:+.2f}%")
+            L.append(f"  유니버스 평균 초과수익 {um} — '편향제거' 열은 여기서 뺀 값. "
+                     f"점수의 순수 기여분입니다.")
+            if r.long_short_demeaned == r.long_short_demeaned:
+                L.append(f"  롱숏 스프레드 원시 {r.long_short:+.3f}%p · "
+                         f"편향제거 {r.long_short_demeaned:+.3f}%p "
+                         f"(구간이 채워지는 시점 차이를 보정)")
+            if r.breakeven_cost == r.breakeven_cost:
+                L.append(f"  연환산 {r.annualized_long_short():+.2f}% (비용 전) · "
+                         f"왕복 5bp 차감 {r.annualized_long_short(0.05):+.2f}% · "
+                         f"손익분기 왕복비용 {r.breakeven_cost:.3f}% "
+                         f"(공매도 차입비용 미포함)")
             L.append("")
         L.append("판정: " + self.verdict())
         if self.warnings:
@@ -312,14 +391,30 @@ def forward_raw(close: pd.DataFrame, horizon: int) -> pd.DataFrame:
     return (close.shift(-horizon) / close - 1.0) * 100.0
 
 
+def demean_cross_section(excess: pd.DataFrame) -> pd.DataFrame:
+    """날짜별로 유니버스 평균을 빼 유니버스 편향을 제거한다.
+
+    왜 필요한가: universe.csv 는 **현재** 시총 상위 종목들이다. 그렇게
+    커진 기업만 모아둔 집합이라 벤치마크(SPY)를 이기는 게 당연하다.
+    실측에서 점수와 무관하게 유니버스 평균이 연 +7.7% 를 기록했고, 그
+    결과 최하위 점수 구간까지 초과수익이 플러스로 나왔다.
+
+    그 상태로는 "점수가 높으면 수익이 난다"와 "이 종목들이 원래 잘 나간다"를
+    구분할 수 없다. 날짜별 횡단면 평균을 빼면 남는 것이 점수의 순수 기여분이다.
+    (IC 와 롱숏 스프레드는 애초에 횡단면 상대 비교라 이 편향에 영향받지 않는다.)
+    """
+    return excess.sub(excess.mean(axis=1), axis=0)
+
+
 # ----------------------------- 실행 -----------------------------
 def _bucketize(scores: pd.Series, excess: pd.Series, raw: pd.Series,
-               bands) -> list[BucketStat]:
+               bands, demeaned: pd.Series | None = None) -> list[BucketStat]:
     out = []
     for label, lo, hi in bands:
         m = (scores >= lo) & (scores < hi)
         e = excess[m].dropna()
         r = raw[m].dropna()
+        d = demeaned[m].dropna() if demeaned is not None else pd.Series(dtype=float)
         if len(e) == 0:
             out.append(BucketStat(label, lo, hi, 0, float("nan"),
                                   float("nan"), float("nan"), float("nan")))
@@ -330,6 +425,9 @@ def _bucketize(scores: pd.Series, excess: pd.Series, raw: pd.Series,
             median_excess=float(e.median()),
             hit_rate=float((e > 0).mean() * 100),
             mean_raw=float(r.mean()) if len(r) else float("nan"),
+            mean_demeaned=float(d.mean()) if len(d) else float("nan"),
+            hit_rate_demeaned=(float((d > 0).mean() * 100) if len(d)
+                               else float("nan")),
         ))
     return out
 
@@ -365,13 +463,15 @@ def analyze_panel(panel, score_name: str, *, horizons=(20, 60),
         s_s = scores.loc[idx]
         e_s = excess.loc[idx]
         r_s = raw.loc[idx]
+        d_s = demean_cross_section(e_s)   # 유니버스 편향 제거
 
-        # 세 프레임은 같은 index/columns 라 ravel 하면 (날짜,종목) 순서가 맞는다.
+        # 네 프레임은 같은 index/columns 라 ravel 하면 (날짜,종목) 순서가 맞는다.
         # (stack() 은 pandas 버전마다 NA 처리가 달라 쓰지 않는다)
         flat_s = pd.Series(s_s.to_numpy(dtype=float).ravel())
         flat_e = pd.Series(e_s.to_numpy(dtype=float).ravel())
         flat_r = pd.Series(r_s.to_numpy(dtype=float).ravel())
-        buckets = _bucketize(flat_s, flat_e, flat_r, bands)
+        flat_d = pd.Series(d_s.to_numpy(dtype=float).ravel())
+        buckets = _bucketize(flat_s, flat_e, flat_r, bands, demeaned=flat_d)
 
         # 날짜별 횡단면 IC
         ics = []
@@ -391,10 +491,16 @@ def analyze_panel(panel, score_name: str, *, horizons=(20, 60),
         filled = [b for b in buckets if b.n > 0]
         long_short = (filled[-1].mean_excess - filled[0].mean_excess
                       if len(filled) >= 2 else float("nan"))
+        long_short_dm = (filled[-1].mean_demeaned - filled[0].mean_demeaned
+                         if len(filled) >= 2 else float("nan"))
+
+        uni_mean = float(np.nanmean(e_s.to_numpy(dtype=float))) \
+            if e_s.notna().to_numpy().any() else float("nan")
 
         res.horizons[h] = HorizonResult(
             horizon=h, buckets=buckets, ic_mean=ic_mean, ic_std=ic_std,
-            ic_t=ic_t, n_dates=len(ic_arr),
+            ic_t=ic_t, n_dates=len(ic_arr), universe_mean=uni_mean,
+            long_short_demeaned=long_short_dm,
             n_obs=int(e_s.notna().to_numpy().sum()),
             long_short=long_short,
             monotonicity=_monotonicity([b.mean_excess for b in buckets]))
@@ -417,7 +523,7 @@ def analyze_panel(panel, score_name: str, *, horizons=(20, 60),
 
 
 def run_event_study(symbols, provider: DataProvider, cfg: Config, *,
-                    score_name: str = "종합기술점수(현행)",
+                    score_name: str = "역추세만 (현행 기본)",
                     horizons=(20, 60), period: str = "5y",
                     benchmark: str = "SPY", bands=None,
                     stride: int | None = None,

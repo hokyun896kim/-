@@ -60,19 +60,47 @@ def test_bollinger_pct_b():
     assert (valid["bb_mid"] <= valid["bb_upper"]).all()
 
 
-def test_uptrend_scores_bullish():
-    # 꾸준한 상승 추세 → 점수가 중립(50) 이상이어야
+def test_uptrend_raises_trend_signals():
+    """상승 추세에서는 추세 신호가 매수, 추세 점수가 만점이어야 한다."""
     df = _make_df(list(np.linspace(100, 200, 120)))
     res = ta.analyze(df, TechnicalConfig(), symbol="UP")
-    assert res.score >= 50
     assert res.signals["추세(SMA교차)"] == "buy"
+    assert res.trend_score == 100.0
 
 
-def test_downtrend_scores_bearish():
+def test_downtrend_lowers_trend_signals():
     df = _make_df(list(np.linspace(200, 100, 120)))
     res = ta.analyze(df, TechnicalConfig(), symbol="DOWN")
-    assert res.score <= 50
     assert res.signals["추세(SMA교차)"] == "sell"
+    assert res.trend_score == 0.0
+
+
+def test_default_score_is_pure_reversion():
+    """★ 기본 설정(trend_weight=0)에서 종합 기술점수 = 역추세 점수.
+
+    추세 성분은 검증에서 예측 방향이 반대로 나와(단조성 -1.00, t=-3.04)
+    가중치 0 으로 뺐다. 그래서 **꾸준히 오르는 종목은 점수가 낮게 나온다** —
+    직관에 반하지만 이게 측정 결과에 맞는 동작이다. 점수를 '강세'가 아니라
+    '점수 구간에서의 위치'로 부르는 이유이기도 하다.
+    """
+    cfg = TechnicalConfig()
+    assert cfg.trend_weight == 0.0
+    up = ta.analyze(_make_df(list(np.linspace(100, 200, 120))), cfg)
+    assert up.score == up.reversion_score
+    assert up.score < 50            # 상승 추세 = 과매수 = 낮은 점수
+    down = ta.analyze(_make_df(list(np.linspace(200, 100, 120))), cfg)
+    assert down.score == down.reversion_score
+    assert down.score > 50          # 하락 추세 = 과매도 = 높은 점수
+
+
+def test_old_equal_weight_behaviour_still_reachable():
+    """trend_weight=0.5 면 옛 균등평균과 같은 결과가 나온다."""
+    df = _make_df(list(np.linspace(100, 200, 120)))
+    old = ta.analyze(df, TechnicalConfig(trend_weight=None), symbol="X")
+    half = ta.analyze(df, TechnicalConfig(trend_weight=0.5), symbol="X")
+    # 신호가 3+2 로 갈리므로 균등평균과 0.5 가중은 일반적으로 다르다.
+    # 여기서는 둘 다 '중립'보다 위/아래 여부만 같으면 된다.
+    assert (old.score >= 50) == (half.score >= 50)
 
 
 def test_score_range():

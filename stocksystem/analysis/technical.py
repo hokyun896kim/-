@@ -99,13 +99,37 @@ def compute_indicators(df: pd.DataFrame, cfg: TechnicalConfig) -> pd.DataFrame:
     return out
 
 
+_SIGNAL_VALUE = {"buy": 1.0, "neutral": 0.5, "sell": 0.0}
+
+
 def _score_from_signals(signals: dict[str, str]) -> float:
     """매수=1, 중립=0.5, 매도=0 평균을 0~100 으로 환산."""
-    mapping = {"buy": 1.0, "neutral": 0.5, "sell": 0.0}
-    vals = [mapping[s] for s in signals.values()]
+    vals = [_SIGNAL_VALUE[s] for s in signals.values()]
     if not vals:
         return 50.0
     return round(float(np.mean(vals)) * 100, 1)
+
+
+def _weighted_score_from_signals(signals: dict[str, str],
+                                 trend_weight: float | None) -> float:
+    """추세/역추세를 가중해 0~100 점수를 낸다.
+
+    trend_weight=None 이면 다섯 신호 균등평균(옛 동작).
+    가용한 쪽의 가중치만 남기고 재정규화하므로, 한쪽 신호가 아직 계산되지
+    않은 구간에서도 가중치 0 인 성분이 새어 들어오지 않는다.
+    """
+    if trend_weight is None:
+        return _score_from_signals(signals)
+    w = float(min(max(trend_weight, 0.0), 1.0))
+    tr = {k: v for k, v in signals.items() if k in TREND_SIGNALS}
+    rv = {k: v for k, v in signals.items() if k in REVERSION_SIGNALS}
+    wt = w if tr else 0.0
+    wr = (1.0 - w) if rv else 0.0
+    if wt + wr <= 0:
+        return 50.0
+    num = (_score_from_signals(tr) * wt if tr else 0.0) + \
+          (_score_from_signals(rv) * wr if rv else 0.0)
+    return round(num / (wt + wr), 1)
 
 
 def signal_frame(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.DataFrame:
@@ -157,16 +181,21 @@ def reversion_score_series(ind: pd.DataFrame, cfg: TechnicalConfig) -> pd.Series
     return _subset_score(signal_frame(ind, cfg), REVERSION_SIGNALS)
 
 
+_UNSET = object()
+
+
 def score_series(ind: pd.DataFrame, cfg: TechnicalConfig,
-                 trend_weight: float | None = None) -> pd.Series:
+                 trend_weight=_UNSET) -> pd.Series:
     """기간 전체에 대한 기술 종합점수(0~100) 시계열.
 
-    trend_weight=None (기본): 가용한 다섯 신호의 단순평균 — 기존 동작 그대로.
-    trend_weight=w  (0~1)   : 추세 w · 역추세 (1-w) 로 가중. w=1.0 이면 순수
-                              추세추종, w=0.0 이면 순수 역추세가 된다.
+    trend_weight 를 생략하면 cfg.trend_weight 를 쓴다 (기본 0.0 = 순수 역추세).
+    명시적으로 None 을 넘기면 다섯 신호 균등평균(옛 동작)이 된다.
+    w=1.0 이면 순수 추세추종.
 
-    analyze().score 와 마지막 값이 일치한다 (trend_weight=None 일 때).
+    analyze().score 와 마지막 값이 일치한다.
     """
+    if trend_weight is _UNSET:
+        trend_weight = getattr(cfg, "trend_weight", None)
     sf = signal_frame(ind, cfg)
     if trend_weight is None:
         return sf.mean(axis=1, skipna=True) * 100
@@ -227,7 +256,8 @@ def analyze(df: pd.DataFrame, cfg: TechnicalConfig,
         else:
             signals["볼린저"] = "neutral"
 
-    score = _score_from_signals(signals)
+    score = _weighted_score_from_signals(
+        signals, getattr(cfg, "trend_weight", None))
     trend_s = _score_from_signals(
         {k: v for k, v in signals.items() if k in TREND_SIGNALS}) \
         if any(k in signals for k in TREND_SIGNALS) else None

@@ -10,6 +10,10 @@ vaderSentiment>=3.3.2
 streamlit>=1.30
 plotly>=5.18
 
+# AI 비서 (선택) — 설치하지 않아도 규칙 기반 엔진으로 동작한다.
+#   pip install anthropic  +  export ANTHROPIC_API_KEY=...
+anthropic>=0.40
+
 # 설정/유틸
 PyYAML>=6.0
 

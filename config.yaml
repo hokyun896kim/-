@@ -67,3 +67,18 @@ recommendation:
 paper_trading:
   initial_cash: 100000   # 초기 자본 (USD)
   commission: 0.0        # 거래 수수료 (비율, 예: 0.001 = 0.1%)
+
+# AI 비서
+#
+# engine=auto 면 자격증명(ANTHROPIC_API_KEY 또는 `ant auth login` 프로필)이
+# 있을 때만 Claude 를 쓰고, 없으면 키워드 기반 규칙 엔진으로 내려간다.
+# 어느 쪽이든 숫자는 이 시스템의 분석 모듈이 만든다 — 비서가 지어내지 않는다.
+assistant:
+  engine: auto           # auto | claude | rules
+  model: claude-opus-5
+  max_tokens: 16000
+  max_turns: 6           # 한 질문에 허용할 도구 호출 라운드 수
+  # 무거운 계산은 파이썬 도구가 하고 모델은 결과를 설명만 하므로 medium.
+  # 더 촘촘한 추론이 필요하면 high 나 xhigh 로 올린다.
+  effort: medium         # low | medium | high | xhigh | max
+  thinking: adaptive     # adaptive | off  (구형 모델을 쓸 때만 off)

@@ -3,6 +3,7 @@
 실행:  streamlit run stocksystem/app/dashboard.py
 
 탭 구성:
+  0) AI 비서    — 자연어 질문을 분석 도구로 옮겨 실행 (첫 화면)
   1) 스크리너   — 시가총액 상위 기업을 종합점수로 필터/정렬
   2) 종목 상세  — 차트·점수·실적·이벤트·뉴스 분위기까지 한 화면에
   3) 모의매매   — 가상 자본으로 매수/매도 연습
@@ -44,6 +45,7 @@ from stocksystem.portfolio import (
     PaperBroker, InsufficientFundsError, InsufficientSharesError,
 )
 from stocksystem.portfolio.paper_broker import DEFAULT_STATE
+from stocksystem.assistant import Assistant
 
 st.set_page_config(page_title="미국주식 분석 시스템", layout="wide",
                    page_icon="📈")
@@ -471,8 +473,12 @@ render_ticker(cfg.watchlist, provider_name)
 # segmented_control 은 선택된 화면 하나만 렌더링하므로 첫 로드 비용이 그 화면
 # 몫으로 줄어든다. 대신 화면 전환 때 rerun 이 일어나지만, 데이터는 이미
 # @st.cache_data 에 있어 두 번째부터는 즉시 그려진다.
+#
+# 비서를 맨 앞(기본 화면)에 두는 이유도 같다: 비서 화면은 사용자가 질문하기
+# 전까지 어떤 데이터도 받아오지 않아 첫 로드가 가장 가볍다.
 PAGES = [
-    "🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니", "🔍 종목 상세",
+    "🤖 비서", "🌎 시장", "🐦 선취매 레이더", "📊 스크리너", "👑 헤게모니",
+    "🔍 종목 상세",
     "🎯 비교", "🧪 백테스트", "🔮 시뮬레이터", "💰 모의매매",
     "🩺 포트폴리오 닥터", "🔬 검증", "📖 투자 가이드",
 ]
@@ -480,6 +486,97 @@ page = st.segmented_control("화면", PAGES, default=PAGES[0],
                             label_visibility="collapsed", key="nav")
 if not page:                      # 선택 해제 시 첫 화면으로
     page = PAGES[0]
+
+# ============================ 탭: AI 비서 ============================
+if page == "🤖 비서":
+    st.subheader("AI 비서 — 자연어로 물어보세요")
+
+    ac = st.columns([1.1, 1, 2.4])
+    ENGINES = ["auto", "claude", "rules"]
+    engine_choice = ac[0].selectbox(
+        "엔진", ENGINES,
+        # config 에 오타가 있어도 화면이 죽지 않게 auto 로 떨어뜨린다
+        index=ENGINES.index(cfg.assistant.engine)
+        if cfg.assistant.engine in ENGINES else 0,
+        help="auto=키가 있으면 Claude, 없으면 규칙 기반 · "
+             "claude=강제 · rules=LLM 없이 키워드 매칭")
+    if ac[1].button("🗑 대화 지우기", width='stretch'):
+        st.session_state.pop("chat_log", None)
+        st.session_state.pop("assistant", None)
+        st.rerun()
+
+    # Assistant 는 대화 기록을 들고 있으므로 캐시가 아니라 세션에 둔다.
+    # 데이터 소스나 엔진을 바꾸면 새로 만든다.
+    akey = (provider_name, engine_choice)
+    if st.session_state.get("assistant_key") != akey:
+        st.session_state.assistant = Assistant(
+            cfg, provider_name=provider_name, engine=engine_choice)
+        st.session_state.assistant_key = akey
+        st.session_state.chat_log = []
+    bot = st.session_state.assistant
+    st.session_state.setdefault("chat_log", [])
+
+    if bot.engine == "claude":
+        ac[2].success(f"Claude 엔진 ({bot.model}) — 자유롭게 물어보세요",
+                      icon="🧠")
+    else:
+        ac[2].info("규칙 엔진 — ANTHROPIC_API_KEY 를 설정하면 자유 대화가 "
+                   "가능합니다. 지금은 키워드로 도구를 찾습니다.", icon="🔑")
+
+    # 예시 질문 버튼 (누르면 그대로 질문으로 들어간다)
+    pending = None
+    ex_cols = st.columns(4)
+    for i, ex in enumerate(Assistant.examples()[:4]):
+        if ex_cols[i].button(ex, key=f"ex_{i}", width='stretch'):
+            pending = ex
+
+    for m in st.session_state.chat_log:
+        with st.chat_message(m["role"]):
+            st.markdown(m["text"])
+            if m.get("tools"):
+                with st.expander(f"› 실행한 도구 {len(m['tools'])}개"):
+                    for t in m["tools"]:
+                        st.caption(f"**{t['name']}** · `{t['args']}`")
+                        st.markdown(t["rendered"])
+            if m.get("note"):
+                st.caption(f"※ {m['note']}")
+
+    prompt = st.chat_input("예: 엔비디아 어때? / 기술주 상위 5개 / "
+                           "내 포트폴리오 진단해줘") or pending
+    if prompt:
+        st.session_state.chat_log.append({"role": "user", "text": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            with st.spinner("분석 도구를 돌리는 중…"):
+                try:
+                    reply = bot.ask(prompt)
+                except Exception as e:
+                    reply = None
+                    st.error(f"답변 생성 실패: {type(e).__name__}: {e}")
+            if reply is not None:
+                st.markdown(reply.text)
+                tools = [{"name": c.name, "args": c.args,
+                          "rendered": c.rendered} for c in reply.tool_calls]
+                if tools:
+                    with st.expander(f"› 실행한 도구 {len(tools)}개"):
+                        for t in tools:
+                            st.caption(f"**{t['name']}** · `{t['args']}`")
+                            st.markdown(t["rendered"])
+                if reply.note:
+                    st.caption(f"※ {reply.note}")
+                st.session_state.chat_log.append(
+                    {"role": "assistant", "text": reply.text,
+                     "tools": tools, "note": reply.note})
+                # 비서가 모의매매를 체결했으면 모의매매 화면의 계좌도 다시 읽는다
+                if any(c.name == "paper_trade" and not c.result.get("error")
+                       for c in reply.tool_calls):
+                    st.session_state.pop("broker", None)
+
+    st.caption("⚠️ 비서는 이 시스템의 분석 도구를 대신 실행할 뿐이며, 답변은 "
+               "투자자문이 아닙니다. 종합점수는 검증에서 예측력이 확인되지 "
+               "않았습니다.")
+
 
 # ============================ 탭 0: 시장 (지수) ============================
 if page == "🌎 시장":

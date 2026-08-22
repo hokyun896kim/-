@@ -24,6 +24,7 @@
 
 | 영역 | 내용 |
 |------|------|
+| **🤖 AI 비서** | 자연어로 물어보면 아래 분석 모듈을 대신 실행해 답합니다. `ANTHROPIC_API_KEY` 가 있으면 Claude 로 자유 대화, 없으면 키워드 기반 규칙 엔진으로 동작 (오프라인 가능) |
 | **선취매 레이더** | 조용한 매집(OBV↑·횡보)+상승여력+변곡 시작 종목을 발굴, 과열·급등은 감점 (남보다 먼저, 느긋하게) |
 | **시장 분석** | 나스닥·S&P500·다우 + VIX 공포지수, 50/200일선·골든/데드크로스, **수급(OBV)**·변동성·주요 레벨, **향후 방향성 자동 해설**, 해외 아티클 |
 | **헤게모니 스프레드** | 영업이익YoY−매출YoY로 이익 레버리지 발굴, 연간 vs 분기TTM 가속/피크아웃, 랭킹 (yfinance 손익계산서 라이브 계산) |
@@ -60,6 +61,10 @@ streamlit run stocksystem/app/dashboard.py
 # 3) 또는 터미널 CLI
 python cli.py analyze AAPL MSFT NVDA   # 특정 종목
 python cli.py watchlist                # config.yaml 관심종목 전체
+
+# 4) AI 비서에게 말로 물어보기
+python assistant_cli.py "엔비디아 어때?"
+python assistant_cli.py                # 대화 모드
 ```
 
 ### 오프라인/데모로 먼저 둘러보기
@@ -70,6 +75,76 @@ python cli.py watchlist                # config.yaml 관심종목 전체
 python cli.py analyze AAPL MSFT --provider sample
 ```
 대시보드에서는 사이드바의 **데이터 소스**를 `sample` 로 바꾸면 됩니다.
+
+---
+
+## 🤖 AI 비서
+
+"엔비디아 어때?" 처럼 **말로 물어보면** 이 시스템의 분석 모듈을 대신 실행해
+답해주는 대화형 인터페이스입니다. 대시보드 첫 화면(`🤖 비서`)과 터미널
+(`assistant_cli.py`) 양쪽에서 같은 엔진을 씁니다.
+
+```bash
+python assistant_cli.py "기술주 중에 점수 높은 거 5개 골라줘"
+python assistant_cli.py --provider sample     # 오프라인 데모 데이터로
+python assistant_cli.py --engine rules        # LLM 없이 규칙 엔진만
+```
+
+### 두 개의 엔진 (하이브리드)
+
+| | Claude 엔진 | 규칙 엔진 |
+|---|---|---|
+| **조건** | `ANTHROPIC_API_KEY` 또는 `ant auth login` 프로필이 있을 때 | 자격증명이 없을 때 (기본) |
+| **이해 범위** | 자유로운 대화. 여러 도구를 엮고, 애매하면 되묻습니다 | 키워드/패턴 매칭으로 도구 하나를 고릅니다 |
+| **비용·네트워크** | API 호출 비용 발생 | 없음 — 완전 로컬 |
+| **되는 것** | "엔비디아랑 AMD 비교하고, 이긴 쪽 뉴스 분위기도 봐줘" | "엔비디아 어때?", "선취매 종목 찾아줘" 등 자주 쓰는 십수 가지 |
+
+`config.yaml` 의 `assistant.engine` 이 `auto` 면 자격증명 유무로 자동
+선택합니다. Claude 호출이 실패해도(키 만료·네트워크 단절) 규칙 엔진으로
+내려가 대화가 끊기지 않습니다.
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+python assistant_cli.py          # 이제 자유 대화 모드
+```
+
+### 물어볼 수 있는 것
+
+비서는 13개 도구를 갖고 있고, 전부 기존 분석 모듈을 그대로 부릅니다.
+
+| 도구 | 이렇게 물어보세요 |
+|---|---|
+| `analyze_stock` | "엔비디아 어때?" · "AAPL 분석해줘" |
+| `market_overview` | "오늘 시장 어때?" · "공포탐욕지수 얼마야" |
+| `screen_stocks` | "기술주 상위 5개 골라줘" · "상위 20% 중에 랭킹" |
+| `early_bird` | "선취매 종목 찾아줘" · "아직 안 오른 종목 있어?" |
+| `hegemony` | "NVDA 헤게모니 스프레드" · "이익 레버리지 어때" |
+| `compare_stocks` | "애플이랑 마소 비교해줘" · "NVDA vs AMD" |
+| `portfolio_checkup` | "AAPL 5000달러 MSFT 3000달러 진단해줘" |
+| `backtest` | "AAPL 골든크로스 백테스트" |
+| `news_sentiment` | "테슬라 뉴스 어때?" |
+| `simulate_future` | "엔비디아 6개월 전망" · "AAPL 250달러 갈 확률" |
+| `paper_status` / `paper_trade` | "내 모의계좌 어때?" · "엔비디아 10주 매수" |
+| `watchlist_ranking` | "관심종목 순위 알려줘" |
+
+한글 종목명(엔비디아·마소·테슬라…)과 영문 회사명, 티커를 모두 알아듣습니다.
+
+### 설계 원칙 — 비서는 숫자를 지어내지 않습니다
+
+1. **모든 수치는 도구가 만듭니다.** 비서(LLM 포함)는 주가·점수·비율을 직접
+   생성하지 않습니다. 시스템 프롬프트가 이를 금지하고, 도구가 값을 주지 않으면
+   "데이터가 없습니다"라고 답하게 돼 있습니다. → 대시보드·CLI·비서가 **항상
+   같은 숫자**를 냅니다 (`tests/test_assistant.py::test_analyze_stock_matches_scoring_module`).
+2. **매매 지시를 하지 않습니다.** 종합점수는 [검증](#-점수-검증)에서 예측력이
+   확인되지 않았습니다(IC −0.016). 비서는 "사세요/오를 겁니다" 대신 지금 지표가
+   어떤 상태인지를 서술하고, 답변마다 그 한계를 덧붙입니다.
+3. **모의매매는 확인 후에만.** `paper_trade` 는 종목과 수량이 분명할 때만
+   실행하고, 체결가와 잔여 현금을 그대로 보고합니다. 실제 주문이 아닙니다.
+4. **스캔 범위는 유한합니다.** 스크리너·선취매는 시총 상위 40종목까지만 훑고
+   (대화형 응답성 때문), 잘린 사실을 답변에 표시합니다.
+
+> ⚠️ 비서의 답변은 투자자문이 아닙니다. 모든 판단과 책임은 본인에게 있습니다.
 
 ---
 
@@ -124,6 +199,11 @@ recommendation:                      # 추천 구간 (0~100)
   ...
 paper_trading:
   initial_cash: 100000               # 모의계좌 초기자본 (USD)
+assistant:                           # AI 비서
+  engine: auto                       #   auto | claude | rules
+  model: claude-opus-5
+  max_turns: 6                       #   한 질문에 허용할 도구 호출 라운드
+  effort: medium                     #   low | medium | high | xhigh | max
 ```
 
 ---
@@ -150,6 +230,10 @@ stocksystem/
 │   ├── hegemony.py        #   헤게모니 스프레드(이익 레버리지) 엔진
 │   ├── earlybird.py       #   선취매 레이더(조용한 매집·변곡 발굴)
 │   └── scoring.py         #   종합 점수 + 매매 추천 (+ 뉴스/실적/이벤트)
+├── assistant/             # ★ AI 비서 계층
+│   ├── tools.py           #   비서가 부를 수 있는 13개 도구 (기존 모듈 래핑)
+│   ├── intent.py          #   규칙 기반 의도 파악 (LLM 없이 동작하는 폴백)
+│   └── agent.py           #   하이브리드 엔진 (Claude 도구 호출 루프 / 규칙)
 ├── portfolio/
 │   ├── paper_broker.py    # 모의매매 엔진 (영속화 포함)
 │   └── analytics.py       # 포트폴리오 닥터(분산·집중도·베타 진단)
@@ -159,11 +243,12 @@ stocksystem/
 │   ├── strategies.py      #   매매 전략 (SMA교차·RSI·MACD·종합점수)
 │   └── engine.py          #   포지션 시뮬레이션 + 성과지표(MDD/샤프 등)
 └── app/
-    └── dashboard.py       # Streamlit 대시보드 (12개 화면, 지연 로딩)
+    └── dashboard.py       # Streamlit 대시보드 (13개 화면, 지연 로딩)
 .streamlit/config.toml     # 다크 트레이딩 터미널 테마
 cli.py                     # 터미널 분석 도구
+assistant_cli.py           # ★ AI 비서 터미널 인터페이스
 research_cli.py            # ★ 점수 예측력 검증 CLI
-tests/                     # pytest 테스트 (194개)
+tests/                     # pytest 테스트 (238개)
 ```
 
 ---
@@ -264,8 +349,9 @@ pytest -q
 
 지표 계산, 채점 로직, 모의매매 엔진, 뉴스 감성분석, 유니버스/시총 필터,
 백테스트, 시장분석, 헤게모니·팩터·시뮬레이션·포트폴리오 진단, 종합 분석,
-그리고 **이벤트 스터디 하네스와 섹터 상대평가**를 검증하는 194개 테스트가
-네트워크 없이(샘플 데이터) 모두 통과합니다.
+**이벤트 스터디 하네스와 섹터 상대평가**, 그리고 **AI 비서(의도 파악·도구
+계층·Claude 도구 호출 루프)** 를 검증하는 238개 테스트가 네트워크 없이
+(샘플 데이터 + 가짜 API 클라이언트) 모두 통과합니다.
 
 ---
 

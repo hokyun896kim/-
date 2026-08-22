@@ -75,6 +75,24 @@ class PaperTrading:
 
 
 @dataclass
+class AssistantConfig:
+    """AI 비서 설정.
+
+    engine="auto" 면 자격증명이 있을 때만 Claude 를 쓰고, 없으면 규칙 엔진으로
+    내려간다. 키가 없는 사람도 그대로 쓸 수 있게 하려는 기본값이다.
+    """
+
+    engine: str = "auto"                  # auto | claude | rules
+    model: str = "claude-opus-5"
+    max_tokens: int = 16000
+    max_turns: int = 6                    # 한 질문에 허용할 도구 호출 라운드
+    # 대화창 응답성이 중요하고 무거운 계산은 파이썬 도구가 하므로 medium.
+    # 더 촘촘한 추론이 필요하면 high/xhigh 로 올린다.
+    effort: str = "medium"
+    thinking: str = "adaptive"            # adaptive | off
+
+
+@dataclass
 class Config:
     watchlist: list[str] = field(default_factory=lambda: ["AAPL", "MSFT", "NVDA"])
     data_provider: str = "yahoo"
@@ -83,6 +101,7 @@ class Config:
     weights: Weights = field(default_factory=Weights)
     recommendation: Recommendation = field(default_factory=Recommendation)
     paper_trading: PaperTrading = field(default_factory=PaperTrading)
+    assistant: AssistantConfig = field(default_factory=AssistantConfig)
 
 
 def _build(cls, data: dict[str, Any] | None):
@@ -109,4 +128,5 @@ def load_config(path: str | Path | None = None) -> Config:
         weights=_build(Weights, raw.get("weights")),
         recommendation=_build(Recommendation, raw.get("recommendation")),
         paper_trading=_build(PaperTrading, raw.get("paper_trading")),
+        assistant=_build(AssistantConfig, raw.get("assistant")),
     )

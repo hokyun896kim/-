@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29T13:40:29+00:00",
+  "generated_at": "2026-09-05T11:42:24+00:00",
   "provider": "yahoo",
   "period": "max",
   "benchmark": "SPY",
@@ -92,7 +92,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-08-28",
+      "end": "2026-09-04",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "⚠️ 음(−)의 예측력 — IC -0.028 (t=-2.01). 점수가 높을수록 오히려 덜 올랐습니다. 신호를 뒤집어야 합니다.",
       "warnings": [
@@ -324,7 +324,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-08-28",
+      "end": "2026-09-04",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "⚠️ 음(−)의 예측력 — IC -0.032 (t=-2.12). 점수가 높을수록 오히려 덜 올랐습니다. 신호를 뒤집어야 합니다.",
       "warnings": [
@@ -556,7 +556,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-08-28",
+      "end": "2026-09-04",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "❌ 예측력 없음 — IC +0.027 (t=+1.72), 유의하지 않음. 이 점수로 매매하면 안 됩니다.",
       "warnings": [
@@ -574,7 +574,7 @@
           "long_short": 0.345,
           "universe_mean": 0.616,
           "long_short_demeaned": 0.135,
-          "breakeven_cost": 0.0673,
+          "breakeven_cost": 0.0674,
           "annual_long_short_gross": 1.7,
           "annual_long_short_net_5bp": 0.44,
           "monotonicity": 0.4,

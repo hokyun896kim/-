@@ -1,11 +1,11 @@
 {
- "updated": "2026-09-26",
+ "updated": "2026-10-03",
  "demo": false,
  "market": {
   "vix": 18.5,
   "vix_state": "—",
-  "spy3": -22.3,
-  "spy6": 36.4
+  "spy3": -9.1,
+  "spy6": 49.5
  },
  "sectors": [
   {
@@ -112,7 +112,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -120,11 +120,11 @@
        }
       ]
      },
-     "rs3": -2.3,
-     "rs6": -71.3,
+     "rs3": -15.5,
+     "rs6": -83.9,
      "gap": 20.1,
      "gaplvl": "H",
-     "from_high": -46.9,
+     "from_high": -47.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -145,7 +145,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -153,11 +153,11 @@
        }
       ]
      },
-     "rs3": 14.7,
-     "rs6": -47.3,
+     "rs3": 0.5,
+     "rs6": -53.2,
      "gap": 3.4,
      "gaplvl": "L",
-     "from_high": -29.4,
+     "from_high": -30.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -178,7 +178,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -186,11 +186,11 @@
        }
       ]
      },
-     "rs3": 7.4,
-     "rs6": -59.7,
+     "rs3": -3.9,
+     "rs6": -67.9,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -41.1,
+     "from_high": -42.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -211,7 +211,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -254,7 +254,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -262,11 +262,11 @@
        }
       ]
      },
-     "rs3": 22.2,
-     "rs6": -46.8,
+     "rs3": 13.9,
+     "rs6": -55.5,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": -31.6,
+     "from_high": -27.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -287,7 +287,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -295,11 +295,11 @@
        }
       ]
      },
-     "rs3": 10.7,
-     "rs6": -55.5,
+     "rs3": 2.4,
+     "rs6": -61.7,
      "gap": 3.5,
      "gaplvl": "L",
-     "from_high": -41.2,
+     "from_high": -38.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -320,7 +320,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -328,11 +328,11 @@
        }
       ]
      },
-     "rs3": 30.6,
-     "rs6": -5.3,
+     "rs3": 21.5,
+     "rs6": -19.8,
      "gap": 6.6,
      "gaplvl": "M",
-     "from_high": -26.8,
+     "from_high": -25.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -363,7 +363,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -371,11 +371,11 @@
        }
       ]
      },
-     "rs3": 27.9,
-     "rs6": -58.6,
+     "rs3": 1.8,
+     "rs6": -72.7,
      "gap": 7.2,
      "gaplvl": "M",
-     "from_high": -59.0,
+     "from_high": -61.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -396,7 +396,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -404,11 +404,11 @@
        }
       ]
      },
-     "rs3": 42.9,
-     "rs6": -47.9,
+     "rs3": 9.9,
+     "rs6": -60.3,
      "gap": 3.9,
      "gaplvl": "L",
-     "from_high": -40.3,
+     "from_high": -41.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -429,7 +429,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -437,11 +437,11 @@
        }
       ]
      },
-     "rs3": -1.7,
-     "rs6": -76.3,
+     "rs3": -23.5,
+     "rs6": -88.7,
      "gap": 5.4,
      "gaplvl": "M",
-     "from_high": -55.0,
+     "from_high": -55.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -462,7 +462,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -470,11 +470,11 @@
        }
       ]
      },
-     "rs3": 5.8,
-     "rs6": -82.9,
+     "rs3": -18.2,
+     "rs6": -97.6,
      "gap": 6.7,
      "gaplvl": "M",
-     "from_high": -61.2,
+     "from_high": -61.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -505,7 +505,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -513,11 +513,11 @@
        }
       ]
      },
-     "rs3": 10.9,
-     "rs6": -59.5,
+     "rs3": -4.8,
+     "rs6": -74.4,
      "gap": 2.2,
      "gaplvl": "L",
-     "from_high": -42.6,
+     "from_high": -42.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -538,7 +538,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -546,11 +546,11 @@
        }
       ]
      },
-     "rs3": 5.3,
-     "rs6": -43.2,
+     "rs3": -12.8,
+     "rs6": -60.2,
      "gap": 2.3,
      "gaplvl": "L",
-     "from_high": -42.1,
+     "from_high": -43.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -571,7 +571,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -579,11 +579,11 @@
        }
       ]
      },
-     "rs3": -28.4,
-     "rs6": -20.8,
+     "rs3": -43.0,
+     "rs6": -34.4,
      "gap": 4.0,
      "gaplvl": "M",
-     "from_high": -53.4,
+     "from_high": -56.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -604,7 +604,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -612,11 +612,11 @@
        }
       ]
      },
-     "rs3": -16.3,
-     "rs6": -34.2,
+     "rs3": -30.3,
+     "rs6": -54.4,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -48.6,
+     "from_high": -49.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -637,7 +637,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -645,11 +645,11 @@
        }
       ]
      },
-     "rs3": 24.5,
-     "rs6": -24.9,
+     "rs3": -2.5,
+     "rs6": -48.4,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -22.6,
+     "from_high": -24.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -670,7 +670,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -678,11 +678,11 @@
        }
       ]
      },
-     "rs3": 34.9,
-     "rs6": -27.9,
+     "rs3": 16.1,
+     "rs6": -57.7,
      "gap": 6.3,
      "gaplvl": "M",
-     "from_high": -13.2,
+     "from_high": -16.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -703,7 +703,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -746,7 +746,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -754,8 +754,8 @@
        }
       ]
      },
-     "rs3": 20.0,
-     "rs6": -67.0,
+     "rs3": 4.0,
+     "rs6": -76.5,
      "gap": 2.9,
      "gaplvl": "L",
      "from_high": -50.5,
@@ -779,7 +779,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -787,11 +787,11 @@
        }
       ]
      },
-     "rs3": 19.8,
-     "rs6": -45.2,
+     "rs3": 5.2,
+     "rs6": -54.1,
      "gap": 10.1,
      "gaplvl": "H",
-     "from_high": -31.4,
+     "from_high": -32.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -822,7 +822,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -830,11 +830,11 @@
        }
       ]
      },
-     "rs3": -13.9,
-     "rs6": 52.5,
+     "rs3": -6.7,
+     "rs6": 78.7,
      "gap": 28.4,
      "gaplvl": "H",
-     "from_high": -36.2,
+     "from_high": -36.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -855,7 +855,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -863,11 +863,11 @@
        }
       ]
      },
-     "rs3": 2.0,
-     "rs6": 14.6,
+     "rs3": 5.6,
+     "rs6": 15.8,
      "gap": 24.2,
      "gaplvl": "H",
-     "from_high": -21.2,
+     "from_high": -23.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -888,7 +888,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -896,11 +896,11 @@
        }
       ]
      },
-     "rs3": 5.8,
-     "rs6": 21.9,
+     "rs3": 29.6,
+     "rs6": 29.9,
      "gap": 14.0,
      "gaplvl": "H",
-     "from_high": -40.1,
+     "from_high": -36.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -931,7 +931,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -939,11 +939,11 @@
        }
       ]
      },
-     "rs3": 24.4,
-     "rs6": -55.0,
+     "rs3": 6.5,
+     "rs6": -64.5,
      "gap": 4.8,
      "gaplvl": "M",
-     "from_high": -33.1,
+     "from_high": -34.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -964,7 +964,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -972,11 +972,11 @@
        }
       ]
      },
-     "rs3": 80.4,
-     "rs6": -0.9,
+     "rs3": 72.8,
+     "rs6": -7.8,
      "gap": 6.7,
      "gaplvl": "M",
-     "from_high": -2.8,
+     "from_high": -2.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -997,7 +997,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1005,11 +1005,11 @@
        }
       ]
      },
-     "rs3": 81.7,
-     "rs6": 8.4,
+     "rs3": 62.2,
+     "rs6": 9.7,
      "gap": 4.2,
      "gaplvl": "M",
-     "from_high": -6.2,
+     "from_high": 0.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1040,7 +1040,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1048,11 +1048,11 @@
        }
       ]
      },
-     "rs3": 9.0,
-     "rs6": -45.0,
+     "rs3": 5.1,
+     "rs6": -50.7,
      "gap": 9.7,
      "gaplvl": "H",
-     "from_high": -41.8,
+     "from_high": -39.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1073,7 +1073,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1081,11 +1081,11 @@
        }
       ]
      },
-     "rs3": 24.8,
-     "rs6": -43.1,
-     "gap": 4.0,
-     "gaplvl": "M",
-     "from_high": -25.0,
+     "rs3": 12.5,
+     "rs6": -52.3,
+     "gap": 2.6,
+     "gaplvl": "L",
+     "from_high": -22.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1106,7 +1106,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1114,8 +1114,8 @@
        }
       ]
      },
-     "rs3": 8.0,
-     "rs6": -56.5,
+     "rs3": -3.4,
+     "rs6": -69.5,
      "gap": 4.8,
      "gaplvl": "M",
      "from_high": -46.1,
@@ -1139,7 +1139,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1147,11 +1147,11 @@
        }
       ]
      },
-     "rs3": 20.9,
-     "rs6": -48.1,
+     "rs3": 5.4,
+     "rs6": -59.5,
      "gap": 5.5,
      "gaplvl": "M",
-     "from_high": -30.5,
+     "from_high": -31.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1172,7 +1172,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1180,11 +1180,11 @@
        }
       ]
      },
-     "rs3": 22.3,
-     "rs6": -33.2,
+     "rs3": -6.0,
+     "rs6": -47.2,
      "gap": 3.4,
      "gaplvl": "L",
-     "from_high": -45.9,
+     "from_high": -48.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1205,7 +1205,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1213,11 +1213,11 @@
        }
       ]
      },
-     "rs3": -4.1,
-     "rs6": -63.5,
+     "rs3": -24.2,
+     "rs6": -74.6,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": -39.1,
+     "from_high": -39.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1238,7 +1238,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1246,11 +1246,11 @@
        }
       ]
      },
-     "rs3": -4.9,
-     "rs6": -93.4,
+     "rs3": -11.5,
+     "rs6": -100.7,
      "gap": 5.3,
      "gaplvl": "M",
-     "from_high": -66.6,
+     "from_high": -64.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1271,7 +1271,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1279,11 +1279,11 @@
        }
       ]
      },
-     "rs3": -15.4,
-     "rs6": -75.3,
-     "gap": 29.9,
+     "rs3": -5.5,
+     "rs6": -69.6,
+     "gap": 30.0,
      "gaplvl": "H",
-     "from_high": -55.2,
+     "from_high": -40.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1304,7 +1304,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1312,11 +1312,11 @@
        }
       ]
      },
-     "rs3": 18.9,
-     "rs6": -51.6,
+     "rs3": 6.7,
+     "rs6": -62.0,
      "gap": 6.7,
      "gaplvl": "M",
-     "from_high": -40.5,
+     "from_high": -39.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1337,7 +1337,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1345,11 +1345,11 @@
        }
       ]
      },
-     "rs3": -25.8,
-     "rs6": -96.8,
+     "rs3": -33.3,
+     "rs6": -106.6,
      "gap": 6.0,
      "gaplvl": "M",
-     "from_high": -62.2,
+     "from_high": -61.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1380,7 +1380,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1388,8 +1388,8 @@
        }
       ]
      },
-     "rs3": 26.2,
-     "rs6": -58.9,
+     "rs3": 14.8,
+     "rs6": -71.3,
      "gap": 7.8,
      "gaplvl": "M",
      "from_high": -40.4,
@@ -1413,7 +1413,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1421,11 +1421,11 @@
        }
       ]
      },
-     "rs3": 24.3,
-     "rs6": -63.6,
+     "rs3": 9.3,
+     "rs6": -77.8,
      "gap": 5.2,
      "gaplvl": "M",
-     "from_high": -42.7,
+     "from_high": -42.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1446,7 +1446,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1454,11 +1454,11 @@
        }
       ]
      },
-     "rs3": 17.5,
-     "rs6": -67.7,
+     "rs3": -3.3,
+     "rs6": -81.4,
      "gap": 4.8,
      "gaplvl": "M",
-     "from_high": -45.3,
+     "from_high": -43.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1479,7 +1479,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1487,11 +1487,11 @@
        }
       ]
      },
-     "rs3": 54.3,
-     "rs6": -34.3,
+     "rs3": 25.2,
+     "rs6": -51.2,
      "gap": 5.4,
      "gaplvl": "M",
-     "from_high": -16.6,
+     "from_high": -18.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1512,7 +1512,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1520,11 +1520,11 @@
        }
       ]
      },
-     "rs3": 28.6,
-     "rs6": -45.9,
+     "rs3": 12.8,
+     "rs6": -60.9,
      "gap": 20.0,
      "gaplvl": "H",
-     "from_high": -29.8,
+     "from_high": -30.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1545,7 +1545,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1553,11 +1553,11 @@
        }
       ]
      },
-     "rs3": 19.6,
-     "rs6": -62.6,
+     "rs3": 4.3,
+     "rs6": -76.3,
      "gap": 2.1,
      "gaplvl": "L",
-     "from_high": -33.6,
+     "from_high": -33.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1578,7 +1578,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1586,11 +1586,11 @@
        }
       ]
      },
-     "rs3": 25.1,
-     "rs6": -56.6,
+     "rs3": 8.7,
+     "rs6": -69.7,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": -36.4,
+     "from_high": -35.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1611,7 +1611,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1619,11 +1619,11 @@
        }
       ]
      },
-     "rs3": 3.1,
-     "rs6": -91.9,
+     "rs3": -18.2,
+     "rs6": -105.4,
      "gap": 29.9,
      "gaplvl": "H",
-     "from_high": -62.3,
+     "from_high": -66.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1654,7 +1654,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1662,11 +1662,11 @@
        }
       ]
      },
-     "rs3": 64.7,
-     "rs6": -13.7,
+     "rs3": 20.6,
+     "rs6": -17.8,
      "gap": 7.2,
      "gaplvl": "M",
-     "from_high": -19.7,
+     "from_high": -23.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1687,7 +1687,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1695,11 +1695,11 @@
        }
       ]
      },
-     "rs3": 53.7,
-     "rs6": -24.4,
+     "rs3": 29.8,
+     "rs6": -40.2,
      "gap": 2.2,
      "gaplvl": "L",
-     "from_high": -4.6,
+     "from_high": -10.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1720,7 +1720,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1728,11 +1728,11 @@
        }
       ]
      },
-     "rs3": 53.0,
-     "rs6": -0.4,
+     "rs3": 25.9,
+     "rs6": -37.2,
      "gap": 4.9,
      "gaplvl": "M",
-     "from_high": -21.1,
+     "from_high": -26.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1753,7 +1753,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1761,11 +1761,11 @@
        }
       ]
      },
-     "rs3": -7.0,
-     "rs6": -6.0,
+     "rs3": -5.8,
+     "rs6": -13.0,
      "gap": 13.9,
      "gaplvl": "H",
-     "from_high": -31.4,
+     "from_high": -35.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1786,7 +1786,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1794,11 +1794,11 @@
        }
       ]
      },
-     "rs3": 36.5,
-     "rs6": 9.6,
+     "rs3": 6.5,
+     "rs6": -15.7,
      "gap": 4.9,
      "gaplvl": "M",
-     "from_high": -23.4,
+     "from_high": -25.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1819,7 +1819,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1827,11 +1827,11 @@
        }
       ]
      },
-     "rs3": 29.8,
-     "rs6": -55.2,
+     "rs3": 8.4,
+     "rs6": -69.0,
      "gap": 5.1,
      "gaplvl": "M",
-     "from_high": -35.8,
+     "from_high": -39.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1852,7 +1852,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1860,11 +1860,11 @@
        }
       ]
      },
-     "rs3": 10.1,
-     "rs6": -30.1,
+     "rs3": 5.1,
+     "rs6": -36.3,
      "gap": 6.1,
      "gaplvl": "M",
-     "from_high": -53.1,
+     "from_high": -52.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1895,7 +1895,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1903,11 +1903,11 @@
        }
       ]
      },
-     "rs3": 11.6,
-     "rs6": -28.0,
+     "rs3": 9.1,
+     "rs6": -24.8,
      "gap": 7.3,
      "gaplvl": "M",
-     "from_high": -32.2,
+     "from_high": -25.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1928,7 +1928,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1936,11 +1936,11 @@
        }
       ]
      },
-     "rs3": 12.0,
-     "rs6": -63.9,
+     "rs3": -4.3,
+     "rs6": -68.4,
      "gap": 6.4,
      "gaplvl": "M",
-     "from_high": -36.7,
+     "from_high": -33.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -1961,7 +1961,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -1969,11 +1969,11 @@
        }
       ]
      },
-     "rs3": 17.8,
-     "rs6": -59.9,
+     "rs3": 5.2,
+     "rs6": -63.7,
      "gap": 9.5,
      "gaplvl": "H",
-     "from_high": -33.6,
+     "from_high": -30.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2004,7 +2004,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2012,11 +2012,11 @@
        }
       ]
      },
-     "rs3": 46.5,
-     "rs6": -70.8,
+     "rs3": 20.3,
+     "rs6": -87.2,
      "gap": 3.6,
      "gaplvl": "L",
-     "from_high": -51.6,
+     "from_high": -56.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2037,7 +2037,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2045,11 +2045,11 @@
        }
       ]
      },
-     "rs3": 22.1,
-     "rs6": -82.4,
+     "rs3": 3.8,
+     "rs6": -92.8,
      "gap": 2.9,
      "gaplvl": "L",
-     "from_high": -59.3,
+     "from_high": -59.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2070,7 +2070,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2113,7 +2113,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2121,11 +2121,11 @@
        }
       ]
      },
-     "rs3": 14.3,
-     "rs6": -65.1,
+     "rs3": 7.3,
+     "rs6": -66.3,
      "gap": 3.5,
      "gaplvl": "L",
-     "from_high": -38.3,
+     "from_high": -31.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2146,7 +2146,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2154,11 +2154,11 @@
        }
       ]
      },
-     "rs3": 16.5,
-     "rs6": -71.9,
+     "rs3": 2.0,
+     "rs6": -81.1,
      "gap": 2.0,
      "gaplvl": "L",
-     "from_high": -51.7,
+     "from_high": -51.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2189,7 +2189,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2197,11 +2197,11 @@
        }
       ]
      },
-     "rs3": 6.8,
-     "rs6": -54.5,
+     "rs3": 9.9,
+     "rs6": -47.1,
      "gap": 4.0,
      "gaplvl": "M",
-     "from_high": -43.8,
+     "from_high": -33.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2222,7 +2222,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2230,11 +2230,11 @@
        }
       ]
      },
-     "rs3": -14.4,
-     "rs6": -71.0,
+     "rs3": -31.9,
+     "rs6": -80.8,
      "gap": 5.3,
      "gaplvl": "M",
-     "from_high": -56.9,
+     "from_high": -56.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2255,7 +2255,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2263,11 +2263,11 @@
        }
       ]
      },
-     "rs3": 27.0,
-     "rs6": -45.8,
+     "rs3": 12.0,
+     "rs6": -52.4,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -30.7,
+     "from_high": -29.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2288,7 +2288,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2296,11 +2296,11 @@
        }
       ]
      },
-     "rs3": -5.9,
-     "rs6": -42.5,
+     "rs3": -12.7,
+     "rs6": -47.7,
      "gap": 5.7,
      "gaplvl": "M",
-     "from_high": -52.0,
+     "from_high": -49.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2321,7 +2321,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2329,11 +2329,11 @@
        }
       ]
      },
-     "rs3": 69.0,
-     "rs6": -31.3,
+     "rs3": 55.1,
+     "rs6": -34.0,
      "gap": 7.1,
      "gaplvl": "M",
-     "from_high": -19.3,
+     "from_high": -15.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2354,7 +2354,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2362,11 +2362,11 @@
        }
       ]
      },
-     "rs3": 5.8,
-     "rs6": -71.5,
+     "rs3": -7.8,
+     "rs6": -79.4,
      "gap": 4.2,
      "gaplvl": "M",
-     "from_high": -47.4,
+     "from_high": -46.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2387,7 +2387,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2395,11 +2395,11 @@
        }
       ]
      },
-     "rs3": 19.3,
-     "rs6": -29.9,
+     "rs3": -0.7,
+     "rs6": -37.2,
      "gap": 4.2,
      "gaplvl": "M",
-     "from_high": -24.3,
+     "from_high": -20.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2420,7 +2420,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2428,11 +2428,11 @@
        }
       ]
      },
-     "rs3": 15.3,
-     "rs6": -48.8,
+     "rs3": 6.5,
+     "rs6": -53.4,
      "gap": 6.5,
      "gaplvl": "M",
-     "from_high": -40.8,
+     "from_high": -38.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2463,7 +2463,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2471,11 +2471,11 @@
        }
       ]
      },
-     "rs3": 68.2,
-     "rs6": -30.5,
+     "rs3": 20.2,
+     "rs6": -52.8,
      "gap": 4.6,
      "gaplvl": "M",
-     "from_high": -12.9,
+     "from_high": -18.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2496,7 +2496,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2504,11 +2504,11 @@
        }
       ]
      },
-     "rs3": 92.0,
-     "rs6": 53.6,
+     "rs3": 29.2,
+     "rs6": 30.2,
      "gap": 5.7,
      "gaplvl": "M",
-     "from_high": -9.1,
+     "from_high": -15.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2529,7 +2529,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2537,11 +2537,11 @@
        }
       ]
      },
-     "rs3": 106.0,
-     "rs6": 6.5,
+     "rs3": 70.5,
+     "rs6": -12.1,
      "gap": 10.5,
      "gaplvl": "H",
-     "from_high": -10.2,
+     "from_high": -10.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2562,7 +2562,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2570,11 +2570,11 @@
        }
       ]
      },
-     "rs3": 48.6,
-     "rs6": -36.3,
+     "rs3": 28.8,
+     "rs6": -46.7,
      "gap": 18.7,
      "gaplvl": "H",
-     "from_high": -18.6,
+     "from_high": -18.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2595,7 +2595,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2603,11 +2603,11 @@
        }
       ]
      },
-     "rs3": 53.5,
-     "rs6": -18.4,
+     "rs3": 20.2,
+     "rs6": -39.3,
      "gap": 2.7,
      "gaplvl": "L",
-     "from_high": -11.9,
+     "from_high": -18.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2638,7 +2638,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2646,11 +2646,11 @@
        }
       ]
      },
-     "rs3": 38.8,
-     "rs6": -13.1,
+     "rs3": 12.4,
+     "rs6": -28.2,
      "gap": 4.3,
      "gaplvl": "M",
-     "from_high": -4.6,
+     "from_high": -8.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2671,7 +2671,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2679,44 +2679,11 @@
        }
       ]
      },
-     "rs3": 44.8,
-     "rs6": -25.5,
-     "gap": 3.5,
-     "gaplvl": "L",
-     "from_high": -10.5,
-     "pe": null,
-     "fpe": null,
-     "peg": null,
-     "foreign_net": null,
-     "inst_net": null,
-     "foreign_pct": null,
-     "supply": "— 수급 미확인"
-    },
-    {
-     "tk": "086790.KS",
-     "nm": "하나금융지주",
-     "spread": null,
-     "q_spread": null,
-     "accel": null,
-     "op": null,
-     "rev": 7.5,
-     "q_op": null,
-     "q_note": "정상",
-     "d_until": null,
-     "ir": {
-      "date": "2026-09",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=086790"
-       }
-      ]
-     },
-     "rs3": 40.1,
-     "rs6": -9.2,
-     "gap": 4.5,
+     "rs3": 20.8,
+     "rs6": -43.6,
+     "gap": 4.2,
      "gaplvl": "M",
-     "from_high": -5.5,
+     "from_high": -15.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2737,7 +2704,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2745,11 +2712,44 @@
        }
       ]
      },
-     "rs3": 37.1,
-     "rs6": -16.8,
+     "rs3": 11.2,
+     "rs6": -29.9,
      "gap": 5.0,
      "gaplvl": "M",
-     "from_high": -6.3,
+     "from_high": -9.5,
+     "pe": null,
+     "fpe": null,
+     "peg": null,
+     "foreign_net": null,
+     "inst_net": null,
+     "foreign_pct": null,
+     "supply": "— 수급 미확인"
+    },
+    {
+     "tk": "086790.KS",
+     "nm": "하나금융지주",
+     "spread": null,
+     "q_spread": null,
+     "accel": null,
+     "op": null,
+     "rev": 7.5,
+     "q_op": null,
+     "q_note": "정상",
+     "d_until": null,
+     "ir": {
+      "date": "2026-10",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=086790"
+       }
+      ]
+     },
+     "rs3": 16.9,
+     "rs6": -26.2,
+     "gap": 3.1,
+     "gaplvl": "L",
+     "from_high": -8.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2770,7 +2770,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2778,11 +2778,11 @@
        }
       ]
      },
-     "rs3": 51.0,
-     "rs6": -29.8,
+     "rs3": 24.1,
+     "rs6": -49.6,
      "gap": 4.4,
      "gaplvl": "M",
-     "from_high": -16.1,
+     "from_high": -19.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2803,7 +2803,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2811,11 +2811,11 @@
        }
       ]
      },
-     "rs3": 21.3,
-     "rs6": -46.0,
+     "rs3": -2.1,
+     "rs6": -58.7,
      "gap": 2.9,
      "gaplvl": "L",
-     "from_high": -26.9,
+     "from_high": -27.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2836,7 +2836,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2844,11 +2844,11 @@
        }
       ]
      },
-     "rs3": 34.3,
-     "rs6": -29.5,
+     "rs3": 16.8,
+     "rs6": -38.0,
      "gap": 2.7,
      "gaplvl": "L",
-     "from_high": -14.8,
+     "from_high": -10.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2868,30 +2868,30 @@
    "gics": "금융",
    "members": [
     {
-     "tk": "005940.KS",
-     "nm": "NH투자증권",
+     "tk": "016360.KS",
+     "nm": "삼성증권",
      "spread": null,
      "q_spread": null,
      "accel": null,
      "op": null,
-     "rev": 27.6,
+     "rev": 12.4,
      "q_op": null,
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=005940"
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=016360"
        }
       ]
      },
-     "rs3": 11.6,
-     "rs6": -54.4,
-     "gap": 4.9,
+     "rs3": -7.1,
+     "rs6": -51.7,
+     "gap": 5.6,
      "gaplvl": "M",
-     "from_high": -32.4,
+     "from_high": -39.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2912,7 +2912,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -2920,11 +2920,11 @@
        }
       ]
      },
-     "rs3": -3.5,
-     "rs6": -83.6,
+     "rs3": -12.1,
+     "rs6": -98.1,
      "gap": 6.3,
      "gaplvl": "M",
-     "from_high": -61.5,
+     "from_high": -62.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -2934,63 +2934,30 @@
      "supply": "— 수급 미확인"
     },
     {
-     "tk": "138040.KS",
-     "nm": "메리츠금융지주",
+     "tk": "005940.KS",
+     "nm": "NH투자증권",
      "spread": null,
      "q_spread": null,
      "accel": null,
      "op": null,
-     "rev": 1.2,
+     "rev": 27.6,
      "q_op": null,
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=138040"
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=005940"
        }
       ]
      },
-     "rs3": 45.0,
-     "rs6": -18.0,
-     "gap": 3.3,
-     "gaplvl": "L",
-     "from_high": -14.1,
-     "pe": null,
-     "fpe": null,
-     "peg": null,
-     "foreign_net": null,
-     "inst_net": null,
-     "foreign_pct": null,
-     "supply": "— 수급 미확인"
-    },
-    {
-     "tk": "016360.KS",
-     "nm": "삼성증권",
-     "spread": null,
-     "q_spread": null,
-     "accel": null,
-     "op": null,
-     "rev": 12.4,
-     "q_op": null,
-     "q_note": "정상",
-     "d_until": null,
-     "ir": {
-      "date": "2026-09",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=016360"
-       }
-      ]
-     },
-     "rs3": 4.5,
-     "rs6": -40.1,
-     "gap": 5.6,
+     "rs3": 2.2,
+     "rs6": -58.5,
+     "gap": 4.9,
      "gaplvl": "M",
-     "from_high": -39.1,
+     "from_high": -29.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3011,7 +2978,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3019,11 +2986,11 @@
        }
       ]
      },
-     "rs3": 17.2,
-     "rs6": -66.8,
+     "rs3": 3.0,
+     "rs6": -77.2,
      "gap": 5.7,
      "gaplvl": "M",
-     "from_high": -45.2,
+     "from_high": -46.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3044,7 +3011,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3052,11 +3019,44 @@
        }
       ]
      },
-     "rs3": 1.1,
-     "rs6": -69.9,
+     "rs3": -10.4,
+     "rs6": -86.3,
      "gap": 7.4,
      "gaplvl": "M",
-     "from_high": -46.3,
+     "from_high": -47.6,
+     "pe": null,
+     "fpe": null,
+     "peg": null,
+     "foreign_net": null,
+     "inst_net": null,
+     "foreign_pct": null,
+     "supply": "— 수급 미확인"
+    },
+    {
+     "tk": "138040.KS",
+     "nm": "메리츠금융지주",
+     "spread": null,
+     "q_spread": null,
+     "accel": null,
+     "op": null,
+     "rev": 1.2,
+     "q_op": null,
+     "q_note": "정상",
+     "d_until": null,
+     "ir": {
+      "date": "2026-10",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=138040"
+       }
+      ]
+     },
+     "rs3": 29.4,
+     "rs6": -33.9,
+     "gap": 3.3,
+     "gaplvl": "L",
+     "from_high": -11.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3076,72 +3076,6 @@
    "gics": "금융",
    "members": [
     {
-     "tk": "000810.KS",
-     "nm": "삼성화재",
-     "spread": null,
-     "q_spread": null,
-     "accel": null,
-     "op": null,
-     "rev": 9.4,
-     "q_op": null,
-     "q_note": "정상",
-     "d_until": null,
-     "ir": {
-      "date": "2026-09",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=000810"
-       }
-      ]
-     },
-     "rs3": 21.8,
-     "rs6": 4.0,
-     "gap": 4.1,
-     "gaplvl": "M",
-     "from_high": -11.2,
-     "pe": null,
-     "fpe": null,
-     "peg": null,
-     "foreign_net": null,
-     "inst_net": null,
-     "foreign_pct": null,
-     "supply": "— 수급 미확인"
-    },
-    {
-     "tk": "005830.KS",
-     "nm": "DB손해보험",
-     "spread": null,
-     "q_spread": null,
-     "accel": null,
-     "op": null,
-     "rev": 8.3,
-     "q_op": null,
-     "q_note": "정상",
-     "d_until": null,
-     "ir": {
-      "date": "2026-09",
-      "docs": [
-       {
-        "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=005830"
-       }
-      ]
-     },
-     "rs3": 58.0,
-     "rs6": -31.8,
-     "gap": 3.3,
-     "gaplvl": "L",
-     "from_high": -9.1,
-     "pe": null,
-     "fpe": null,
-     "peg": null,
-     "foreign_net": null,
-     "inst_net": null,
-     "foreign_pct": null,
-     "supply": "— 수급 미확인"
-    },
-    {
      "tk": "032830.KS",
      "nm": "삼성생명",
      "spread": null,
@@ -3153,7 +3087,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3161,11 +3095,44 @@
        }
       ]
      },
-     "rs3": -11.8,
-     "rs6": -3.7,
+     "rs3": -12.9,
+     "rs6": -12.2,
      "gap": 12.3,
      "gaplvl": "H",
-     "from_high": -40.7,
+     "from_high": -41.9,
+     "pe": null,
+     "fpe": null,
+     "peg": null,
+     "foreign_net": null,
+     "inst_net": null,
+     "foreign_pct": null,
+     "supply": "— 수급 미확인"
+    },
+    {
+     "tk": "000810.KS",
+     "nm": "삼성화재",
+     "spread": null,
+     "q_spread": null,
+     "accel": null,
+     "op": null,
+     "rev": 9.4,
+     "q_op": null,
+     "q_note": "정상",
+     "d_until": null,
+     "ir": {
+      "date": "2026-10",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=000810"
+       }
+      ]
+     },
+     "rs3": 11.1,
+     "rs6": -7.4,
+     "gap": 4.1,
+     "gaplvl": "M",
+     "from_high": -14.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3186,7 +3153,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3194,11 +3161,11 @@
        }
       ]
      },
-     "rs3": 54.6,
-     "rs6": 18.2,
+     "rs3": 41.7,
+     "rs6": 8.9,
      "gap": 2.3,
      "gaplvl": "L",
-     "from_high": -11.1,
+     "from_high": -10.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3208,30 +3175,30 @@
      "supply": "— 수급 미확인"
     },
     {
-     "tk": "088350.KS",
-     "nm": "한화생명",
+     "tk": "005830.KS",
+     "nm": "DB손해보험",
      "spread": null,
      "q_spread": null,
      "accel": null,
      "op": null,
-     "rev": -3.0,
+     "rev": 8.3,
      "q_op": null,
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
-        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=088350"
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=005830"
        }
       ]
      },
-     "rs3": 42.6,
-     "rs6": -20.0,
-     "gap": 6.4,
-     "gaplvl": "M",
-     "from_high": -14.5,
+     "rs3": 34.7,
+     "rs6": -37.9,
+     "gap": 3.3,
+     "gaplvl": "L",
+     "from_high": -10.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3252,7 +3219,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3260,11 +3227,44 @@
        }
       ]
      },
-     "rs3": 13.8,
-     "rs6": -61.1,
-     "gap": 2.0,
+     "rs3": -3.9,
+     "rs6": -70.5,
+     "gap": 1.7,
      "gaplvl": "L",
-     "from_high": -33.9,
+     "from_high": -34.7,
+     "pe": null,
+     "fpe": null,
+     "peg": null,
+     "foreign_net": null,
+     "inst_net": null,
+     "foreign_pct": null,
+     "supply": "— 수급 미확인"
+    },
+    {
+     "tk": "088350.KS",
+     "nm": "한화생명",
+     "spread": null,
+     "q_spread": null,
+     "accel": null,
+     "op": null,
+     "rev": -3.0,
+     "q_op": null,
+     "q_note": "정상",
+     "d_until": null,
+     "ir": {
+      "date": "2026-10",
+      "docs": [
+       {
+        "label": "DART 사업·분기보고서",
+        "url": "https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=088350"
+       }
+      ]
+     },
+     "rs3": 30.2,
+     "rs6": -29.2,
+     "gap": 6.4,
+     "gaplvl": "M",
+     "from_high": -19.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3295,7 +3295,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3303,11 +3303,11 @@
        }
       ]
      },
-     "rs3": 24.8,
-     "rs6": -45.6,
+     "rs3": 5.7,
+     "rs6": -61.7,
      "gap": 1.9,
      "gaplvl": "L",
-     "from_high": -21.1,
+     "from_high": -22.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3328,7 +3328,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3336,11 +3336,11 @@
        }
       ]
      },
-     "rs3": 28.6,
-     "rs6": -36.3,
+     "rs3": 12.4,
+     "rs6": -54.2,
      "gap": 2.4,
      "gaplvl": "L",
-     "from_high": -15.4,
+     "from_high": -15.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3361,7 +3361,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3369,11 +3369,11 @@
        }
       ]
      },
-     "rs3": 18.4,
-     "rs6": -20.8,
+     "rs3": 11.1,
+     "rs6": -31.8,
      "gap": 7.0,
      "gaplvl": "M",
-     "from_high": -29.8,
+     "from_high": -28.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3404,7 +3404,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3412,11 +3412,11 @@
        }
       ]
      },
-     "rs3": 44.8,
-     "rs6": -36.5,
+     "rs3": 49.0,
+     "rs6": -28.1,
      "gap": 7.6,
      "gaplvl": "M",
-     "from_high": -20.1,
+     "from_high": -11.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3437,7 +3437,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3445,11 +3445,11 @@
        }
       ]
      },
-     "rs3": -7.5,
-     "rs6": -62.3,
+     "rs3": -12.8,
+     "rs6": -70.5,
      "gap": 6.6,
      "gaplvl": "M",
-     "from_high": -49.1,
+     "from_high": -48.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3470,7 +3470,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3478,11 +3478,11 @@
        }
       ]
      },
-     "rs3": 13.2,
-     "rs6": -76.1,
-     "gap": 4.9,
+     "rs3": 8.1,
+     "rs6": -89.6,
+     "gap": 4.4,
      "gaplvl": "M",
-     "from_high": -48.0,
+     "from_high": -46.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3503,7 +3503,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3546,7 +3546,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3554,11 +3554,11 @@
        }
       ]
      },
-     "rs3": 8.7,
-     "rs6": -37.1,
+     "rs3": 14.1,
+     "rs6": -21.7,
      "gap": 18.2,
      "gaplvl": "H",
-     "from_high": -27.1,
+     "from_high": -24.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3579,7 +3579,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3587,11 +3587,11 @@
        }
       ]
      },
-     "rs3": 6.1,
-     "rs6": -67.2,
+     "rs3": 21.4,
+     "rs6": -60.2,
      "gap": 8.7,
      "gaplvl": "H",
-     "from_high": -41.5,
+     "from_high": -33.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3612,7 +3612,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3620,11 +3620,11 @@
        }
       ]
      },
-     "rs3": 33.4,
-     "rs6": -47.3,
+     "rs3": 42.8,
+     "rs6": -61.1,
      "gap": 14.4,
      "gaplvl": "H",
-     "from_high": -21.6,
+     "from_high": -24.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3645,7 +3645,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3653,11 +3653,11 @@
        }
       ]
      },
-     "rs3": 15.5,
-     "rs6": -48.5,
+     "rs3": 19.4,
+     "rs6": -46.4,
      "gap": 9.7,
      "gaplvl": "H",
-     "from_high": -33.0,
+     "from_high": -25.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3678,7 +3678,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3686,11 +3686,11 @@
        }
       ]
      },
-     "rs3": 19.8,
-     "rs6": 120.6,
+     "rs3": 8.9,
+     "rs6": 170.7,
      "gap": 25.6,
      "gaplvl": "H",
-     "from_high": -25.6,
+     "from_high": -18.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3711,7 +3711,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3719,11 +3719,11 @@
        }
       ]
      },
-     "rs3": 17.4,
-     "rs6": 5.1,
+     "rs3": 30.3,
+     "rs6": 35.8,
      "gap": 14.5,
      "gaplvl": "H",
-     "from_high": -18.7,
+     "from_high": -9.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3744,7 +3744,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3752,11 +3752,11 @@
        }
       ]
      },
-     "rs3": 11.5,
-     "rs6": -54.3,
+     "rs3": 33.0,
+     "rs6": -41.1,
      "gap": 16.7,
      "gaplvl": "H",
-     "from_high": -40.5,
+     "from_high": -33.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3777,7 +3777,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3785,11 +3785,11 @@
        }
       ]
      },
-     "rs3": 34.7,
-     "rs6": -12.1,
+     "rs3": 27.0,
+     "rs6": -20.0,
      "gap": 10.9,
      "gaplvl": "H",
-     "from_high": -17.9,
+     "from_high": -15.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3810,7 +3810,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3818,11 +3818,11 @@
        }
       ]
      },
-     "rs3": 33.0,
-     "rs6": -35.1,
+     "rs3": 21.3,
+     "rs6": -22.4,
      "gap": 6.5,
      "gaplvl": "M",
-     "from_high": -22.1,
+     "from_high": -12.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3843,7 +3843,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3851,11 +3851,11 @@
        }
       ]
      },
-     "rs3": 5.0,
-     "rs6": -39.3,
+     "rs3": 11.7,
+     "rs6": -32.0,
      "gap": 10.7,
      "gaplvl": "H",
-     "from_high": -29.1,
+     "from_high": -21.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3876,7 +3876,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3884,11 +3884,11 @@
        }
       ]
      },
-     "rs3": 16.3,
-     "rs6": -44.2,
+     "rs3": 24.8,
+     "rs6": -28.3,
      "gap": 13.3,
      "gaplvl": "H",
-     "from_high": -30.9,
+     "from_high": -22.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3909,7 +3909,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3917,11 +3917,11 @@
        }
       ]
      },
-     "rs3": 28.9,
-     "rs6": -49.2,
+     "rs3": 47.5,
+     "rs6": -34.1,
      "gap": 9.6,
      "gaplvl": "H",
-     "from_high": -25.7,
+     "from_high": -15.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3942,7 +3942,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3950,11 +3950,11 @@
        }
       ]
      },
-     "rs3": 47.8,
-     "rs6": 134.3,
+     "rs3": 13.3,
+     "rs6": 240.9,
      "gap": 18.1,
      "gaplvl": "H",
-     "from_high": -16.4,
+     "from_high": -5.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -3975,7 +3975,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -3983,11 +3983,11 @@
        }
       ]
      },
-     "rs3": -17.2,
-     "rs6": -71.1,
+     "rs3": -10.8,
+     "rs6": -51.9,
      "gap": 10.4,
      "gaplvl": "H",
-     "from_high": -60.2,
+     "from_high": -48.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4008,7 +4008,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4016,11 +4016,11 @@
        }
       ]
      },
-     "rs3": 40.8,
-     "rs6": 126.8,
+     "rs3": 43.2,
+     "rs6": 202.9,
      "gap": 22.4,
      "gaplvl": "H",
-     "from_high": -5.0,
+     "from_high": 0.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4051,7 +4051,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4059,11 +4059,11 @@
        }
       ]
      },
-     "rs3": 14.4,
-     "rs6": -49.7,
+     "rs3": 3.1,
+     "rs6": -58.5,
      "gap": 9.2,
      "gaplvl": "H",
-     "from_high": -34.8,
+     "from_high": -35.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4084,7 +4084,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4092,11 +4092,11 @@
        }
       ]
      },
-     "rs3": 3.9,
-     "rs6": -71.6,
+     "rs3": -10.4,
+     "rs6": -79.9,
      "gap": 2.6,
      "gaplvl": "L",
-     "from_high": -43.0,
+     "from_high": -42.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4117,7 +4117,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4125,11 +4125,11 @@
        }
       ]
      },
-     "rs3": 35.8,
-     "rs6": -4.3,
+     "rs3": 22.3,
+     "rs6": -14.2,
      "gap": 4.3,
      "gaplvl": "M",
-     "from_high": -31.9,
+     "from_high": -32.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4150,7 +4150,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4158,11 +4158,11 @@
        }
       ]
      },
-     "rs3": -6.3,
-     "rs6": 45.6,
+     "rs3": -5.2,
+     "rs6": 45.0,
      "gap": 14.0,
      "gaplvl": "H",
-     "from_high": -28.6,
+     "from_high": -31.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4183,7 +4183,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4191,11 +4191,11 @@
        }
       ]
      },
-     "rs3": 25.0,
-     "rs6": -53.8,
+     "rs3": 7.9,
+     "rs6": -62.3,
      "gap": 2.3,
      "gaplvl": "L",
-     "from_high": -34.1,
+     "from_high": -35.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4226,7 +4226,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4234,8 +4234,8 @@
        }
       ]
      },
-     "rs3": 28.8,
-     "rs6": -35.2,
+     "rs3": 13.8,
+     "rs6": -48.4,
      "gap": 4.9,
      "gaplvl": "M",
      "from_high": -21.7,
@@ -4259,7 +4259,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4267,11 +4267,11 @@
        }
       ]
      },
-     "rs3": 39.8,
-     "rs6": -30.4,
+     "rs3": 20.7,
+     "rs6": -39.4,
      "gap": 1.9,
      "gaplvl": "L",
-     "from_high": -16.0,
+     "from_high": -13.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4292,7 +4292,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4300,11 +4300,11 @@
        }
       ]
      },
-     "rs3": 25.7,
-     "rs6": -24.5,
+     "rs3": 12.5,
+     "rs6": -37.1,
      "gap": 2.5,
      "gaplvl": "L",
-     "from_high": -6.7,
+     "from_high": -5.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4325,7 +4325,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4333,11 +4333,11 @@
        }
       ]
      },
-     "rs3": 11.7,
-     "rs6": -50.5,
+     "rs3": -14.1,
+     "rs6": -66.1,
      "gap": 1.8,
      "gaplvl": "L",
-     "from_high": -23.5,
+     "from_high": -26.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4358,7 +4358,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4366,11 +4366,11 @@
        }
       ]
      },
-     "rs3": 30.9,
-     "rs6": -48.0,
+     "rs3": 9.6,
+     "rs6": -59.9,
      "gap": 2.0,
      "gaplvl": "L",
-     "from_high": -22.7,
+     "from_high": -22.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4391,7 +4391,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4399,11 +4399,11 @@
        }
       ]
      },
-     "rs3": 21.0,
-     "rs6": -54.3,
+     "rs3": 1.2,
+     "rs6": -65.4,
      "gap": 2.2,
      "gaplvl": "L",
-     "from_high": -27.6,
+     "from_high": -26.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4424,7 +4424,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4432,11 +4432,11 @@
        }
       ]
      },
-     "rs3": 26.1,
-     "rs6": -49.6,
-     "gap": 2.8,
+     "rs3": 8.2,
+     "rs6": -61.6,
+     "gap": 2.2,
      "gaplvl": "L",
-     "from_high": -23.3,
+     "from_high": -21.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4457,7 +4457,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4465,11 +4465,11 @@
        }
       ]
      },
-     "rs3": 55.5,
-     "rs6": -23.1,
+     "rs3": 34.4,
+     "rs6": -31.5,
      "gap": 2.4,
      "gaplvl": "L",
-     "from_high": -10.6,
+     "from_high": -11.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4490,7 +4490,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4498,11 +4498,11 @@
        }
       ]
      },
-     "rs3": 56.2,
-     "rs6": -22.5,
+     "rs3": 26.7,
+     "rs6": -42.0,
      "gap": 5.2,
      "gaplvl": "M",
-     "from_high": -16.4,
+     "from_high": -19.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4533,7 +4533,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4541,11 +4541,11 @@
        }
       ]
      },
-     "rs3": 38.0,
-     "rs6": 4.0,
+     "rs3": 18.0,
+     "rs6": -3.3,
      "gap": 6.7,
      "gaplvl": "M",
-     "from_high": -39.1,
+     "from_high": -39.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4566,7 +4566,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4574,11 +4574,11 @@
        }
       ]
      },
-     "rs3": -8.6,
+     "rs3": -15.8,
      "rs6": -42.8,
      "gap": 9.8,
      "gaplvl": "H",
-     "from_high": -59.8,
+     "from_high": -59.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4599,7 +4599,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4607,11 +4607,11 @@
        }
       ]
      },
-     "rs3": 24.4,
-     "rs6": -51.7,
+     "rs3": -1.9,
+     "rs6": -59.4,
      "gap": 4.9,
      "gaplvl": "M",
-     "from_high": -35.7,
+     "from_high": -35.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4632,7 +4632,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4640,11 +4640,11 @@
        }
       ]
      },
-     "rs3": 14.1,
-     "rs6": -70.8,
+     "rs3": 4.4,
+     "rs6": -78.5,
      "gap": 4.7,
      "gaplvl": "M",
-     "from_high": -53.0,
+     "from_high": -51.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4675,7 +4675,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4683,11 +4683,11 @@
        }
       ]
      },
-     "rs3": -2.2,
-     "rs6": 208.5,
+     "rs3": -8.8,
+     "rs6": 238.5,
      "gap": 28.3,
      "gaplvl": "H",
-     "from_high": -33.6,
+     "from_high": -30.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4708,7 +4708,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4716,11 +4716,11 @@
        }
       ]
      },
-     "rs3": -21.6,
-     "rs6": 47.9,
+     "rs3": -25.2,
+     "rs6": 46.1,
      "gap": 16.2,
      "gaplvl": "H",
-     "from_high": -65.0,
+     "from_high": -62.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4741,7 +4741,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4749,11 +4749,11 @@
        }
       ]
      },
-     "rs3": 25.5,
-     "rs6": 48.4,
+     "rs3": 21.7,
+     "rs6": 55.6,
      "gap": 7.0,
      "gaplvl": "M",
-     "from_high": -46.6,
+     "from_high": -44.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4784,7 +4784,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4792,11 +4792,11 @@
        }
       ]
      },
-     "rs3": 41.3,
-     "rs6": -25.3,
+     "rs3": 34.7,
+     "rs6": -22.0,
      "gap": 4.8,
      "gaplvl": "M",
-     "from_high": -12.2,
+     "from_high": -2.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4817,7 +4817,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4825,11 +4825,11 @@
        }
       ]
      },
-     "rs3": 27.9,
-     "rs6": -51.3,
+     "rs3": 25.0,
+     "rs6": -59.7,
      "gap": 2.5,
      "gaplvl": "L",
-     "from_high": -35.7,
+     "from_high": -30.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4850,7 +4850,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4858,11 +4858,11 @@
        }
       ]
      },
-     "rs3": 33.8,
-     "rs6": -32.0,
+     "rs3": 21.7,
+     "rs6": -39.6,
      "gap": 2.6,
      "gaplvl": "L",
-     "from_high": -15.1,
+     "from_high": -12.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4893,7 +4893,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4901,11 +4901,11 @@
        }
       ]
      },
-     "rs3": 35.8,
-     "rs6": -44.4,
+     "rs3": 16.1,
+     "rs6": -60.3,
      "gap": 3.5,
      "gaplvl": "L",
-     "from_high": -30.8,
+     "from_high": -35.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4926,7 +4926,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4934,11 +4934,11 @@
        }
       ]
      },
-     "rs3": 23.3,
-     "rs6": -63.5,
+     "rs3": 9.1,
+     "rs6": -73.0,
      "gap": 7.9,
      "gaplvl": "M",
-     "from_high": -46.8,
+     "from_high": -48.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4959,7 +4959,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -4967,11 +4967,11 @@
        }
       ]
      },
-     "rs3": 19.3,
-     "rs6": -43.7,
+     "rs3": 7.7,
+     "rs6": -55.0,
      "gap": 3.7,
      "gaplvl": "L",
-     "from_high": -41.1,
+     "from_high": -41.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -4992,7 +4992,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5000,11 +5000,11 @@
        }
       ]
      },
-     "rs3": 38.3,
-     "rs6": -54.4,
+     "rs3": 30.7,
+     "rs6": -57.5,
      "gap": 3.1,
      "gaplvl": "L",
-     "from_high": -40.9,
+     "from_high": -38.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5025,7 +5025,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5033,11 +5033,11 @@
        }
       ]
      },
-     "rs3": 29.0,
-     "rs6": -68.7,
+     "rs3": 11.9,
+     "rs6": -76.6,
      "gap": 24.4,
      "gaplvl": "H",
-     "from_high": -38.1,
+     "from_high": -42.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5068,7 +5068,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5076,11 +5076,11 @@
        }
       ]
      },
-     "rs3": 19.0,
-     "rs6": -49.5,
+     "rs3": -9.4,
+     "rs6": -63.2,
      "gap": 4.0,
      "gaplvl": "M",
-     "from_high": -28.3,
+     "from_high": -30.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5101,7 +5101,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5109,11 +5109,11 @@
        }
       ]
      },
-     "rs3": 19.1,
-     "rs6": -59.3,
-     "gap": 3.2,
+     "rs3": 9.1,
+     "rs6": -52.1,
+     "gap": 2.7,
      "gaplvl": "L",
-     "from_high": -29.4,
+     "from_high": -21.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5134,7 +5134,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5142,11 +5142,11 @@
        }
       ]
      },
-     "rs3": 29.0,
-     "rs6": -61.5,
+     "rs3": 7.1,
+     "rs6": -69.6,
      "gap": 9.8,
      "gaplvl": "H",
-     "from_high": -42.0,
+     "from_high": -40.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5177,7 +5177,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5185,11 +5185,11 @@
        }
       ]
      },
-     "rs3": 16.1,
-     "rs6": -10.0,
+     "rs3": -2.3,
+     "rs6": -3.6,
      "gap": 10.2,
      "gaplvl": "H",
-     "from_high": -35.5,
+     "from_high": -34.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5210,7 +5210,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5218,11 +5218,11 @@
        }
       ]
      },
-     "rs3": 22.6,
-     "rs6": -4.4,
+     "rs3": 1.8,
+     "rs6": -18.1,
      "gap": 18.9,
      "gaplvl": "H",
-     "from_high": -31.3,
+     "from_high": -39.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5243,7 +5243,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5251,11 +5251,11 @@
        }
       ]
      },
-     "rs3": 11.7,
-     "rs6": -19.0,
+     "rs3": -12.6,
+     "rs6": -32.9,
      "gap": 13.4,
      "gaplvl": "H",
-     "from_high": -41.9,
+     "from_high": -46.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5276,7 +5276,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5284,11 +5284,11 @@
        }
       ]
      },
-     "rs3": 34.9,
-     "rs6": -38.4,
+     "rs3": 6.0,
+     "rs6": -55.3,
      "gap": 5.2,
      "gaplvl": "M",
-     "from_high": -34.5,
+     "from_high": -40.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5309,7 +5309,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5317,11 +5317,11 @@
        }
       ]
      },
-     "rs3": 18.9,
-     "rs6": -38.3,
+     "rs3": -3.6,
+     "rs6": -51.3,
      "gap": 4.9,
      "gaplvl": "M",
-     "from_high": -23.9,
+     "from_high": -27.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5342,7 +5342,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5350,11 +5350,11 @@
        }
       ]
      },
-     "rs3": 15.4,
-     "rs6": -54.8,
+     "rs3": 3.4,
+     "rs6": -61.2,
      "gap": 6.3,
      "gaplvl": "M",
-     "from_high": -40.1,
+     "from_high": -40.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5375,7 +5375,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5418,7 +5418,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5426,11 +5426,11 @@
        }
       ]
      },
-     "rs3": -11.7,
-     "rs6": -77.0,
+     "rs3": -26.9,
+     "rs6": -88.8,
      "gap": 8.0,
      "gaplvl": "M",
-     "from_high": -59.4,
+     "from_high": -59.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5451,7 +5451,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5459,11 +5459,11 @@
        }
       ]
      },
-     "rs3": 13.9,
-     "rs6": -62.8,
+     "rs3": 7.7,
+     "rs6": -73.8,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -37.1,
+     "from_high": -32.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5484,7 +5484,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5492,11 +5492,11 @@
        }
       ]
      },
-     "rs3": 45.6,
-     "rs6": -21.3,
+     "rs3": 34.6,
+     "rs6": -32.4,
      "gap": 4.0,
      "gaplvl": "M",
-     "from_high": -4.5,
+     "from_high": -4.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5517,7 +5517,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5560,7 +5560,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5568,11 +5568,11 @@
        }
       ]
      },
-     "rs3": 0.3,
-     "rs6": -71.7,
+     "rs3": -12.1,
+     "rs6": -77.4,
      "gap": 3.1,
      "gaplvl": "L",
-     "from_high": -55.4,
+     "from_high": -55.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5593,7 +5593,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5601,11 +5601,11 @@
        }
       ]
      },
-     "rs3": 33.2,
-     "rs6": -37.4,
+     "rs3": 18.5,
+     "rs6": -46.5,
      "gap": 2.1,
      "gaplvl": "L",
-     "from_high": -21.9,
+     "from_high": -21.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5626,7 +5626,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5634,11 +5634,11 @@
        }
       ]
      },
-     "rs3": 23.4,
-     "rs6": -62.6,
+     "rs3": 8.7,
+     "rs6": -68.5,
      "gap": 2.6,
      "gaplvl": "L",
-     "from_high": -32.2,
+     "from_high": -33.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5659,7 +5659,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5667,11 +5667,11 @@
        }
       ]
      },
-     "rs3": 44.6,
-     "rs6": -53.8,
+     "rs3": 26.4,
+     "rs6": -65.5,
      "gap": 9.1,
      "gaplvl": "H",
-     "from_high": -33.1,
+     "from_high": -34.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5702,7 +5702,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5710,11 +5710,11 @@
        }
       ]
      },
-     "rs3": 14.3,
-     "rs6": -50.8,
+     "rs3": 8.7,
+     "rs6": -41.0,
      "gap": 7.5,
      "gaplvl": "M",
-     "from_high": -29.6,
+     "from_high": -18.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5735,7 +5735,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5743,11 +5743,11 @@
        }
       ]
      },
-     "rs3": 22.8,
-     "rs6": -44.6,
+     "rs3": 9.5,
+     "rs6": -49.9,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": -23.8,
+     "from_high": -23.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5768,7 +5768,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5776,11 +5776,11 @@
        }
       ]
      },
-     "rs3": 11.9,
-     "rs6": -44.1,
+     "rs3": 9.8,
+     "rs6": -51.3,
      "gap": 6.3,
      "gaplvl": "M",
-     "from_high": -29.8,
+     "from_high": -30.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5801,7 +5801,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5809,11 +5809,11 @@
        }
       ]
      },
-     "rs3": 18.0,
-     "rs6": -63.7,
+     "rs3": 12.1,
+     "rs6": -75.5,
      "gap": 5.1,
      "gaplvl": "M",
-     "from_high": -42.5,
+     "from_high": -41.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5834,7 +5834,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5842,11 +5842,11 @@
        }
       ]
      },
-     "rs3": 12.1,
-     "rs6": -61.3,
+     "rs3": 4.0,
+     "rs6": -71.2,
      "gap": 7.6,
      "gaplvl": "M",
-     "from_high": -45.4,
+     "from_high": -43.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5867,7 +5867,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5875,11 +5875,11 @@
        }
       ]
      },
-     "rs3": 51.1,
-     "rs6": -44.2,
+     "rs3": 35.6,
+     "rs6": -50.1,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": -35.9,
+     "from_high": -33.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5900,7 +5900,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5908,11 +5908,11 @@
        }
       ]
      },
-     "rs3": 19.1,
-     "rs6": -3.8,
+     "rs3": 37.8,
+     "rs6": -11.2,
      "gap": 22.7,
      "gaplvl": "H",
-     "from_high": -32.4,
+     "from_high": -29.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5933,7 +5933,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5941,11 +5941,11 @@
        }
       ]
      },
-     "rs3": 12.4,
-     "rs6": -60.4,
+     "rs3": 6.0,
+     "rs6": -73.2,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -48.6,
+     "from_high": -47.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -5976,7 +5976,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -5984,11 +5984,11 @@
        }
       ]
      },
-     "rs3": -7.0,
-     "rs6": -63.8,
+     "rs3": -18.6,
+     "rs6": -70.9,
      "gap": 5.4,
      "gaplvl": "M",
-     "from_high": -52.6,
+     "from_high": -53.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6009,7 +6009,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6017,11 +6017,11 @@
        }
       ]
      },
-     "rs3": 5.0,
-     "rs6": -63.3,
+     "rs3": -13.1,
+     "rs6": -71.7,
      "gap": 4.5,
      "gaplvl": "M",
-     "from_high": -41.5,
+     "from_high": -42.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6052,7 +6052,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6060,11 +6060,11 @@
        }
       ]
      },
-     "rs3": 39.8,
-     "rs6": -60.5,
+     "rs3": 21.4,
+     "rs6": -68.1,
      "gap": 3.8,
      "gaplvl": "L",
-     "from_high": -34.9,
+     "from_high": -33.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6085,7 +6085,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6093,11 +6093,11 @@
        }
       ]
      },
-     "rs3": 17.6,
-     "rs6": -38.7,
+     "rs3": 18.0,
+     "rs6": -30.1,
      "gap": 4.7,
      "gaplvl": "M",
-     "from_high": -53.2,
+     "from_high": -44.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6118,7 +6118,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6126,11 +6126,11 @@
        }
       ]
      },
-     "rs3": 37.3,
-     "rs6": -49.4,
-     "gap": 5.4,
-     "gaplvl": "M",
-     "from_high": -29.1,
+     "rs3": 27.5,
+     "rs6": -52.0,
+     "gap": 3.6,
+     "gaplvl": "L",
+     "from_high": -22.2,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6161,7 +6161,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6169,11 +6169,11 @@
        }
       ]
      },
-     "rs3": 22.4,
-     "rs6": -65.4,
-     "gap": 29.8,
+     "rs3": -20.3,
+     "rs6": -74.0,
+     "gap": 22.9,
      "gaplvl": "H",
-     "from_high": -54.8,
+     "from_high": -53.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6194,7 +6194,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6202,11 +6202,11 @@
        }
       ]
      },
-     "rs3": 30.3,
-     "rs6": -63.1,
+     "rs3": 9.4,
+     "rs6": -75.0,
      "gap": 2.3,
      "gaplvl": "L",
-     "from_high": -42.1,
+     "from_high": -41.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6227,7 +6227,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6235,11 +6235,11 @@
        }
       ]
      },
-     "rs3": 17.7,
-     "rs6": -69.4,
+     "rs3": 1.2,
+     "rs6": -77.7,
      "gap": 2.4,
      "gaplvl": "L",
-     "from_high": -46.5,
+     "from_high": -39.6,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6260,7 +6260,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6268,11 +6268,11 @@
        }
       ]
      },
-     "rs3": 17.5,
-     "rs6": -52.7,
+     "rs3": -9.5,
+     "rs6": -71.4,
      "gap": 3.1,
      "gaplvl": "L",
-     "from_high": -35.1,
+     "from_high": -33.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6293,7 +6293,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6301,11 +6301,11 @@
        }
       ]
      },
-     "rs3": 74.3,
-     "rs6": -21.4,
+     "rs3": 48.5,
+     "rs6": -30.3,
      "gap": 15.4,
      "gaplvl": "H",
-     "from_high": -5.5,
+     "from_high": 0.0,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6326,7 +6326,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6334,11 +6334,11 @@
        }
       ]
      },
-     "rs3": 12.7,
-     "rs6": -38.4,
-     "gap": 2.2,
-     "gaplvl": "L",
-     "from_high": -37.3,
+     "rs3": 0.0,
+     "rs6": -41.9,
+     "gap": 8.4,
+     "gaplvl": "H",
+     "from_high": -28.7,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6359,7 +6359,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6367,11 +6367,11 @@
        }
       ]
      },
-     "rs3": 55.5,
-     "rs6": -36.9,
+     "rs3": 32.5,
+     "rs6": -55.8,
      "gap": 3.7,
      "gaplvl": "L",
-     "from_high": -23.9,
+     "from_high": -21.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6392,7 +6392,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6400,11 +6400,11 @@
        }
       ]
      },
-     "rs3": 18.2,
-     "rs6": -53.1,
+     "rs3": -1.8,
+     "rs6": -101.1,
      "gap": 7.2,
      "gaplvl": "M",
-     "from_high": -52.9,
+     "from_high": -53.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6425,7 +6425,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6433,11 +6433,11 @@
        }
       ]
      },
-     "rs3": 40.2,
-     "rs6": -71.9,
+     "rs3": 38.8,
+     "rs6": -65.7,
      "gap": 4.8,
      "gaplvl": "M",
-     "from_high": -49.2,
+     "from_high": -42.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6458,7 +6458,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6501,7 +6501,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6509,11 +6509,11 @@
        }
       ]
      },
-     "rs3": 28.0,
-     "rs6": -44.7,
+     "rs3": 23.3,
+     "rs6": -57.7,
      "gap": 14.4,
      "gaplvl": "H",
-     "from_high": -39.2,
+     "from_high": -36.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6534,7 +6534,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6542,11 +6542,11 @@
        }
       ]
      },
-     "rs3": -4.8,
-     "rs6": -82.0,
-     "gap": 5.8,
+     "rs3": 1.3,
+     "rs6": -89.3,
+     "gap": 5.3,
      "gaplvl": "M",
-     "from_high": -57.3,
+     "from_high": -52.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6567,7 +6567,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6575,11 +6575,11 @@
        }
       ]
      },
-     "rs3": 3.3,
-     "rs6": -77.1,
+     "rs3": 2.2,
+     "rs6": -81.0,
      "gap": 8.7,
      "gaplvl": "H",
-     "from_high": -52.8,
+     "from_high": -46.8,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6600,7 +6600,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6608,11 +6608,11 @@
        }
       ]
      },
-     "rs3": 56.9,
-     "rs6": -52.5,
-     "gap": 5.3,
+     "rs3": 44.0,
+     "rs6": -77.1,
+     "gap": 5.8,
      "gaplvl": "M",
-     "from_high": -37.1,
+     "from_high": -37.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6633,7 +6633,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6641,11 +6641,11 @@
        }
       ]
      },
-     "rs3": 0.8,
-     "rs6": -82.6,
-     "gap": 6.8,
+     "rs3": 11.4,
+     "rs6": -85.8,
+     "gap": 6.1,
      "gaplvl": "M",
-     "from_high": -56.7,
+     "from_high": -51.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6666,7 +6666,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6674,11 +6674,11 @@
        }
       ]
      },
-     "rs3": 34.7,
-     "rs6": -51.7,
+     "rs3": 32.3,
+     "rs6": -58.0,
      "gap": 5.7,
      "gaplvl": "M",
-     "from_high": -36.6,
+     "from_high": -27.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6699,7 +6699,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6707,11 +6707,11 @@
        }
       ]
      },
-     "rs3": 12.0,
-     "rs6": -62.6,
+     "rs3": 10.4,
+     "rs6": -71.0,
      "gap": 11.0,
      "gaplvl": "H",
-     "from_high": -56.3,
+     "from_high": -52.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6732,7 +6732,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6740,11 +6740,11 @@
        }
       ]
      },
-     "rs3": 23.5,
-     "rs6": -49.1,
+     "rs3": 15.8,
+     "rs6": -70.3,
      "gap": 7.1,
      "gaplvl": "M",
-     "from_high": -48.8,
+     "from_high": -46.5,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6765,7 +6765,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6773,11 +6773,11 @@
        }
       ]
      },
-     "rs3": -0.7,
-     "rs6": -69.0,
+     "rs3": 3.5,
+     "rs6": -94.3,
      "gap": 22.9,
      "gaplvl": "H",
-     "from_high": -79.4,
+     "from_high": -76.9,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6798,7 +6798,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6806,11 +6806,11 @@
        }
       ]
      },
-     "rs3": 15.2,
-     "rs6": -35.0,
+     "rs3": 38.7,
+     "rs6": -26.8,
      "gap": 6.6,
      "gaplvl": "M",
-     "from_high": -48.9,
+     "from_high": -35.3,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6841,7 +6841,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6849,11 +6849,11 @@
        }
       ]
      },
-     "rs3": 30.5,
-     "rs6": -5.8,
+     "rs3": 16.3,
+     "rs6": -19.6,
      "gap": 3.0,
      "gaplvl": "L",
-     "from_high": 0.0,
+     "from_high": -4.4,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6874,7 +6874,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6882,11 +6882,11 @@
        }
       ]
      },
-     "rs3": 23.8,
-     "rs6": -40.7,
+     "rs3": 13.0,
+     "rs6": -52.6,
      "gap": 3.4,
      "gaplvl": "L",
-     "from_high": -26.6,
+     "from_high": -26.1,
      "pe": null,
      "fpe": null,
      "peg": null,
@@ -6907,7 +6907,7 @@
      "q_note": "정상",
      "d_until": null,
      "ir": {
-      "date": "2026-09",
+      "date": "2026-10",
       "docs": [
        {
         "label": "DART 사업·분기보고서",
@@ -6915,11 +6915,11 @@
        }
       ]
      },
-     "rs3": 19.3,
-     "rs6": -47.5,
+     "rs3": 7.2,
+     "rs6": -59.6,
      "gap": 3.3,
      "gaplvl": "L",
-     "from_high": -31.4,
+     "from_high": -31.8,
      "pe": null,
      "fpe": null,
      "peg": null,

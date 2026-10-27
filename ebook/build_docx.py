@@ -26,6 +26,10 @@ NAVY="163B4E"; NAVY2="21566E"; ACCENT="C0894B"; ACCENTD="9C6B33"
 INK="232020"; MUTED="6E6A63"; LINE="DED8CC"
 TINT="EEF3F2"; TINT2="F6F1E7"; GOODBG="EAF1ED"; BADBG="F7EEE8"; PROMPTBG="EEF3F2"
 HEAD="맑은 고딕"; BODY="바탕"
+CREAM="F6ECD6"; EDGE="DBC49A"
+_T=getattr(C,"THEME",None)          # 책별 색 테마(표지 포인트 색)
+if _T:
+    NAVY,NAVY2,ACCENT,ACCENTD,TINT2,CREAM,EDGE=(_T[k].lstrip('#') for k in ("navy","navy2","accent","accentd","tint2","cream1","edge"))
 
 # ---------- XML 헬퍼 ----------
 def _set(el, tag, **a):
@@ -211,7 +215,7 @@ def dodont(doc,label,items,kind):
 def heading2(doc,text):
     h=doc.add_paragraph(style='Heading 2'); h.paragraph_format.page_break_before=True
     run(h,text,font=HEAD,size=15,bold=True,color=NAVY); botborder(h,ACCENT,16); return h
-def part_page(doc,num,title,icon='',intro=''):
+def part_page(doc,num,title,icon='',intro='',note=None):
     ip=IMG/f"{icon}.png"
     img_p=doc.add_paragraph(); img_p.alignment=WD_ALIGN_PARAGRAPH.CENTER
     img_p.paragraph_format.page_break_before=True; img_p.paragraph_format.space_before=Pt(115); img_p.paragraph_format.space_after=Pt(10)
@@ -221,10 +225,73 @@ def part_page(doc,num,title,icon='',intro=''):
     h2=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=6,after=0); run(h2,title,font=HEAD,size=19,bold=True,color=NAVY)
     if intro:
         spacer(doc,6)
-        c=box(doc,"F6ECD6"); borders(c,ACCENT,18,sides=('top',))
+        c=box(doc,CREAM); borders(c,ACCENT,18,sides=('top',))
         pi=c.paragraphs[0]; pi.alignment=WD_ALIGN_PARAGRAPH.CENTER
         pi.paragraph_format.space_after=Pt(0); pi.paragraph_format.line_spacing=1.6
         run(pi,intro,font=BODY,size=11,italic=True,color=NAVY2)
+    if note:                          # 부 표지 하단 안내 박스
+        spacer(doc,6)
+        c=box(doc,"FFFFFF"); borders(c,EDGE,8)
+        lp=c.paragraphs[0]; lp.paragraph_format.space_after=Pt(3)
+        run(lp,note[0],font=HEAD,size=8.5,bold=True,color=ACCENTD)
+        np_=c.add_paragraph(); np_.paragraph_format.space_after=Pt(0); np_.paragraph_format.line_spacing=1.5
+        run(np_,note[1],size=9.4,color="3B3833")
+
+# ---------- 3권: 데이터·주의·배운 것 박스 / 규칙 카드 / 질문 전환 카드 ----------
+IBSTYLE={"deep":("F1F4F6",None,"3D4A55",8.8),"caution":("FFF6F2",None,"3B3530",9.4),
+         "learn":("FFFFFF",None,None,9.6),"note":(None,None,"3B3833",9.4)}
+def infobox(doc,kind,label,items,ordered=False):
+    fill,_,ink,sz=IBSTYLE.get(kind,IBSTYLE["note"])
+    c=box(doc,fill or TINT2, NAVY2 if kind=="deep" else (ACCENT if kind=="caution" else None))
+    if kind in ("caution","learn"): borders(c,ACCENT,10)
+    first=c.paragraphs[0]; first.paragraph_format.space_after=Pt(3)
+    if label:
+        run(first,("! " if kind=="caution" else "")+label,font=HEAD,size=8.3,bold=True,
+            color=NAVY2 if kind=="deep" else ACCENTD)
+    for i,x in enumerate(items,1):
+        p=first if (not label and i==1) else c.add_paragraph()
+        p.paragraph_format.space_after=Pt(2); p.paragraph_format.line_spacing=1.45
+        single=len(items)==1 and kind in ("learn","note")
+        if not single: run(p,f"{i}.  " if ordered else "•  ",font=HEAD,size=sz,bold=True,
+                           color=NAVY2 if kind=="deep" else ACCENT)
+        if isinstance(x,tuple):
+            run(p,x[0]+" ",font=HEAD,size=sz,bold=True,color=NAVY); run(p,x[1],size=sz,color=ink or INK)
+        else:
+            run(p,x,font=HEAD if kind=="learn" else BODY,size=sz,color=NAVY if kind=="learn" else (ink or INK))
+    spacer(doc)
+def rulecard(doc,secs,head=''):
+    t=doc.add_table(rows=1+len(secs),cols=1); t.alignment=WD_TABLE_ALIGNMENT.CENTER
+    hc=t.cell(0,0); shade(hc,NAVY); cmar(hc,70,70,150,150); borders(hc,NAVY,12)
+    run(hc.paragraphs[0],head or "규칙 카드",font=HEAD,size=8.6,bold=True,color="FFFFFF")
+    for r,(label,items,ordered,text) in enumerate(secs,1):
+        c=t.cell(r,0); shade(c,"FFFFFF"); cmar(c,90,90,150,150)
+        borders(c,NAVY,12,sides=('start','end')); borders(c,"C9CFD6",4,sides=('top',))
+        if r==len(secs): borders(c,NAVY,12,sides=('bottom',))
+        main,_,sub=label.partition(" (")
+        lp=c.paragraphs[0]; lp.paragraph_format.space_after=Pt(2)
+        run(lp,main,font=HEAD,size=9.6,bold=True,color=NAVY)
+        if sub: run(lp,"  ("+sub,font=HEAD,size=7.8,color=MUTED)
+        for i,x in enumerate(items,1):
+            p=c.add_paragraph(); p.paragraph_format.space_after=Pt(1); p.paragraph_format.line_spacing=1.4
+            run(p,f"{i}. " if ordered else "•  ",font=HEAD,size=9.4,bold=True,color=ACCENT); run(p,x,size=9.4)
+        if text:
+            p=c.add_paragraph(); p.paragraph_format.space_after=Pt(0); p.paragraph_format.line_spacing=1.4; run(p,text,size=9.4)
+    paras=[pp for row in t.rows for pp in row.cells[0].paragraphs]   # 카드가 쪽 사이에서 갈라지지 않게
+    for pp in paras[:-1]: pp.paragraph_format.keep_with_next=True
+    for row in t.rows: _set(row._tr.get_or_add_trPr(),'w:cantSplit')
+    spacer(doc)
+def qchange(doc,sit,before,after):
+    c=box(doc,CREAM); borders(c,EDGE,8)
+    p=c.paragraphs[0]; p.paragraph_format.space_after=Pt(4)
+    if sit: run(p,sit,font=HEAD,size=8.6,bold=True,color=ACCENTD)
+    p1=c.add_paragraph() if sit else p; p1.paragraph_format.space_after=Pt(1)
+    run(p1," 예전 질문 ",font=HEAD,size=7.5,bold=True,color="6E6A63"); run_shd(p1.runs[-1],"E4DEDA")
+    run(p1,"   "+before,size=10,color="6E6A63")
+    pa=c.add_paragraph(); pa.paragraph_format.space_after=Pt(1); run(pa,"   ↓",font=HEAD,size=11,bold=True,color=ACCENT)
+    p2=c.add_paragraph(); p2.paragraph_format.space_after=Pt(0); p2.paragraph_format.line_spacing=1.45
+    run_shd(run(p2," 바뀐 질문 ",font=HEAD,size=7.5,bold=True,color="FFFFFF"),ACCENT)
+    run(p2,"   "+after,font=HEAD,size=10.6,bold=True,color=NAVY)
+    spacer(doc)
 
 # ---------- TOC ----------
 def add_toc(doc):
@@ -278,7 +345,8 @@ def build():
             gp=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=0,line=1.5); gp.paragraph_format.left_indent=Mm(14); gp.paragraph_format.right_indent=Mm(14)
             run(gp,getattr(C,"READGUIDE","이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다."),size=9.6,color=MUTED)
         elif t=='toc': add_toc(doc)
-        elif t=='part': part_page(doc, el[1], el[2], el[3] if len(el)>3 else '', el[4] if len(el)>4 else '')
+        elif t=='part': part_page(doc, el[1], el[2], el[3] if len(el)>3 else '', el[4] if len(el)>4 else '',
+                                  el[5] if len(el)>5 else None)
         elif t=='h1big':
             kind=el[1]; icon=el[3] if len(el)>3 else ''
             if kind=='prologue': opener(doc, icon, '', '프롤로그', subtitle=el[2])
@@ -294,7 +362,8 @@ def build():
                 pic.add_run().add_picture(str(fp), width=Mm(116))
             if len(el)>2 and el[2]:
                 cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6)
-                run(cap,"개념도  ",font=HEAD,size=7.5,bold=True,color=ACCENTD); run(cap,el[2],font=HEAD,size=8.5,color=MUTED)
+                tag=el[3] if len(el)>3 and el[3] else "개념도"
+                run(cap,f"{tag}  ",font=HEAD,size=7.5,bold=True,color=ACCENTD); run(cap,el[2],font=HEAD,size=8.5,color=MUTED)
         elif t=='callout': callout(doc, el[1], el[2])
         elif t=='compare': compare(doc, el[1], el[2], el[3], el[4] if len(el)>4 else '')
         elif t=='cards': cards(doc, el[1])
@@ -308,7 +377,7 @@ def build():
             rl=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=1,after=8); rl.paragraph_format.left_indent=Mm(58); rl.paragraph_format.right_indent=Mm(58); botborder(rl,ACCENT,16)
         elif t=='endnote':
             lines=el[1] if isinstance(el[1],(list,tuple)) else [el[1]]
-            c=box(doc,"F6ECD6"); borders(c,"DBC49A",6)
+            c=box(doc,CREAM); borders(c,EDGE,6)
             lp=c.paragraphs[0]; lp.alignment=WD_ALIGN_PARAGRAPH.CENTER; lp.paragraph_format.space_after=Pt(4)
             run_shd(run(lp,"  이 장의 정리  ",font=HEAD,size=8.5,bold=True,color="FFFFFF"),ACCENT)
             for i,s in enumerate(lines,1):
@@ -349,9 +418,22 @@ def build():
             run(qp,text,font=HEAD,size=10.5,bold=True,color=INK); qp.paragraph_format.keep_with_next=True
         elif t=='prompt':
             c=box(doc,PROMPTBG,NAVY2); tp=c.paragraphs[0]; tp.paragraph_format.space_after=Pt(2)
-            run(tp,"붙여넣을 프롬프트",font=HEAD,size=7.8,bold=True,color=NAVY2)
-            bp=c.add_paragraph(); bp.paragraph_format.space_after=Pt(0); bp.paragraph_format.line_spacing=1.4
-            run(bp,el[1],size=9.6,color="33433F"); spacer(doc,1)
+            run(tp,el[2] if len(el)>2 and el[2] else "붙여넣을 프롬프트",font=HEAD,size=7.8,bold=True,color=NAVY2)
+            for x in (el[1] if isinstance(el[1],(list,tuple)) else [el[1]]):
+                bp=c.add_paragraph(); bp.paragraph_format.space_after=Pt(2); bp.paragraph_format.line_spacing=1.4
+                if isinstance(el[1],(list,tuple)): run(bp,"›  ",font=HEAD,size=9.6,bold=True,color=ACCENT)
+                run(bp,x,size=9.6,color="33433F")
+            spacer(doc,1)
+        elif t=='infobox': infobox(doc, el[1], el[2], el[3], el[4])
+        elif t=='rulecard': rulecard(doc, el[1], el[2] if len(el)>2 else '')
+        elif t=='qhead':
+            ep=para(doc,before=14,after=0); run(ep,"이 장을 마치며",font=HEAD,size=7.5,bold=True,color=ACCENT)
+            ep.paragraph_format.keep_with_next=True
+            hp=para(doc,before=0,after=6); run(hp,el[1],font=HEAD,size=13,bold=True,color=NAVY)
+            botborder(hp,ACCENT,12); hp.paragraph_format.keep_with_next=True
+        elif t=='qchange': qchange(doc, el[1], el[2], el[3])
+        elif t=='tnote':
+            tp=para(doc,WD_ALIGN_PARAGRAPH.RIGHT,before=0,after=8); run(tp,f"자료 · {el[1]}",font=HEAD,size=7.5,color=MUTED)
         elif t=='closing':
             op=IMG/"ornament.png"
             ip=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=36,after=6)

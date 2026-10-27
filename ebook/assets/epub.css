@@ -95,3 +95,38 @@ table.gtbl .hd{background:#163B4E;color:#fff;font-family:sans-serif}
 table.gtbl .rl{background:#F3F0E9;color:#163B4E;font-family:sans-serif;width:30%}
 
 table.gtbl td:first-child{white-space:nowrap}
+
+/* ---- 3권 요소 ---- */
+.pnote{border:1px solid #DBC49A;border-radius:8px;padding:.7em .9em;margin:1em auto 0;max-width:92%;font-size:.88em}
+.pnote .pnlabel{font-family:sans-serif;font-weight:700;color:#9C6B33;margin:0 0 .3em;font-size:.85em}
+.qh-eb{font-family:sans-serif;font-weight:700;font-size:.7em;letter-spacing:.15em;color:#9C6B33;margin:2em 0 0}
+h3.qhead{margin-top:.2em;border-bottom:2px solid #C0894B;padding-bottom:.2em}
+.qchange{background:#F6ECD6;border:1px solid #DBC49A;border-radius:10px;padding:.9em 1em;margin:1em 0}
+.qchange p{margin:.2em 0;text-align:left}
+.qsit{font-family:sans-serif;font-weight:700;font-size:.82em;color:#9C6B33}
+.qtag{font-family:sans-serif;font-weight:700;font-size:.72em;border-radius:20px;padding:.1em .6em;background:#E4DEDA;color:#6E6A63}
+.qold{color:#6E6A63}
+.qnew{font-family:sans-serif;font-weight:700;color:#163B4E}
+.qnew .qtag{background:#C0894B;color:#fff}
+.qarrow{color:#C0894B;font-weight:700;margin-left:1.5em}
+.prompt .plist{margin:0;padding-left:1.1em}
+.prompt .plist li{margin:.25em 0}
+.infobox{border-radius:8px;padding:.8em 1em;margin:1.2em 0}
+.infobox .iblabel{font-family:sans-serif;font-weight:700;font-size:.8em;margin:0 0 .4em}
+.infobox ul,.infobox ol{margin:0;padding-left:1.2em}
+.infobox p{margin:0;text-align:left}
+.ib-deep{background:#F1F4F6;border-left:3px solid #21566E;font-size:.86em}
+.ib-deep .iblabel{color:#21566E}
+.ib-caution{background:#FFF6F2;border:1.5px solid #C0894B;font-size:.92em}
+.ib-caution .iblabel{color:#9C6B33}
+.ib-learn{border:1px dashed #C0894B}
+.ib-learn p{font-family:sans-serif;color:#163B4E}
+.ib-note{background:#F6F1E7;font-size:.92em}
+.rulecard{border:1.5px solid #163B4E;border-radius:9px;margin:1em 0;font-size:.92em}
+.rulecard .rc-head{background:#163B4E;color:#fff;font-family:sans-serif;font-weight:700;font-size:.8em;letter-spacing:.1em;margin:0;padding:.4em .9em}
+.rulecard .rc-sec{padding:.5em .9em;border-top:1px dashed #C9CFD6}
+.rulecard .rc-lbl{margin:0 0 .25em;font-family:sans-serif}
+.rulecard .rc-lbl small{color:#6E6A63}
+.rulecard ol,.rulecard ul{margin:0;padding-left:1.3em}
+.rulecard p{margin:0;text-align:left}
+.tnote{text-align:right;font-family:sans-serif;font-size:.75em;color:#6E6A63;margin-top:-.4em}

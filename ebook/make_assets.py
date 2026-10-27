@@ -256,6 +256,13 @@ def cover_book2():
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover.png"), output_width=Wc, output_height=Hc)
 
+def cover_book3():
+    """3권 표지: 저자가 만든 표지(조판 PDF 1쪽)를 그대로 1240×1835로."""
+    from PIL import Image
+    src=ASSETS/"book3_cover_source.png" if "ASSETS" in globals() else pathlib.Path(__file__).resolve().parent/"assets"/"book3_cover_source.png"
+    im=Image.open(src).convert("RGB").resize((1240,1835), Image.LANCZOS)
+    im.save(IMG/"book3_cover.png"); return IMG/"book3_cover.png"
+
 def build():
     cover_image()
     for name,inner in ICONS.items():

@@ -30,6 +30,14 @@ def first_sentence_split(text):
     if m and len(m.group(1))<=38: return m.group(1), m.group(2)
     return None, text
 
+def theme_css(T):
+    """책별 색 테마(표지 색에 맞춘 포인트 색) — 공통 CSS 변수와 크림 배경을 덮어쓴다."""
+    if not T: return ''
+    return ('<style>:root{'+f'--navy:{T["navy"]};--navy2:{T["navy2"]};--accent:{T["accent"]};'
+            f'--accentd:{T["accentd"]};--tint2:{T["tint2"]};--cream1:{T["cream1"]};--cream2:{T["cream2"]};--edge:{T["edge"]}'+'}'
+            '.endnote,.partpage .pintro{background:linear-gradient(135deg,var(--cream1),var(--cream2))}'
+            '.endnote{box-shadow:inset 0 0 0 1.5px var(--edge)}</style>')
+
 def render():
     if not (BUILD/"img"/"heart.png").exists():
         import make_assets; make_assets.build()
@@ -51,8 +59,13 @@ def render():
             icon=el[3] if len(el)>3 else ''; intro=el[4] if len(el)>4 else ''
             img=f'<img class="partimg" src="build/img/{icon}.png">' if icon else ''
             it=f'<p class="pintro">{esc(intro)}</p>' if intro else ''
-            parts.append(f'<section class="partpage" id="{anchor}">{img}'
-                         f'<div class="pno">{esc(el[1])}부</div><h1 class="part">{esc(el[2])}</h1>{it}</section>')
+            if len(el)>5 and el[5]:      # 부 표지 하단 안내(예: ‘3부를 읽기 전에’)
+                it+=f'<div class="pnote"><span class="pnlabel">{esc(el[5][0])}</span>{esc(el[5][1])}</div>'
+            ptitle=esc(el[2])
+            if ", " in el[2] and len(el[2])>12: ptitle=ptitle.replace(", ",", <br>",1)   # 긴 부 제목은 쉼표에서 줄바꿈
+            cls="partpage hasnote" if len(el)>5 and el[5] else "partpage"
+            parts.append(f'<section class="{cls}" id="{anchor}">{img}'
+                         f'<div class="pno">{esc(el[1])}부</div><h1 class="part">{ptitle}</h1>{it}</section>')
         elif t=='h1big':
             kind=el[1]; anchor=f"{kind}{len(TOC)}"; icon=el[3] if len(el)>3 else ''
             if kind=='prologue':
@@ -74,7 +87,8 @@ def render():
         elif t=='ornament':
             parts.append('<div class="ornament"><img src="build/img/ornament.png"></div>')
         elif t=='figure':
-            cap=(f'<figcaption><span class="figtag">개념도</span>{esc(el[2])}</figcaption>'
+            tag=el[3] if len(el)>3 and el[3] else "개념도"
+            cap=(f'<figcaption><span class="figtag">{esc(tag)}</span>{esc(el[2])}</figcaption>'
                  if len(el)>2 and el[2] else '')
             parts.append(f'<figure class="cfig"><img src="build/img/{el[1]}.png">{cap}</figure>')
         elif t=='callout':
@@ -162,7 +176,43 @@ def render():
             badge=f'<span class="qnum">Q{num}</span>' if qmode else f'<span class="qnum">{num}.</span>'
             parts.append(f'<p class="apx-q">{badge}{esc(text)}</p>')
         elif t=='prompt':
-            parts.append(f'<div class="prompt"><span class="ptag">붙여넣을 프롬프트</span>{esc(el[1])}</div>')
+            label=el[2] if len(el)>2 and el[2] else "붙여넣을 프롬프트"
+            if isinstance(el[1],(list,tuple)):
+                body='<ul class="plist">'+"".join(f'<li>{esc(x)}</li>' for x in el[1])+'</ul>'
+            else: body=esc(el[1])
+            parts.append(f'<div class="prompt"><span class="ptag">{esc(label)}</span>{body}</div>')
+        elif t=='infobox':
+            kind,label,items,ordered=el[1],el[2],el[3],el[4]
+            lis=[]
+            for x in items:
+                lis.append(f'<li><b>{esc(x[0])}</b> {esc(x[1])}</li>' if isinstance(x,tuple) else f'<li>{esc(x)}</li>')
+            if len(items)==1 and not isinstance(items[0],tuple) and kind in ('learn','note'):
+                body=f'<p>{esc(items[0])}</p>'
+            else:
+                tag='ol' if ordered else 'ul'; body=f'<{tag}>{"".join(lis)}</{tag}>'
+            lb=f'<span class="iblabel">{esc(label)}</span>' if label else ''
+            parts.append(f'<div class="infobox ib-{kind}">{lb}{body}</div>')
+        elif t=='rulecard':
+            secs=[]
+            for label,items,ordered,text in el[1]:
+                main,_,sub=label.partition(" (")
+                sub=f'<small>({esc(sub)}</small>' if sub else ''
+                if items:
+                    tag='ol' if ordered else 'ul'; body=f'<{tag}>'+"".join(f'<li>{esc(x)}</li>' for x in items)+f'</{tag}>'
+                else: body=f'<p>{esc(text)}</p>'
+                secs.append(f'<div class="rc-sec"><div class="rc-lbl"><span>{esc(main)}</span>{sub}</div>{body}</div>')
+            head=el[2] if len(el)>2 and el[2] else "규칙 카드"
+            parts.append(f'<div class="rulecard"><div class="rc-head">{esc(head)}</div>{"".join(secs)}</div>')
+        elif t=='qhead':
+            parts.append(f'<h3 class="qhead"><span class="qh-eb">이 장을 마치며</span>{esc(el[1])}</h3>')
+        elif t=='qchange':
+            sit=f'<div class="qsit">{esc(el[1])}</div>' if el[1] else ''
+            parts.append(f'<div class="qchange">{sit}'
+                         f'<div class="qrow qold"><span class="qtag">예전 질문</span><p>{esc(el[2])}</p></div>'
+                         f'<div class="qarrow">↓</div>'
+                         f'<div class="qrow qnew"><span class="qtag">바뀐 질문</span><p>{esc(el[3])}</p></div></div>')
+        elif t=='tnote':
+            parts.append(f'<p class="tnote">자료 · {esc(el[1])}</p>')
         elif t=='fill':
             parts.append(f'<p class="fillline">{esc(el[1])}<span class="fillrule" style="display:block"></span></p>')
     body="\n".join(parts)
@@ -185,6 +235,7 @@ def render():
           f'<meta name="keywords" content="{esc(", ".join(getattr(C,"KEYWORDS",["AI 투자","주식투자","투자 루틴","섹터 분석","포트폴리오","개인투자자","챗GPT 주식","AI 종목분석"])))}">')
     over=(f'<style>body{{font-size:{C.FONT_PT}pt;line-height:{getattr(C,"LINE",1.78)}}} '
           f'p{{margin-bottom:{getattr(C,"PARA_EM",0.82)}em}}</style>') if hasattr(C,'FONT_PT') else ''
+    over+=theme_css(getattr(C,"THEME",None))
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'
     (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
     HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT))

@@ -24,7 +24,9 @@ def render_elements():
         elif t=='part':
             ic=f'<img class="partimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
             intro=f'<p class="pintro">{esc(el[4])}</p>' if len(el)>4 and el[4] else ''
-            out.append(f'{ic}<h1><span class="pno">{esc(el[1])}부</span> {esc(el[2])}</h1>{intro}')
+            note=(f'<div class="pnote"><p class="pnlabel">{esc(el[5][0])}</p><p>{esc(el[5][1])}</p></div>'
+                  if len(el)>5 and el[5] else '')
+            out.append(f'{ic}<h1><span class="pno">{esc(el[1])}부</span> {esc(el[2])}</h1>{intro}{note}')
         elif t=='h1big':
             kind=el[1]; ic=f'<img class="heroimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
             if kind=='prologue': out.append(f'{ic}<h1>프롤로그</h1><p class="csub">{esc(el[2])}</p>')
@@ -38,7 +40,8 @@ def render_elements():
         elif t=='callout':
             out.append(f'<div class="callout"><p class="ctitle">● {esc(el[1])}</p><p>{esc(el[2])}</p></div>')
         elif t=='figure':
-            cap=(f'<figcaption><span class="figtag">개념도</span>{esc(el[2])}</figcaption>' if len(el)>2 and el[2] else '')
+            tag=el[3] if len(el)>3 and el[3] else "개념도"
+            cap=(f'<figcaption><span class="figtag">{esc(tag)}</span>{esc(el[2])}</figcaption>' if len(el)>2 and el[2] else '')
             out.append(f'<figure class="cfig"><img src="{imgp(el[1])}"/>{cap}</figure>')
         elif t=='compare':
             h,rows,gr=el[1],el[2],el[3]; cap=el[4] if len(el)>4 else ''
@@ -91,7 +94,36 @@ def render_elements():
             badge=f'<span class="qnum">Q{esc(num)}</span>' if qmode else f'<span class="qnum">{esc(num)}.</span>'
             out.append(f'<p class="apx-q">{badge}{esc(text)}</p>')
         elif t=='prompt':
-            out.append(f'<div class="prompt"><span class="ptag">붙여넣을 프롬프트</span>{esc(el[1])}</div>')
+            label=el[2] if len(el)>2 and el[2] else "붙여넣을 프롬프트"
+            body=('<ul class="plist">'+"".join(f'<li>{esc(x)}</li>' for x in el[1])+'</ul>'
+                  if isinstance(el[1],(list,tuple)) else esc(el[1]))
+            out.append(f'<div class="prompt"><span class="ptag">{esc(label)}</span>{body}</div>')
+        elif t=='infobox':
+            kind,label,items,ordered=el[1],el[2],el[3],el[4]
+            if len(items)==1 and not isinstance(items[0],tuple) and kind in ('learn','note'):
+                body=f'<p>{esc(items[0])}</p>'
+            else:
+                lis="".join(f'<li><b>{esc(x[0])}</b> {esc(x[1])}</li>' if isinstance(x,tuple) else f'<li>{esc(x)}</li>' for x in items)
+                tg='ol' if ordered else 'ul'; body=f'<{tg}>{lis}</{tg}>'
+            lb=f'<p class="iblabel">{esc(label)}</p>' if label else ''
+            out.append(f'<div class="infobox ib-{kind}">{lb}{body}</div>')
+        elif t=='rulecard':
+            head=el[2] if len(el)>2 and el[2] else "규칙 카드"; secs=[]
+            for label,items,ordered,text in el[1]:
+                main,_,sub=label.partition(" (")
+                sub=f' <small>({esc(sub)}</small>' if sub else ''
+                if items:
+                    tg='ol' if ordered else 'ul'; body=f'<{tg}>'+"".join(f'<li>{esc(x)}</li>' for x in items)+f'</{tg}>'
+                else: body=f'<p>{esc(text)}</p>'
+                secs.append(f'<div class="rc-sec"><p class="rc-lbl"><b>{esc(main)}</b>{sub}</p>{body}</div>')
+            out.append(f'<div class="rulecard"><p class="rc-head">{esc(head)}</p>{"".join(secs)}</div>')
+        elif t=='qhead':
+            out.append(f'<p class="qh-eb">이 장을 마치며</p><h3 class="qhead">{esc(el[1])}</h3>')
+        elif t=='qchange':
+            sit=f'<p class="qsit">{esc(el[1])}</p>' if el[1] else ''
+            out.append(f'<div class="qchange">{sit}<p class="qold"><span class="qtag">예전 질문</span> {esc(el[2])}</p>'
+                       f'<p class="qarrow">↓</p><p class="qnew"><span class="qtag">바뀐 질문</span> {esc(el[3])}</p></div>')
+        elif t=='tnote': out.append(f'<p class="tnote">자료 · {esc(el[1])}</p>')
         elif t=='fill': out.append(f'<p class="fillline">{esc(el[1])}</p>')
         elif t=='writeline': out.append('<hr class="writeline"/>')
         elif t=='closing': out.append(f'<div class="closing"><p class="ornament">✦</p><p>{esc(el[1])}</p></div>')
@@ -103,6 +135,23 @@ def render_elements():
                        f'<p class="crights">© {esc(C.AUTHOR)}. 무단 복제·전재·배포를 금합니다.</p>'
                        f'<p class="cnote">본 전자책은 특정 종목의 매수·매도 권유나 수익 보장을 위한 것이 아니며, 투자 교육·실전 기록을 목적으로 합니다. 투자의 최종 판단과 책임은 독자 본인에게 있습니다.</p></section>')
     return "\n".join(out)
+
+def theme_css():
+    """책별 색 테마 — epub.css의 포인트 색(네이비·골드)을 표지 색으로 덮어쓴다."""
+    T=C.THEME; f=BUILD/"_epub_theme.css"
+    f.write_text(
+        f"h1,h2,h3,.ctitle,.rc-lbl b,.qnew,.keybox p{{color:{T['navy']}}}\n"
+        f".pno,.qh-eb,.qsit,.enlabel{{color:{T['accentd']}}}\n"
+        f".keybox{{border-left-color:{T['accent']};background:{T['tint2']}}}\n"
+        f".klabel,.figtag{{color:{T['accentd']}}}\n"
+        f".pintro,.endnote,.qchange{{background:{T['cream1']};border-color:{T['edge']}}}\n"
+        f".pintro{{border-top-color:{T['accent']}}}\n"
+        f".endnote .enlabel,.qnew .qtag{{background:{T['accent']};color:#fff}}\n"
+        f".rulecard{{border-color:{T['navy']}}} .rc-head{{background:{T['navy']}}}\n"
+        f".ib-caution{{border-color:{T['accent']}}} .ib-caution .iblabel,.ib-learn .iblabel{{color:{T['accentd']}}}\n"
+        f".ib-learn{{border-color:{T['accent']}}} .prompt .plist li:before{{color:{T['accent']}}}\n",
+        encoding="utf-8")
+    return f
 
 def build():
     body=render_elements()
@@ -127,6 +176,7 @@ def build():
         "pandoc", str(src), "--metadata-file", str(meta), "-f","html","-t","epub3","-o",str(out),
         "--toc","--toc-depth=2","--split-level=1",
         "--css",str(ASSETS/"epub.css"),
+        *(["--css",str(theme_css())] if getattr(C,"THEME",None) else []),
         "--epub-cover-image",str(IMG/C.COVER),
     ], check=True)
     print("[ok] EPUB →", out)

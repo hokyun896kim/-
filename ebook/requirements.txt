@@ -1,0 +1,7 @@
+# 전자책 빌드 의존성 (시스템: pandoc, poppler-utils, fonts-noto-cjk)
+# WeasyPrint 70은 차례의 target-counter 쪽 번호가 0으로 나와 69.0에 고정
+weasyprint==69.0
+python-docx
+cairosvg
+pypdf
+pillow

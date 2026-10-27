@@ -187,6 +187,7 @@ def cover_image():
 <text x="100" y="642" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">AI 투자 시스템의 시작</text>
 {chart_svg}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
 <text x="100" y="1742" font-family="{FONT}" font-size="30" fill="#BBC9CF">개인투자자를 위한 AI 활용 실전 기록</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
@@ -207,7 +208,7 @@ def cover_book2():
     if src.exists():
         from PIL import Image
         Wc,Hc=1240,1835
-        im=_book2_badge(Image.open(str(src)).convert("RGB"))
+        im=Image.open(str(src)).convert("RGB")   # 시리즈 배지는 원본 그대로(작가 결정)
         w=Wc; h=round(im.height*Wc/im.width)
         im=im.resize((w,h), Image.LANCZOS)
         canvas=Image.new("RGB",(Wc,Hc))
@@ -262,18 +263,22 @@ def cover_book2():
 <text x="100" y="642" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">AI와 함께 읽는 법</text>
 {motif}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover.png"), output_width=Wc, output_height=Hc)
 
 def cover_book3():
-    """3권 표지: 저자가 만든 표지(조판 PDF 1쪽)를 그대로 1240×1835로."""
+    """3권 표지: 2권과 같은 구성·색감의 밝은 표지 + 저자 표지의 카드 격자 그림 (cover3.py)."""
+    import cover3; return cover3.build()
+
+def cover_book3_dark():
+    """(보존) 저자가 만든 어두운 표지(조판 PDF 1쪽) 그대로 — 비교·대체용. 산출: book3_cover_dark.png"""
     from PIL import Image
     src=ASSETS/"book3_cover_source.png" if "ASSETS" in globals() else pathlib.Path(__file__).resolve().parent/"assets"/"book3_cover_source.png"
     from PIL import ImageDraw
     im=Image.open(src).convert("RGB")
-    ImageDraw.Draw(im).rectangle((1040,2474,1652,2528), fill="#0D1B2E")   # 시리즈 문구(우하단) 제거 — 원본 좌표 기준
     im=im.resize((1240,1835), Image.LANCZOS)
-    im.save(IMG/"book3_cover.png"); return IMG/"book3_cover.png"
+    im.save(IMG/"book3_cover_dark.png"); return IMG/"book3_cover_dark.png"
 
 def build():
     cover_image()

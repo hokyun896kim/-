@@ -42,7 +42,8 @@ def render_elements():
         elif t=='figure':
             tag=el[3] if len(el)>3 and el[3] else "개념도"
             cap=(f'<figcaption><span class="figtag">{esc(tag)}</span>{esc(el[2])}</figcaption>' if len(el)>2 and el[2] else '')
-            out.append(f'<figure class="cfig"><img src="{imgp(el[1])}"/>{cap}</figure>')
+            alt=esc(f"{tag}: {el[2]}" if len(el)>2 and el[2] else tag)   # 대체텍스트(접근성)
+            out.append(f'<figure class="cfig"><img src="{imgp(el[1])}" alt="{alt}"/>{cap}</figure>')
         elif t=='compare':
             h,rows,gr=el[1],el[2],el[3]; cap=el[4] if len(el)>4 else ''
             ca,cb=("col-bad","col-good") if gr else ("col-good","col-bad")

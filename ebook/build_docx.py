@@ -366,7 +366,8 @@ def build():
             fp=IMG/f"{el[1]}.png"
             if fp.exists():
                 pic=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=3,after=1)
-                pic.add_run().add_picture(str(fp), width=Mm(116))
+                shp=pic.add_run().add_picture(str(fp), width=Mm(116))
+                if len(el)>2 and el[2]: shp._inline.docPr.set('descr', el[2])   # 대체텍스트(접근성)
                 pic.paragraph_format.keep_with_next=True      # 그림과 캡션을 같은 쪽에
             if len(el)>2 and el[2]:
                 cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6)

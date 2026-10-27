@@ -45,9 +45,10 @@ h2.chaptit.major{bookmark-level:1}         /* 프롤로그·에필로그·부록
 .toc .tpart:first-of-type{margin-top:2mm}
 .toc .tpart .pno{color:var(--accent);margin-right:2.5mm}
 .toc li{font-size:9.6pt;padding:0.85mm 0 0.85mm 5mm;list-style:none}
-.toc li a{display:flex;align-items:baseline;color:#4a453f}
-.toc li .dots{flex:1;border-bottom:1px dotted #d8d1c4;margin:0 2mm;transform:translateY(-2px)}
-.toc li a::after{content:target-counter(attr(href),page);font-family:"Noto Sans CJK KR";color:var(--muted)}
+/* 차례 줄: flex 대신 점선 리더 — 긴 제목도 낱말 단위로 줄바꿈되고 쪽 번호는 마지막 줄 오른쪽에 한 덩어리로 */
+.toc li a{display:block;color:#4a453f;text-decoration:none}
+.toc li .dots{display:none}
+.toc li a::after{content:leader(dotted) target-counter(attr(href),page);font-family:"Noto Sans CJK KR";color:#9a948a}
 
 .partpage{string-set:ct "";page-break-before:always;page-break-after:always;text-align:center;padding-top:58mm}
 .partpage .partimg{width:34mm;height:34mm;margin-bottom:9mm}

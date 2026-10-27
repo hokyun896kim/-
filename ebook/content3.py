@@ -25,7 +25,7 @@ COVER="book3_cover.png"
 PDF_OUT="book3_preview.pdf"; DOCX_OUT="book3.docx"; EPUB_OUT="book3.epub"
 AUTHOR_BIO=("개인투자자. 유튜브와 커뮤니티에서 유행하는 매매법을 그냥 믿지 않고, AI와 함께 21년 치 한국 시장 데이터로 "
  "하나씩 돌려 본 기록을 남긴다. 계산은 AI가, 의심은 사람이 맡는다는 원칙으로 일한다. "
- "『나는 AI에게 종목을 묻지 않았다』에 이은 두 번째 이야기다.")
+ "지은 책으로 『나는 AI에게 종목을 묻지 않았다』가 있다.")
 FONT_PT=11.0; LINE=1.85; PARA_EM=1.0      # 미리보기(PDF) 본문
 BODY_PT=11.0; PARA_AFTER=10               # Word 본문
 DESCRIPTION="유튜브 매매법을 AI와 함께 21년 치 한국 시장 데이터로 검증한 기록 — 무엇이 무너지고 무엇이 살아남았나"

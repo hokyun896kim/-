@@ -191,13 +191,23 @@ def cover_image():
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
 
+def _book2_badge(im):
+    """표지 왼쪽 아래 월계관 배지의 시리즈 문구(‘…저자의 두 번째…’)를 책 내용 문구로 교체. 원본 좌표 기준."""
+    from PIL import ImageDraw, ImageFont
+    d=ImageDraw.Draw(im)
+    d.rectangle((99,1355,347,1410), fill=(10,72,134))
+    f=ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", 18, index=1)
+    for y,t in ((1368,"막막한 경제 뉴스를"),(1397,"내 돈의 언어로 번역")):
+        d.text((223,y), t, font=f, fill=(246,246,242), anchor="mm")
+    return im
+
 def cover_book2():
     # 사용자 표지 이미지가 있으면 비율 보정(잘림 없이 위/아래 가장자리색으로 패딩) 후 사용
     src=ROOT/"assets"/"book2_cover_source.png"
     if src.exists():
         from PIL import Image
         Wc,Hc=1240,1835
-        im=Image.open(str(src)).convert("RGB")
+        im=_book2_badge(Image.open(str(src)).convert("RGB"))
         w=Wc; h=round(im.height*Wc/im.width)
         im=im.resize((w,h), Image.LANCZOS)
         canvas=Image.new("RGB",(Wc,Hc))
@@ -252,7 +262,6 @@ def cover_book2():
 <text x="100" y="642" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">AI와 함께 읽는 법</text>
 {motif}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
-<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover.png"), output_width=Wc, output_height=Hc)
 
@@ -260,7 +269,10 @@ def cover_book3():
     """3권 표지: 저자가 만든 표지(조판 PDF 1쪽)를 그대로 1240×1835로."""
     from PIL import Image
     src=ASSETS/"book3_cover_source.png" if "ASSETS" in globals() else pathlib.Path(__file__).resolve().parent/"assets"/"book3_cover_source.png"
-    im=Image.open(src).convert("RGB").resize((1240,1835), Image.LANCZOS)
+    from PIL import ImageDraw
+    im=Image.open(src).convert("RGB")
+    ImageDraw.Draw(im).rectangle((1040,2474,1652,2528), fill="#0D1B2E")   # 시리즈 문구(우하단) 제거 — 원본 좌표 기준
+    im=im.resize((1240,1835), Image.LANCZOS)
     im.save(IMG/"book3_cover.png"); return IMG/"book3_cover.png"
 
 def build():

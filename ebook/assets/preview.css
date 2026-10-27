@@ -253,7 +253,6 @@ h3.qhead .qh-eb{display:block;font-size:7.4pt;letter-spacing:.22em;color:var(--a
 p.tnote{margin:-1mm 0 4mm;text-align:right;font-family:"Noto Sans CJK KR";font-size:7.6pt;color:var(--muted)}
 .partpage.hasnote{padding-top:24mm}
 .partpage.hasnote .pintro{margin-top:8mm}
-.ib-deep,.ib-caution{page-break-inside:auto}
 .infobox .iblabel{page-break-after:avoid}
 .infobox li{page-break-inside:avoid}
 .rulecard .rc-sec{page-break-inside:avoid}

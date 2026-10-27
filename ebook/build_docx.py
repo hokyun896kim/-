@@ -76,6 +76,7 @@ def box(doc,fill,accent=None):
     t=doc.add_table(rows=1,cols=1); t.alignment=WD_TABLE_ALIGNMENT.CENTER
     c=t.cell(0,0); shade(c,fill); cmar(c,110,110,150,150); borders(c,fill,2)
     if accent: laccent(c,accent,26)
+    _set(t.rows[0]._tr.get_or_add_trPr(),'w:cantSplit')   # 박스가 쪽 사이에서 잘리지 않게
     return c
 def spacer(doc,pt=2): doc.add_paragraph().paragraph_format.space_after=Pt(pt)
 
@@ -162,6 +163,12 @@ def gtable(doc,rows,hdr):
                 shade(cell,"F3F0E9"); run(p,txt,font=HEAD,size=9.3,bold=True,color=NAVY)
             else:
                 run(p,txt,size=9.3,color="3A3631")
+    for ri,r in enumerate(t.rows):                # 표: 행이 잘리지 않고, 가능하면 표 전체를 한 쪽에
+        trPr=r._tr.get_or_add_trPr(); _set(trPr,'w:cantSplit')
+        if hdr and ri==0: _set(trPr,'w:tblHeader')
+        if ri<len(t.rows)-1:
+            for c in r.cells:
+                for pp in c.paragraphs: pp.paragraph_format.keep_with_next=True
     spacer(doc)
 def cards(doc,items):
     for i,(title,desc) in enumerate(items,1):
@@ -360,6 +367,7 @@ def build():
             if fp.exists():
                 pic=para(doc,WD_ALIGN_PARAGRAPH.CENTER,before=3,after=1)
                 pic.add_run().add_picture(str(fp), width=Mm(116))
+                pic.paragraph_format.keep_with_next=True      # 그림과 캡션을 같은 쪽에
             if len(el)>2 and el[2]:
                 cap=para(doc,WD_ALIGN_PARAGRAPH.CENTER,after=6)
                 tag=el[3] if len(el)>3 and el[3] else "개념도"

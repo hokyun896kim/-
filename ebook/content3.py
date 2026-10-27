@@ -48,6 +48,19 @@ PART_SUM={
  3:"살아남은 것들은 남들이 신나서 살 때가 아니라, 다들 겁먹고 던질 때 나타났다.",
  4:"계산은 AI가 하고, 의심은 내가 한다. 좋은 숫자일수록 먼저 깨뜨려 본다.",
 }
+# 쪽 나눔 규칙(이 책 전용): 박스·카드·표·그림은 쪽을 넘기지 않고, 문단은 쪽 경계에 3줄 이상씩 남긴다
+EXTRA_CSS=("p,li{orphans:3;widows:3}"
+           ".infobox,.rulecard,.prompt,.qchange,.keybox,.callout,figure.cfig,table.gtbl,.endnote{page-break-inside:avoid}"
+           "h3,.qhead,.iblabel{page-break-after:avoid}"
+           ".rulecard{font-size:9.2pt}.rulecard .rc-sec{padding:2.2mm 4.6mm}"      # 긴 카드도 한 쪽에
+           ".rulecard li{line-height:1.45;margin-bottom:.5mm}.rulecard .rc-lbl{margin-bottom:.8mm}"
+           # 박스·표를 조금 촘촘하게 → 통째로 다음 쪽으로 밀려 생기는 빈 공간을 줄인다
+           "table.gtbl{font-size:8.9pt}table.gtbl th,table.gtbl td{padding:1.6mm 2.3mm;line-height:1.4}"
+           ".prompt{font-size:9pt;line-height:1.52;padding:3mm 3.8mm}.prompt ul.plist li{margin-bottom:1.1mm}"
+           ".ib-caution{font-size:8.9pt;line-height:1.52}.ib-deep{font-size:8.4pt;line-height:1.5}"
+           ".qchange{padding:4mm 5mm}h3.qhead{margin-top:8mm}"
+           "table.gtbl.dense{font-size:8.4pt}table.gtbl.dense th,table.gtbl.dense td{padding:1.05mm 2mm;line-height:1.33}")
+FIG_SCALE={"b3_rId35":0.78,"b3_rId164":0.8}   # 그림별 축소 비율(쪽 끝 남은 공간에 맞추기)
 RULE_LABELS=("사는 조건","파는 조건","계좌","대상","손절")
 
 # ---------- 인용 박스 ----------

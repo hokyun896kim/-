@@ -90,7 +90,9 @@ def render():
             tag=el[3] if len(el)>3 and el[3] else "개념도"
             cap=(f'<figcaption><span class="figtag">{esc(tag)}</span>{esc(el[2])}</figcaption>'
                  if len(el)>2 and el[2] else '')
-            parts.append(f'<figure class="cfig"><img src="build/img/{el[1]}.png">{cap}</figure>')
+            sc=getattr(C,"FIG_SCALE",{}).get(el[1])
+            st=f' style="max-width:{118*sc:.0f}mm"' if sc else ''
+            parts.append(f'<figure class="cfig"><img src="build/img/{el[1]}.png"{st}>{cap}</figure>')
         elif t=='callout':
             parts.append(f'<div class="callout"><p class="ctitle">{esc(el[1])}</p><p>{esc(el[2])}</p></div>')
         elif t=='compare':
@@ -112,7 +114,8 @@ def render():
                     elif (not hdr) and twocol and ci==0: cs+=f'<th class="rl">{esc(c)}</th>'
                     else: cs+=f'<td>{esc(c)}</td>'
                 trs.append(f'<tr>{cs}</tr>')
-            parts.append(f'<table class="gtbl">{"".join(trs)}</table>')
+            dense=" dense" if len(rows)>=8 else ""          # 긴 표는 촘촘하게(책별 CSS에서만 적용)
+            parts.append(f'<table class="gtbl{dense}">{"".join(trs)}</table>')
         elif t=='cards':
             body="".join(f'<div class="card"><span class="cidx">{i}</span><h4>{esc(x[0])}</h4>'
                          f'<p>{esc(x[1])}</p></div>' for i,x in enumerate(el[1],1))
@@ -236,6 +239,7 @@ def render():
     over=(f'<style>body{{font-size:{C.FONT_PT}pt;line-height:{getattr(C,"LINE",1.78)}}} '
           f'p{{margin-bottom:{getattr(C,"PARA_EM",0.82)}em}}</style>') if hasattr(C,'FONT_PT') else ''
     over+=theme_css(getattr(C,"THEME",None))
+    over+=f'<style>{C.EXTRA_CSS}</style>' if getattr(C,'EXTRA_CSS','') else ''
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'
     (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
     HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT))

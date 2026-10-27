@@ -61,6 +61,18 @@ EXTRA_CSS=("p,li{orphans:3;widows:3}"
            ".qchange{padding:4mm 5mm}h3.qhead{margin-top:8mm}"
            "table.gtbl.dense{font-size:8.4pt}table.gtbl.dense th,table.gtbl.dense td{padding:1.05mm 2mm;line-height:1.33}")
 FIG_SCALE={"b3_rId35":0.78,"b3_rId164":0.8}   # 그림별 축소 비율(쪽 끝 남은 공간에 맞추기)
+# 미리보기 샘플 PDF(sample_pdf.py): 표지~1장 + 구매 안내 쪽. 색은 새 표지(남색·파랑·금색)에 맞춤
+SAMPLE={
+ "out":"book3_sample.pdf", "rerender":True,
+ "lead":"“그 방법, 정말 통했어? 숫자로 보여 줘.”<br>유튜브 매매법을 21년 치 데이터로 하나씩 확인한 기록,<br>나머지 이야기는 본문에서 이어집니다.",
+ "toc":["프롤로그 · 1~14장 · 에필로그","1부 감으로 바꾼 질문, 숫자로 확인하다","2부 통할 것 같았는데 안 통한 것들",
+        "3부 그래도 살아남은 것들","4부 AI와 함께 의심하는 법",
+        "부록 A~C · 매매법을 만났을 때 던질 질문 / AI 결과를 의심하는 질문 / 3부 규칙 요약 카드"],
+ "foot":"종목 추천·수익 보장 아님(투자 교육·검증 기록)",
+ "keywords":"주식 백테스트, 매매법 검증, AI 투자, 미리보기",
+ "colors":{"g1":"#04193A","g2":"#062447","g3":"#0B4A8A","gold":"#F2B544","goldl":"#F8D07A",
+           "glow":"rgba(242,181,68,.28)","edge":"rgba(242,181,68,.55)","lead":"#D6E2F0","toc":"#EAF0F7","foot":"#A9BCD3"},
+}
 RULE_LABELS=("사는 조건","파는 조건","계좌","대상","손절")
 
 # ---------- 인용 박스 ----------

@@ -38,7 +38,7 @@ def theme_css(T):
             '.endnote,.partpage .pintro{background:linear-gradient(135deg,var(--cream1),var(--cream2))}'
             '.endnote{box-shadow:inset 0 0 0 1.5px var(--edge)}</style>')
 
-def render():
+def render(write=True):
     if not (BUILD/"img"/"heart.png").exists():
         import make_assets; make_assets.build()
     parts=[]
@@ -242,7 +242,7 @@ def render():
     over+=f'<style>{C.EXTRA_CSS}</style>' if getattr(C,'EXTRA_CSS','') else ''
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'
     (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
-    HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT))
-    print("[ok] preview PDF →", BUILD/C.PDF_OUT)
+    if write: HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT)); print("[ok] preview PDF →", BUILD/C.PDF_OUT)
+    return doc
 
 if __name__=="__main__": render()

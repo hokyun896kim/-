@@ -187,7 +187,7 @@ def cover_image():
 <text x="100" y="642" font-family="{FONT}" font-size="40" font-weight="700" fill="#E4ECEF">AI 투자 시스템의 시작</text>
 {chart_svg}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
-<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 세 번째 이야기</text>
 <text x="100" y="1742" font-family="{FONT}" font-size="30" fill="#BBC9CF">개인투자자를 위한 AI 활용 실전 기록</text>
 </svg>'''
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"cover.png"), output_width=Wc, output_height=Hc)
@@ -203,6 +203,11 @@ def _book2_badge(im):
     return im
 
 def cover_book2():
+    """2권 표지: ‘경제뉴스 노선도’ (cover2.py) — 여섯 색 노선이 ‘내 계좌’ 환승역으로 모인다."""
+    import cover2; return cover2.build()
+
+def cover_book2_poster():
+    """(보존) 작가가 만든 포스터 표지(assets/book2_cover_source.png)를 1240×1835로 — 비교·대체용. 산출: book2_cover_poster.png"""
     # 사용자 표지 이미지가 있으면 비율 보정(잘림 없이 위/아래 가장자리색으로 패딩) 후 사용
     src=ROOT/"assets"/"book2_cover_source.png"
     if src.exists():
@@ -221,7 +226,7 @@ def cover_book2():
             canvas.paste(Image.new("RGB",(Wc,y),topc),(0,0))
             canvas.paste(Image.new("RGB",(Wc,Hc-y-h),botc),(0,y+h))
             canvas.paste(im,(0,y))
-        canvas.save(str(IMG/"book2_cover.png"))
+        canvas.save(str(IMG/"book2_cover_poster.png"))   # 보존용(현재 표지는 cover2.py)
         return
     # (이하 폴백 SVG 표지)
     Wc,Hc=1240,1835; G=ACCENT
@@ -263,9 +268,9 @@ def cover_book2():
 <text x="100" y="642" font-family="{FONT}" font-size="38" font-weight="700" fill="#E4ECEF">AI와 함께 읽는 법</text>
 {motif}
 <text x="100" y="1695" font-family="{FONT}" font-size="40" font-weight="700" fill="#D7E1E5">호차차 지음</text>
-<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 두 번째 이야기</text>
+<text x="100" y="1742" font-family="{FONT}" font-size="29" fill="#BBC9CF">호차차의 AI 읽기 · 세 번째 이야기</text>
 </svg>'''
-    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover.png"), output_width=Wc, output_height=Hc)
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(IMG/"book2_cover_poster.png"), output_width=Wc, output_height=Hc)
 
 def cover_book3():
     """3권 표지: 2권과 같은 구성·색감의 밝은 표지 + 저자 표지의 카드 격자 그림 (cover3.py)."""

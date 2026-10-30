@@ -31,7 +31,8 @@ KEYWORDS=["AI 경제","경제 뉴스","경제 공부","금리","환율","물가"
 # 쪽 나눔(3권과 같은 규칙): 문단은 쪽 경계에 3줄 이상씩, 박스·표·그림은 쪽을 넘기지 않음
 EXTRA_CSS=("p,li{orphans:3;widows:3}"
            ".prompt,.keybox,.callout,figure.cfig,table.gtbl,.endnote{page-break-inside:avoid}"
-           "h3{page-break-after:avoid}")
+           "h3{page-break-after:avoid}"
+           ".keybox{display:block}")
 # 미리보기 샘플 PDF(sample_pdf.py): 표지~1장 + 구매 안내 쪽. 색은 표지(남색·파랑·금색)에 맞춤
 SAMPLE={
  "out":"book2_sample.pdf", "rerender":True,

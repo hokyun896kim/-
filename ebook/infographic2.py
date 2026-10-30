@@ -164,12 +164,23 @@ def chain_fig(name, sp):
     tail = sp.get("tail") or []
     b.append(f'<path d="M80 860 H2320" stroke="{LINE}" stroke-width="3"/>')
     if tail:
+        from PIL import ImageFont
         b.append(T(80, 950, sp.get("tail_label", "그다음"), 40, ORANGE, 800, "start"))
-        m = len(tail); tx0, tx1 = 640, 2160
-        txs = [tx0 + i * (tx1 - tx0) / max(m - 1, 1) for i in range(m)]
-        for i, (x, t) in enumerate(zip(txs, tail)):
-            b.append(T(x, 952, t, 40, NAVY if i < m - 1 else MUTE, 700 if i < m - 1 else 500))
-            if i < m - 1: b.append(T((x + txs[i+1]) / 2, 952, "→", 40, ORANGE, 800))
+        fs = 40
+        font = lambda z: ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", round(z * K), index=1)
+        x_lo, x_hi, gap = 640, 2330, 70          # 화살표(→) 한 칸 폭 = gap
+        while True:
+            ws = [font(fs).getlength(t) for t in tail]
+            total = sum(ws) + gap * (len(tail) - 1) * 2
+            if total <= x_hi - x_lo or fs <= 30: break
+            fs -= 2
+        x = x_lo + max(0, (x_hi - x_lo - total) / 2)
+        for i, (t, w) in enumerate(zip(tail, ws)):
+            last = i == len(tail) - 1
+            b.append(T(x + w / 2, 952, t, fs, MUTE if last else NAVY, 500 if last else 700))
+            x += w
+            if not last:
+                b.append(T(x + gap, 952, "→", fs, ORANGE, 800)); x += gap * 2
     if sp.get("foot"): b.append(T(80, 1090, sp["foot"], 34, MUTE, 500, "start"))
     return save(name, W, H, b)
 
@@ -200,7 +211,11 @@ def from_json(n, path):
     return f(f"ig2_{n}", sp)
 
 def build():
-    return [route(3), ig_rate_flow(), ig_rate_faces()]
+    out = [route(3), ig_rate_flow(), ig_rate_faces()]
+    for c in (4, 5, 6, 7, 8, 9): out.append(route(c))
+    for f in sorted((ROOT / "fig2_specs").glob("ch*.json")):
+        out.append(from_json(int(f.stem[2:]), f))
+    return out
 
 if __name__ == "__main__":
     for p in build(): print(p)

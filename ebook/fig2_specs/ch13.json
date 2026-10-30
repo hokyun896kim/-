@@ -1,0 +1,5 @@
+{"type":"people","title":"같은 회사, 세 장의 표","center":"흑자 기사",
+"items":[{"who":"손익계산서","effect":"“얼마 벌었나?”","tag":"장사","icon":"shop"},
+{"who":"재무상태표","effect":"“재산이 튼튼한가?”","tag":"체력","icon":"house"},
+{"who":"현금흐름표","effect":"“진짜 현금이 도나?”","tag":"현금","icon":"coin"}],
+"foot":"세 장을 겹쳐 봐야 한 해의 이야기가 됩니다.","caption":"세 질문으로 읽는 재무제표"}

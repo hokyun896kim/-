@@ -93,8 +93,12 @@ CH2_FIGURE2={
  21:("fig2b_21","주간 복기 루프"),22:("fig2b_22","AI 잘 쓰기 vs 못 쓰기"),
 }
 # 새 인포그래픽(infographic2.py): 장 머리 ‘경제 노선도’ 띠와 그림 위치(문단 수) 조정
-ROUTE={3}
+ROUTE={3,4,5,6,7,8,9}
 FIG_AT={3:(5,11)}
+import json as _json, pathlib as _pl
+for _f in sorted((_pl.Path(__file__).resolve().parent/"fig2_specs").glob("ch*.json")):
+    _n=int(_f.stem[2:]); _sp=_json.loads(_f.read_text(encoding="utf-8"))
+    CH2_FIGURE[_n]=(f"ig2_{_n}", _sp.get("caption","")); CH2_FIGURE2.pop(_n,None); FIG_AT[_n]=(7,99)
 DISCLAIMER=[
  "이 책은 특정 종목·상품의 투자를 권유하기 위한 책이 아닙니다.",
  "경제 뉴스와 지표를 스스로 읽고 판단하는 힘을 기르기 위한 교육·실전 안내서입니다.",

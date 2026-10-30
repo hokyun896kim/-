@@ -144,6 +144,61 @@ def ig_rate_faces():
     b.append(T(1200, 1150, "“누구에게 좋은가?  누구에게 부담인가?  나는 어느 쪽에 가까운가?”", 46, NAVY, 700, font=SERIF))
     return save("ig2_3b", W, H, b)
 
+# ── ④ 장별 사양(JSON) → 그림: chain / people ─────────────────────
+def chain_fig(name, sp):
+    W, H = 2400, 1180
+    st = sp["steps"][:4]; n = len(st)
+    b = [T(80, 120, sp["title"], 76, NAVY, 800, "start", font=SERIF)]
+    if sp.get("subtitle"): b.append(T(80, 190, sp["subtitle"], 38, MUTE, 500, "start"))
+    y = 520; x0, x1 = 330, 2070
+    xs = [x0 + i * (x1 - x0) / (n - 1) for i in range(n)] if n > 1 else [1200]
+    b.append(f'<path d="M{xs[0]} {y} H2290" stroke="{NAVY}" stroke-width="14" stroke-linecap="round"/>')
+    b.append(f'<path d="M2290 {y} l-34 -26 M2290 {y} l-34 26" stroke="{NAVY}" stroke-width="14" stroke-linecap="round"/>')
+    for i, (x, it) in enumerate(zip(xs, st)):
+        last = i == n - 1
+        col = ORANGE if last else NAVY
+        b.append(f'<circle cx="{x}" cy="{y}" r="30" fill="{ORANGE if last else PAPER}" stroke="{col}" stroke-width="12"/>')
+        b.append(T(x, y - 80, it["head"], 44, col, 800))
+        if it.get("l1"): b.append(T(x, y + 100, it["l1"], 36, NAVY, 600))
+        if it.get("l2"): b.append(T(x, y + 154, it["l2"], 36, MUTE, 500))
+    tail = sp.get("tail") or []
+    b.append(f'<path d="M80 860 H2320" stroke="{LINE}" stroke-width="3"/>')
+    if tail:
+        b.append(T(80, 950, sp.get("tail_label", "그다음"), 40, ORANGE, 800, "start"))
+        m = len(tail); tx0, tx1 = 640, 2160
+        txs = [tx0 + i * (tx1 - tx0) / max(m - 1, 1) for i in range(m)]
+        for i, (x, t) in enumerate(zip(txs, tail)):
+            b.append(T(x, 952, t, 40, NAVY if i < m - 1 else MUTE, 700 if i < m - 1 else 500))
+            if i < m - 1: b.append(T((x + txs[i+1]) / 2, 952, "→", 40, ORANGE, 800))
+    if sp.get("foot"): b.append(T(80, 1090, sp["foot"], 34, MUTE, 500, "start"))
+    return save(name, W, H, b)
+
+def people_fig(name, sp):
+    W, H = 2400, 1240
+    items = sp["items"][:4]; n = len(items)
+    b = [T(80, 120, sp["title"], 76, NAVY, 800, "start", font=SERIF)]
+    b.append(f'<rect x="960" y="190" width="480" height="110" rx="55" fill="{NAVY}"/>')
+    b.append(T(1200, 264, sp["center"], 56, PAPER, 800))
+    xs = [1200] if n == 1 else [330 + i * (2070 - 330) / (n - 1) for i in range(n)]
+    for x, it in zip(xs, items):
+        col = NAVY if it.get("tag") in ("기회", "기대") else ORANGE
+        b.append(f'<path d="M1200 300 C1200 380 {x} 360 {x} 450" fill="none" stroke="{LINE}" stroke-width="6"/>')
+        b += person(x - 40, 540, col)
+        b += item(it.get("icon", "doc"), x + 110, 640, col)
+        b.append(f'<rect x="{x-70}" y="760" width="140" height="58" rx="29" fill="{col}"/>')
+        b.append(T(x, 800, it.get("tag", ""), 32, PAPER, 800))
+        b.append(T(x, 890, it["who"], 42, NAVY, 800))
+        b.append(T(x, 948, it["effect"], 36, MUTE, 500))
+    b.append(f'<path d="M80 1050 H2320" stroke="{LINE}" stroke-width="3"/>')
+    if sp.get("foot"): b.append(T(1200, 1150, sp["foot"], 46, NAVY, 700, font=SERIF))
+    return save(name, W, H, b)
+
+def from_json(n, path):
+    import json
+    sp = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    f = chain_fig if sp["type"] == "chain" else people_fig
+    return f(f"ig2_{n}", sp)
+
 def build():
     return [route(3), ig_rate_flow(), ig_rate_faces()]
 

@@ -58,7 +58,7 @@ PART_SUM={
 CH2_FIGURE={
  1:("fig2_1","용어가 아니라 ‘연결고리’가 어렵다"),
  2:("fig2_2","AI에게 답이 아니라 ‘판단 구조’를 시킨다"),
- 3:("fig2_3","금리는 돈의 가격 — 대출·집값·소비를 흔든다"),
+ 3:("ig2_3a","금리 뉴스가 문자 한 통이 되어 도착하기까지"),
  4:("fig2_4","환율은 양방향 — 장바구니와 수출이 반대로"),
  5:("fig2_5","월급이 그대로면 물가만큼 가난해진다"),
  6:("fig2_6","좋은 고용도 물가→금리로 부담이 된다"),
@@ -81,7 +81,7 @@ CH2_FIGURE={
 }
 CH2_FIGURE2={
  1:("fig2b_1","용어를 좇으면 빠지는 함정"),2:("fig2b_2","맥락·목표·형식 — 좋은 질문 공식"),
- 3:("fig2b_3","금리 방향이 시장 배경을 바꾼다"),4:("fig2b_4","환율 = 금리차·수급·심리"),
+ 3:("ig2_3b","같은 금리 상승도 사람마다 다르게 닿는다"),4:("fig2b_4","환율 = 금리차·수급·심리"),
  5:("fig2b_5","물가가 건드리는 것들"),6:("fig2b_6","고용 온도 — 너무 뜨거워도 부담"),
  7:("fig2b_7","발표보다 ‘무엇이 달라졌나’"),8:("fig2b_8","유가 방향이 승자·패자를 가른다"),
  9:("fig2b_9","좋은 비용 vs 나쁜 비용"),10:("fig2b_10","이익이 매출보다 먼저 좋아진다"),
@@ -92,6 +92,9 @@ CH2_FIGURE2={
  19:("fig2b_19","믿을 신호 vs 의심 신호"),20:("fig2b_20","10분이 흐름·관점이 되는 법"),
  21:("fig2b_21","주간 복기 루프"),22:("fig2b_22","AI 잘 쓰기 vs 못 쓰기"),
 }
+# 새 인포그래픽(infographic2.py): 장 머리 ‘경제 노선도’ 띠와 그림 위치(문단 수) 조정
+ROUTE={3}
+FIG_AT={3:(5,11)}
 DISCLAIMER=[
  "이 책은 특정 종목·상품의 투자를 권유하기 위한 책이 아닙니다.",
  "경제 뉴스와 지표를 스스로 읽고 판단하는 힘을 기르기 위한 교육·실전 안내서입니다.",
@@ -196,9 +199,10 @@ def _body(md):
     E=[]; k=0; n=len(blocks)
     pcount=[0]; pending=[]   # 장별 [(문단 임계값, figure 요소)]
     def setup(cn):
-        pcount[0]=0; p=[]
-        if cn in CH2_FIGURE: nm,cap=CH2_FIGURE[cn]; p.append((2,('figure',nm,cap)))
-        if cn in CH2_FIGURE2: nm,cap=CH2_FIGURE2[cn]; p.append((5,('figure',nm,cap)))
+        pcount[0]=0; p=[]; t1,t2=FIG_AT.get(cn,(2,5))
+        if cn in ROUTE: p.append((0,('figure',f'route_{cn}','',' ')))   # 첫 문단 앞
+        if cn in CH2_FIGURE: nm,cap=CH2_FIGURE[cn]; p.append((t1,('figure',nm,cap)))
+        if cn in CH2_FIGURE2: nm,cap=CH2_FIGURE2[cn]; p.append((t2,('figure',nm,cap)))
         pending[:]=p
     def place(force=False):
         rem=[]
@@ -231,6 +235,7 @@ def _body(md):
             continue
         if _is_table(s):
             rows,hdr=_parse_table(s); E.append(('gtable', rows, hdr)); k+=1; continue
+        place()                              # 임계값 0(노선도)은 첫 문단 앞에
         E.append(('para', clean(s), False)); pcount[0]+=1
         place()                              # 임계값 도달한 도식 배치
         k+=1

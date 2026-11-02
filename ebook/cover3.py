@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-3권 『나는 유튜브 매매법을 믿지 않았다』 표지 — ‘체(sieve)’.
+3권 『그 매매법, 정말 통했을까』 표지 — ‘체(sieve)’.
 2권(크림 종이·선 그림·가운데 정렬)과 일부러 다른 방향: 짙은 먹색 바탕, 왼쪽 정렬 명조 제목, 금색 하나.
 그림: 수백 개의 작은 재생(▶) 버튼(유튜브 매매법)이 ‘21년 데이터’라는 체에 걸리고,
       아래로 빠져나온 건 금색 ▶ 4개(급락 반등·정배열 눌림목·지수 과매도·파는 규칙)뿐 — 부제를 그대로 그림으로.
@@ -40,11 +40,11 @@ def build():
     b.append(T(2330, 200, "호차차의 AI 읽기 ②", 42, GREY, 700, "end"))
     b.append(f'<path d="M150 250 H2330" stroke="{DIM}" stroke-width="3"/>')
     # ── 제목: 왼쪽 정렬 명조, 마지막 줄만 금색
-    b.append(T(140, 560, "나는 유튜브", 240, CREAM, 900, font=SERIF, ls=-6))
-    b.append(T(140, 820, "매매법을", 240, CREAM, 900, font=SERIF, ls=-6))
-    b.append(T(140, 1080, "믿지 않았다", 240, GOLD, 900, font=SERIF, ls=-6))
-    b.append(T(150, 1200, "AI와 함께 21년 치 데이터로 돌려봤더니,", 56, GREY, 500))
-    b.append(T(150, 1280, "살아남은 건 몇 개뿐이었다", 56, GREY, 500))
+    b.append(T(140, 560, "그 매매법,", 240, CREAM, 900, font=SERIF, ls=-6))
+    b.append(T(140, 820, "정말", 240, CREAM, 900, font=SERIF, ls=-6))
+    b.append(T(140, 1080, "통했을까", 240, GOLD, 900, font=SERIF, ls=-6))
+    b.append(T(150, 1200, "AI와 함께 21년 치 데이터로 확인한", 56, GREY, 500))
+    b.append(T(150, 1280, "유튜브 매매법의 성적표", 56, GREY, 500))
     # ── 그림 ① 체 위: 수많은 ▶ (유튜브 매매법) — 아래로 갈수록 빽빽하게 쌓여 체에 걸림
     top, sieve = 1420, 2330
     step = 74
@@ -75,7 +75,7 @@ def build():
         b.append(T(x, y + 112, name, 50, CREAM, 800, "middle"))
     # ── 아래: 인용 · 지은이 · 태그
     b.append(f'<path d="M150 3080 H2330" stroke="{DIM}" stroke-width="3"/>')
-    b.append(T(150, 3230, "“그 방법, 정말 통했어? 숫자로 보여 줘.”", 64, CREAM, 600, font=SERIF))
+    b.append(T(150, 3230, "“검증된 방법이 아니라, 납득되는 이야기를 사고 있었다.”", 58, CREAM, 600, font=SERIF))
     b.append(T(150, 3330, "「나는 AI에게 종목을 묻지 않았다」 두 번째 이야기", 42, GREY, 600))
     b.append(T(150, 3500, "호차차 지음", 72, CREAM, 800))
     tw = ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", 44, index=1).getlength("실전 규칙 카드 4종 수록") + 70

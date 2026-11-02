@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-3권 《나는 유튜브 매매법을 믿지 않았다》 — v0.8 콘텐츠 파서.
+3권 《그 매매법, 정말 통했을까》 — v0.8 콘텐츠 파서.
 구조: # N부 / ## N장 / ### 소제목, 인용 박스(> **라벨** …)로 핵심·그림·더 깊이 보기·주의·규칙을 구분.
 장 끝 ‘질문을 바꿨습니다’는 예전 질문 → 바뀐 질문 카드 + AI 프롬프트 박스로 정리한다.
 요소 스키마는 1·2권과 공유 → build_preview/docx/epub 재사용.
@@ -16,8 +16,8 @@ ROOT=pathlib.Path(__file__).resolve().parent
 SRC=ROOT/"source"/"book3.md"
 IMGSRC=ROOT/"assets"/"book3"; IMG=ROOT/"build"/"img"
 
-TITLE="나는 유튜브 매매법을 믿지 않았다"
-SUBTITLE="AI와 함께 21년 치 데이터로 돌려봤더니, 살아남은 건 몇 개뿐이었다"
+TITLE="그 매매법, 정말 통했을까"
+SUBTITLE="AI와 함께 21년 치 데이터로 확인한 유튜브 매매법의 성적표"
 KEYLINE="“그 방법, 정말 통했어? 숫자로 보여 줘.”"
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
 PUBDATE="2026년 11월 초판 1쇄"

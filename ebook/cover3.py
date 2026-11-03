@@ -78,6 +78,9 @@ def build():
     b.append(T(150, 3230, "“검증된 방법이 아니라, 납득되는 이야기를 사고 있었다.”", 58, CREAM, 600, font=SERIF))
     b.append(T(150, 3330, "「나는 AI에게 종목을 묻지 않았다」 두 번째 이야기", 42, GREY, 600))
     b.append(T(150, 3500, "호차차 지음", 72, CREAM, 800))
+    aw = ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", 72, index=1).getlength("호차차 지음")
+    b.append(f'<path d="M{150+aw+40} 3446 V3506" stroke="{DIM}" stroke-width="4"/>')
+    b.append(T(150 + aw + 80, 3500, "유페이퍼", 50, GREY, 700, ls=4))   # 출판사명(유페이퍼 검수 필수)
     tw = ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc", 44, index=1).getlength("실전 규칙 카드 4종 수록") + 70
     b.append(f'<rect x="{2330-tw}" y="3428" width="{tw}" height="96" rx="48" fill="none" stroke="{GOLD}" stroke-width="5"/>')
     b.append(T(2330 - tw/2, 3492, "실전 규칙 카드 4종 수록", 44, GOLD, 800, "middle"))

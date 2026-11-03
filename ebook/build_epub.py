@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """EPUB(서점 유통용) 생성 — content.parse() → 리플로우 XHTML → pandoc EPUB.
 표지 이미지·메타데이터·내비게이션 포함. 산출: build/book.epub"""
-import html, pathlib, subprocess, datetime
+import re, html, pathlib, subprocess, datetime
 import os, importlib
 C = importlib.import_module(os.environ.get('BOOK','content'))
 
@@ -22,18 +22,18 @@ def render_elements():
                        f'<p class="readkey">{getattr(C,"READKEY","이 책의 핵심은 종목명이 아니라 ‘질문의 구조’입니다.")}</p>'
                        f'<p class="readguide">{getattr(C,"READGUIDE","이 책은 순서대로 읽어도 좋지만, 6부와 부록은 필요할 때 다시 꺼내보는 실전 노트처럼 활용하셔도 좋습니다.")}</p>')
         elif t=='part':
-            ic=f'<img class="partimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
+            ic=f'<img class="partimg" src="{imgp(el[3])}" alt="장식 그림"/>' if len(el)>3 and el[3] else ''
             intro=f'<p class="pintro">{esc(el[4])}</p>' if len(el)>4 and el[4] else ''
             note=(f'<div class="pnote"><p class="pnlabel">{esc(el[5][0])}</p><p>{esc(el[5][1])}</p></div>'
                   if len(el)>5 and el[5] else '')
             out.append(f'{ic}<h1><span class="pno">{esc(el[1])}부</span> {esc(el[2])}</h1>{intro}{note}')
         elif t=='h1big':
-            kind=el[1]; ic=f'<img class="heroimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
+            kind=el[1]; ic=f'<img class="heroimg" src="{imgp(el[3])}" alt="장식 그림"/>' if len(el)>3 and el[3] else ''
             if kind=='prologue': out.append(f'{ic}<h1>프롤로그</h1><p class="csub">{esc(el[2])}</p>')
             elif kind=='epilogue': out.append(f'{ic}<h1>에필로그</h1>')
             else: out.append(f'{ic}<h1>{esc(el[2])}</h1>')
         elif t=='chapter':
-            ic=f'<img class="heroimg" src="{imgp(el[3])}"/>' if len(el)>3 and el[3] else ''
+            ic=f'<img class="heroimg" src="{imgp(el[3])}" alt="장식 그림"/>' if len(el)>3 and el[3] else ''
             out.append(f'{ic}<h2>{esc(el[1])}장. {esc(el[2])}</h2>')
         elif t=='keysentence':
             out.append(f'<div class="keybox"><span class="klabel">이 장의 핵심</span><p>{esc(el[1])}</p></div>')
@@ -41,9 +41,9 @@ def render_elements():
             out.append(f'<div class="callout"><p class="ctitle">● {esc(el[1])}</p><p>{esc(el[2])}</p></div>')
         elif t=='figure':
             tag=el[3] if len(el)>3 and el[3] else "개념도"
-            cap=(f'<figcaption><span class="figtag">{esc(tag)}</span>{esc(el[2])}</figcaption>' if len(el)>2 and el[2] else '')
+            cap=(f'<p class="figcap"><span class="figtag">{esc(tag)}</span>{esc(el[2])}</p>' if len(el)>2 and el[2] else '')
             alt=esc(f"{tag}: {el[2]}" if len(el)>2 and el[2] else tag)   # 대체텍스트(접근성)
-            out.append(f'<figure class="cfig"><img src="{imgp(el[1])}" alt="{alt}"/>{cap}</figure>')
+            out.append(f'<div class="cfig"><img src="{imgp(el[1])}" alt="{alt}"/>{cap}</div>')   # EPUB2: figure 대신 div
         elif t=='compare':
             h,rows,gr=el[1],el[2],el[3]; cap=el[4] if len(el)>4 else ''
             ca,cb=("col-bad","col-good") if gr else ("col-good","col-bad")
@@ -154,6 +154,11 @@ def theme_css():
         encoding="utf-8")
     return f
 
+def _pubdate():
+    """판권 출판일(YYYY-MM-DD)이 있으면 그 날짜, 없으면 오늘."""
+    d=getattr(C,"PUBDATE","")
+    return d if re.match(r"^\d{4}-\d\d-\d\d$", d) else datetime.date.today().isoformat()
+
 def build():
     body=render_elements()
     doc=(f'<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="ko"><head>'
@@ -166,15 +171,15 @@ def build():
         f'subtitle: "{C.SUBTITLE}"\n'
         f'author: "{C.AUTHOR}"\n'
         "lang: ko\n"
-        f'date: "{datetime.date.today().isoformat()}"\n'
-        f'publisher: "{C.AUTHOR}"\n'
+        f'date: "{_pubdate()}"\n'
+        f'publisher: "{getattr(C,"PUBLISHER",C.AUTHOR)}"\n'
         f'rights: "© {C.AUTHOR}. 무단 복제·전재·배포 금지. 투자 교육·실전 기록 목적(투자 권유·수익 보장 아님)."\n'
         f'description: "{getattr(C,"DESCRIPTION","AI 투자 루틴과 개인투자자의 판단 구조화 기록 — "+C.SUBTITLE)}"\n'
         + "subject:\n"+"".join(f"  - {k}\n" for k in getattr(C,"KEYWORDS",["AI 투자","주식투자","투자 루틴","섹터 분석","포트폴리오","개인투자자"]))
         + "---\n", encoding="utf-8")
     out=BUILD/C.EPUB_OUT
     subprocess.run([
-        "pandoc", str(src), "--metadata-file", str(meta), "-f","html","-t","epub3","-o",str(out),
+        "pandoc", str(src), "--metadata-file", str(meta), "-f","html","-t",getattr(C,"EPUB_VERSION","epub3"),"-o",str(out),
         "--toc","--toc-depth=2","--split-level=1",
         "--css",str(ASSETS/"epub.css"),
         *(["--css",str(theme_css())] if getattr(C,"THEME",None) else []),

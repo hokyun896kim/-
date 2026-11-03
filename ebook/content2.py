@@ -17,7 +17,9 @@ TITLE="질문이 바뀌면 경제가 보인다"
 SUBTITLE="금리·환율·실적 뉴스를 내 돈의 언어로 번역하는 직장인 AI 경제 루틴"
 KEYLINE="경제는 외우는 것이 아니라, 질문으로 읽는 것이다."
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
-PUBDATE="2026년 11월 초판 1쇄"
+PUBDATE="2026-11-20"
+EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
+PUBLISHER="유페이퍼"; PRICE="9,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book2_cover.png"
 PDF_OUT="book2_preview.pdf"; DOCX_OUT="book2.docx"; EPUB_OUT="book2.epub"
 AUTHOR_BIO=("개인투자자이자 ‘경제 읽기’ 기록자. 뉴스 한 줄이 금리와 환율, 기업 실적을 갈아타며 내 계좌에 닿기까지의 "
@@ -173,8 +175,8 @@ def parse():
     E += _appendix(apx_md)
     E.append(('closing', "경제는 외우는 것이 아니라, 질문으로 읽는 것입니다."))
     E.append(('authorbio', AUTHOR, AUTHOR_BIO))
-    E.append(('colophon', [("제목",TITLE),("부제",SUBTITLE),("지은이",AUTHOR),
-                           ("발행",f"{PROJECT} (자가출판)"),("발행일",PUBDATE),("문의",EMAIL)]))
+    E.append(('colophon', [("도서명",TITLE),("부제",SUBTITLE),("저자명",AUTHOR),("출판사명",PUBLISHER),
+                           ("전자출판일",PUBDATE),("전자책 가격",PRICE),("E-MAIL",EMAIL)]))
     return E
 
 def _prologue(md):

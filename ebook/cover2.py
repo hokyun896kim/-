@@ -97,6 +97,8 @@ def build():
     # ── 인용(명조) + 작은 문구
     b.append(T(W/2, 3140, "“경제가 어려운 건 당신 탓이 아닙니다.”", 76, INK, 600, font=SERIF))
     b.append(T(W/2, 3240, "지금까지 연결고리를 배울 기회가 없었을 뿐입니다", 50, MUTE, 500, font=SERIF))
+    # 출판사명(유페이퍼 검수 필수 — 제목·저자·출판사가 표지에 있어야 함)
+    b.append(T(W/2, 3540, "유페이퍼", 50, NAVY, 800, ls=6))
     # 작은 원형 스티커(실제 수록 수)
     sx, sy = 2140, 3440
     b.append(f'<circle cx="{sx}" cy="{sy}" r="132" fill="{PAPER}" stroke="{NAVY}" stroke-width="6"/>')

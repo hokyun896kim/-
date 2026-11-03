@@ -20,7 +20,9 @@ TITLE="그 매매법, 정말 통했을까"
 SUBTITLE="AI와 함께 21년 치 데이터로 확인한 유튜브 매매법의 성적표"
 KEYLINE="“그 방법, 정말 통했어? 숫자로 보여 줘.”"
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
-PUBDATE="2026년 11월 초판 1쇄"
+PUBDATE="2026-11-20"
+EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
+PUBLISHER="유페이퍼"; PRICE="8,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book3_cover.png"
 PDF_OUT="book3_preview.pdf"; DOCX_OUT="book3.docx"; EPUB_OUT="book3.epub"
 AUTHOR_BIO=("개인투자자. 유튜브와 커뮤니티에서 유행하는 매매법을 그냥 믿지 않고, AI와 함께 21년 치 한국 시장 데이터로 "
@@ -263,8 +265,8 @@ def parse():
         E.append(('h3', clean(h))); _section(body, E)
     E.append(('closing', KEYLINE))
     E.append(('authorbio', AUTHOR, AUTHOR_BIO))
-    E.append(('colophon', [("제목",TITLE),("부제",SUBTITLE),("지은이",AUTHOR),
-                           ("발행",f"{PROJECT} (자가출판)"),("발행일",PUBDATE),("문의",EMAIL)]))
+    E.append(('colophon', [("도서명",TITLE),("부제",SUBTITLE),("저자명",AUTHOR),("출판사명",PUBLISHER),
+                           ("전자출판일",PUBDATE),("전자책 가격",PRICE),("E-MAIL",EMAIL)]))
     return E
 
 if __name__=="__main__":

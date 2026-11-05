@@ -18,6 +18,7 @@ SUBTITLE="금리·환율·실적 뉴스를 내 돈의 언어로 번역하는 직
 KEYLINE="경제는 외우는 것이 아니라, 질문으로 읽는 것이다."
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
 PUBDATE="2026-11-20"
+PUBDATE_KO="2026년 11월 20일"   # 유페이퍼 검수 예시 표기(연·월·일 모두)
 EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
 PUBLISHER="유페이퍼"; PRICE="9,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book2_cover.png"
@@ -176,7 +177,7 @@ def parse():
     E.append(('closing', "경제는 외우는 것이 아니라, 질문으로 읽는 것입니다."))
     E.append(('authorbio', AUTHOR, AUTHOR_BIO))
     E.append(('colophon', [("도서명",TITLE),("부제",SUBTITLE),("저자명",AUTHOR),("출판사명",PUBLISHER),
-                           ("전자출판일",PUBDATE),("전자책 가격",PRICE),("E-MAIL",EMAIL)]))
+                           ("발행일",PUBDATE_KO),("가격",PRICE),("E-MAIL",EMAIL)]))
     return E
 
 def _prologue(md):

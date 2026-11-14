@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T14:43:34+00:00",
+  "generated_at": "2026-11-14T14:49:42+00:00",
   "provider": "yahoo",
   "period": "max",
   "benchmark": "SPY",
@@ -92,7 +92,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-11-06",
+      "end": "2026-11-13",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "❌ 예측력 없음 — IC -0.027 (t=-1.98), 유의하지 않음. 이 점수로 매매하면 안 됩니다.",
       "warnings": [
@@ -324,7 +324,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-11-06",
+      "end": "2026-11-13",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "⚠️ 음(−)의 예측력 — IC -0.032 (t=-2.11). 점수가 높을수록 오히려 덜 올랐습니다. 신호를 뒤집어야 합니다.",
       "warnings": [
@@ -556,7 +556,7 @@
       ],
       "n_symbols": 80,
       "start": "1962-01-02",
-      "end": "2026-11-06",
+      "end": "2026-11-13",
       "stride": "horizon과 동일(비중첩)",
       "verdict": "❌ 예측력 없음 — IC +0.027 (t=+1.76), 유의하지 않음. 이 점수로 매매하면 안 됩니다.",
       "warnings": [
@@ -651,7 +651,7 @@
               "label": "적극매도 (0~25)",
               "n": 727,
               "mean_excess": 2.621,
-              "median_excess": 0.961,
+              "median_excess": 0.96,
               "hit_rate": 53.5,
               "mean_raw": 5.151,
               "mean_demeaned": 0.952,

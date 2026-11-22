@@ -17,3 +17,4 @@ data/*.parquet
 .DS_Store
 .idea/
 .vscode/
+ebook/build/opendart/

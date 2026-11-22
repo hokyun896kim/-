@@ -18,11 +18,11 @@ description: Use when planning, writing, designing, building, checking or publis
 |---|---|---|
 | 원고 | `ebook/source/bookN.md` | — |
 | 파서·책 정보 | `ebook/contentN.py` (TITLE, PUBLISHER, PUBDATE, PUBDATE_KO, PRICE, EPUB_VERSION) | — |
-| 그림 | `ebook/infographic2.py`(2권), `ebook/infographic4.py`(4권, 데이터 계약) | `python3 ebook/infographic4.py` |
+| 그림 | `ebook/infographic2.py`(2권). 데이터 계약형 생성기 본보기: `ebook/archive/sign-tomorrow/infographic4.py` | — |
 | 표지 | `ebook/coverN.py` | `python3 ebook/coverN.py` |
 | 본문 PDF | `ebook/build_preview.py` | `cd ebook && BOOK=contentN python build_preview.py` |
 | DOCX / EPUB / 미리보기 | `build_docx.py` / `build_epub.py` / `sample_pdf.py` | 같은 방식 |
-| 4권 초고 PDF | `ebook/build_draft4.py` | `cd ebook && python3 build_draft4.py` |
+| 초고 PDF 본보기 | `ebook/archive/sign-tomorrow/build_draft4.py` | — |
 | 쪽 나눔 감사 | (세션 스크래치 audit.py) | 두 쪽에 걸친 박스 0, 홀로 남은 소제목 0 |
 | **출간 게이트** | `scripts/check_publish.py` | `python3 .claude/skills/hochacha-ebook/scripts/check_publish.py N` |
 | 등록 서류 | `ebook/publish/bookN/등록정보.md` | — |

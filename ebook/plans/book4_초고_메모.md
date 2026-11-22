@@ -1,4 +1,4 @@
-# 『공시는 뉴스보다 먼저 말한다』 초고 메모
+# 『호재일까, 함정일까』(구 가제 『호재일까, 함정일까』) 초고 메모
 
 원고: `ebook/source/book4.md` · 초고 PDF: `python3 build_draft.py 4` → `publish/book4/공시는뉴스보다먼저말한다_초고.pdf`
 

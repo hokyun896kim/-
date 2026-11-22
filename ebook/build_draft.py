@@ -7,8 +7,8 @@ from weasyprint import HTML
 
 ROOT = pathlib.Path(__file__).resolve().parent
 BOOKS = {
-    "4": dict(title="공시는<br><em>뉴스보다</em> 먼저 말한다", plain="공시는 뉴스보다 먼저 말한다",
-              sub="AI와 함께 읽는 DART 공시, 기업이 직접 쓴 한 줄의 무게", file="공시는뉴스보다먼저말한다",
+    "4": dict(title="호재일까,<br><em>함정</em>일까", plain="호재일까, 함정일까",
+              sub="AI와 함께 읽는 DART 공시, 뉴스보다 먼저 온 한 줄", file="호재일까함정일까",
               colors={"--blue": "#1D1D1F", "--red": "#8A6D00", "--tint": "#FFF6C7"},   # 먹색 + 형광 노랑(글자용은 어두운 황토)
               start="# 이 책을 읽기 전에"),
 }

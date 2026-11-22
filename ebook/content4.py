@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-4권 《공시는 뉴스보다 먼저 말한다》 — 콘텐츠 파서(content2.py 기반).
+4권 《호재일까, 함정일까》 — 콘텐츠 파서(content2.py 기반).
 구조: #PART / #N장 / ### 핵심 질문·이 장의 역할·이 장의 질문은…·6단계 프레임·프롬프트·실습·한 줄 정리.
 요소 스키마는 1권과 동일 → build_preview/docx/epub 재사용.
 """
@@ -13,8 +13,8 @@ def clean(s):  # 굵게/기울임 마크 제거 포함
 ROOT=pathlib.Path(__file__).resolve().parent
 SRC=ROOT/"source"/"book4.md"
 
-TITLE="공시는 뉴스보다 먼저 말한다"
-SUBTITLE="AI와 함께 읽는 DART 공시, 기업이 직접 쓴 한 줄의 무게"
+TITLE="호재일까, 함정일까"
+SUBTITLE="AI와 함께 읽는 DART 공시, 뉴스보다 먼저 온 한 줄"
 KEYLINE="이 공시, 주주인 나에게 유리한가, 불리한가?"
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
 PUBDATE="2026-12-15"

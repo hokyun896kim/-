@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-4권 『공시는 뉴스보다 먼저 말한다』 표지.
+4권 『호재일까, 함정일까』 표지.
 방향: 흰 종이 + 먹색 + 형광 노랑 한 줄. ①~③권(2권 크림·선 그림, 3권 먹색 바탕·금색)과 겹치지 않게.
 그림: 회색으로 흐려진 뉴스 기사(11:47) 위에 선명한 공시 원문(접수 08:31)이 놓여 있고,
-      원문 표의 한 줄(계약 기간)에만 형광펜이 그어져 있다 — '뉴스보다 먼저', '한 줄의 무게'.
+      원문 표의 한 줄(계약 기간)에만 형광펜이 그어져 있다 — '호재일까, 함정일까' — 같은 한 줄이 어느 쪽인지.
 필수 글자: 제목·저자명·출판사명(유페이퍼)·시리즈. 산출: build/img/book4_cover.png (1240×1835), _2x
 """
 import pathlib, random, cairosvg
@@ -34,14 +34,13 @@ def build():
     b.append(T(150, 200, "DART · 공시 · AI", 46, INK, 800, ls=10))
     b.append(T(2330, 200, "호차차의 AI 읽기 ④", 42, GREY, 700, "end"))
     b.append(f'<path d="M150 250 H2330" stroke="{INK}" stroke-width="4"/>')
-    # 제목(명조, 왼쪽 정렬) — '먼저'에 형광펜
-    b.append(T(140, 560, "공시는", 250, INK, 900, font=SERIF, ls=-6))
-    b.append(T(140, 840, "뉴스보다", 250, INK, 900, font=SERIF, ls=-6))
-    w_m = tw("먼저", 250) * 1.02
-    b.append(f'<path d="M140 1060 L{150+w_m:.0f} 1048 L{150+w_m:.0f} 1132 L144 1140 Z" fill="{HI}"/>')
-    b.append(T(140, 1120, "먼저 말한다", 250, INK, 900, font=SERIF, ls=-6))
-    b.append(T(150, 1250, "AI와 함께 읽는 DART 공시,", 58, INK, 500))
-    b.append(T(150, 1332, "기업이 직접 쓴 한 줄의 무게", 58, INK, 500))
+    # 제목(명조, 왼쪽 정렬) — '함정'에 형광펜
+    b.append(T(140, 640, "호재일까,", 300, INK, 900, font=SERIF, ls=-8))
+    w_m = tw("함정", 300) * 1.02
+    b.append(f'<path d="M140 900 L{150+w_m:.0f} 886 L{150+w_m:.0f} 986 L144 996 Z" fill="{HI}"/>')
+    b.append(T(140, 970, "함정일까", 300, INK, 900, font=SERIF, ls=-8))
+    b.append(T(150, 1150, "AI와 함께 읽는 DART 공시,", 64, INK, 500))
+    b.append(T(150, 1240, "뉴스보다 먼저 온 한 줄", 64, INK, 500))
 
     # ── 그림 ① 뒤쪽: 흐려진 뉴스 기사(늦게 나온 해석)
     nx, ny = 1060, 1520
@@ -77,7 +76,7 @@ def build():
     aw = tw("호차차 지음", 72)
     b.append(f'<path d="M{150+aw+40} 3426 V3486" stroke="{GREY}" stroke-width="4"/>')
     b.append(T(150 + aw + 80, 3480, "유페이퍼", 52, GREY, 700, ls=4))
-    st = "AI 질문 카드 31개 수록"; sw = tw(st, 44) + 80
+    st = "AI 질문 카드 37개 수록"; sw = tw(st, 44) + 80
     b.append(f'<rect x="{2330-sw}" y="3408" width="{sw}" height="100" fill="{HI}"/>')
     b.append(T(2330 - sw / 2, 3474, st, 44, INK, 800, "middle"))
 

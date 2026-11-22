@@ -23,7 +23,7 @@ EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
 PUBLISHER="유페이퍼"; PRICE="9,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book4_cover.png"
 PDF_OUT="book4_preview.pdf"; DOCX_OUT="book4.docx"; EPUB_OUT="book4.epub"
-AUTHOR_BIO=("개인투자자. 매일 장이 끝나면 그날의 공시를 먼저 열어 보고 뉴스는 그다음에 읽는다. "
+AUTHOR_BIO=("개인투자자. 뉴스보다 공시 원문을 먼저 읽고, 그 한 줄이 주주에게 유리한지 불리한지 따지는 습관을 기록해 왔다. "
  "AI를 정답 기계가 아니라 원문을 함께 따져 보는 질문 파트너로 쓰는 것이 원칙이다. "
  "『나는 AI에게 종목을 묻지 않았다』, 『그 매매법, 정말 통했을까』, 『질문이 바뀌면 경제가 보인다』에 이은 ‘호차차의 AI 읽기’ 네 번째 이야기다.")
 FONT_PT=11.2; LINE=1.85; PARA_EM=1.0      # 미리보기(PDF) 본문 키우기/단락 띄우기

@@ -1,0 +1,32 @@
+@page{size:152mm 225mm;margin:20mm 17mm 20mm 17mm;
+ @bottom-center{content:counter(page);font-family:"Noto Sans CJK KR";font-size:8pt;color:#8a8478}
+ @top-center{content:"사인은 내일 할게요 · 초고";font-family:"Noto Sans CJK KR";font-size:7pt;color:#b0a99c}}
+@page:first{@top-center{content:none}@bottom-center{content:none}}
+:root{--blue:#1F3F7A;--red:#C8372D;--ink:#1d1d1f;--mute:#77716a;--tint:#F3F5FA}
+body{font-family:"Noto Serif CJK KR";font-size:10.6pt;line-height:1.85;color:var(--ink);word-break:keep-all}
+p{margin:0 0 .75em;text-align:justify;orphans:3;widows:3}
+.titlepage{page:first;height:180mm;display:flex;flex-direction:column;justify-content:center;page-break-after:always;border-left:5px solid var(--red);padding-left:10mm}
+.titlepage .t{font-size:30pt;font-weight:900;line-height:1.3;color:var(--blue)}
+.titlepage .t em{color:var(--red);font-style:normal}
+.titlepage .s{font-family:"Noto Sans CJK KR";font-size:10pt;color:var(--mute);margin-top:6mm}
+.titlepage .v{font-family:"Noto Sans CJK KR";font-size:8.5pt;color:var(--red);margin-top:18mm;letter-spacing:.1em}
+h1{font-family:"Noto Sans CJK KR";font-weight:800;color:var(--blue);font-size:17pt;line-height:1.4;page-break-before:always;margin:6mm 0 5mm;padding-bottom:3mm;border-bottom:2px solid var(--red)}
+h2{font-family:"Noto Serif CJK KR";font-weight:700;color:var(--ink);font-size:13pt;margin:0 0 6mm}
+h3{font-family:"Noto Sans CJK KR";font-weight:700;color:var(--blue);font-size:11.2pt;margin:7mm 0 2.5mm;page-break-after:avoid}
+h3:before{content:"■ ";color:var(--red);font-size:8pt}
+table{border-collapse:collapse;width:100%;margin:3mm 0 5mm;font-family:"Noto Sans CJK KR";font-size:8.6pt;line-height:1.5;page-break-inside:avoid}
+th,td{border-bottom:1px solid #D9D4CA;padding:1.6mm 2mm;text-align:left;vertical-align:top}
+th{background:var(--blue);color:#fff;font-weight:700}
+tr:nth-child(even) td{background:#FAF8F4}
+blockquote{margin:3mm 0 4mm;padding:3mm 4mm;background:var(--tint);border-left:3px solid var(--blue);border-radius:6px;font-family:"Noto Sans CJK KR";font-size:9.2pt;line-height:1.65;page-break-inside:avoid}
+blockquote p{margin:0;text-align:left}
+blockquote:before{content:"AI에게 이렇게 묻습니다";display:block;font-size:7.5pt;font-weight:800;color:var(--blue);letter-spacing:.08em;margin-bottom:1.5mm}
+ul{margin:0 0 .8em;padding-left:5mm}li{margin-bottom:.3em}
+strong{color:var(--blue)}
+.kid{background:#FFF6EE;border-radius:8px;padding:3mm 4mm;margin:2mm 0 4mm;page-break-inside:avoid}
+.kid p{margin:0}
+.oneline{border-top:2px solid var(--red);border-bottom:2px solid var(--red);padding:3mm 1mm;font-family:"Noto Sans CJK KR";font-weight:700;color:var(--blue);font-size:10pt;line-height:1.7;page-break-inside:avoid}
+.oneline p{margin:0}
+figure{margin:4mm 0 5mm;text-align:center;page-break-inside:avoid}
+figure img{width:100%}
+figcaption{font-family:"Noto Sans CJK KR";font-size:8pt;color:#5F5A52;margin-top:1.5mm}

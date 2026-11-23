@@ -38,6 +38,66 @@ def theme_css(T):
             '.endnote,.partpage .pintro{background:linear-gradient(135deg,var(--cream1),var(--cream2))}'
             '.endnote{box-shadow:inset 0 0 0 1.5px var(--edge)}</style>')
 
+
+# ── WeasyPrint는 word-break:keep-all을 무시하고 한글을 글자 사이에서 끊는다(69.0 확인).
+#    한글이 든 어절(인라인 태그 포함)을 nowrap 묶음으로 감싸 단어 단위로만 줄을 바꾼다.
+_INL = r"(?:strong|b|em|i|span|a|sup|sub|mark|u|small|code)"
+_WORD = re.compile(r"(?:[^\s<]|<" + _INL + r"\b[^>]*>|</" + _INL + r">)+")
+_HAN = re.compile(r"[\uac00-\ud7a3]")
+def _wrap_word(m):
+    w = m.group(0); plain = re.sub(r"<[^>]+>", "", w)
+    if len(plain) > 12 and "<" not in w:                    # 긴 덩어리: 괄호·가운뎃점 자리에서만 줄바꿈 허용
+        w2 = re.sub(r"(?<=[^\s(])(?=\()|(?<=[)ㆍ·])(?=[^\s)」』”’.,])", "\u200b", w)
+        if len(plain) > 16 or not _HAN.search(plain):   # 조각마다 묶어 ZWSP 자리에서만 끊기게
+            return "\u200b".join(f'<span class="kw">{s}</span>' if len(s) > 1 else s for s in w2.split("\u200b"))
+    if not (_HAN.search(plain) or re.search(r"\d", plain)) or len(plain) < 2 or len(plain) > 16: return w
+    opens = re.findall(r"<(" + _INL + r")\b", w); closes = re.findall(r"</(" + _INL + r")>", w)
+    if opens != closes[::-1] or w.startswith("</") : return w          # 태그가 어절 밖으로 걸치면 그대로
+    _K[0] += 1; k = _K[0]
+    if k in _SPLIT and not opens and len(plain) >= 4:      # 벌어진 줄 다음 어절: 가운데서만 나눌 수 있게(앞뒤 2음절은 묶음)
+        cut = [i for i in range(2, len(w) - 1) if _HAN.match(w[i]) and (_HAN.match(w[i-1]) or w[i-1].isdigit())]   # 음절 사이만, 앞뒤 2자 이상
+        cut = [i for i in cut if i >= 2 and len(w) - i >= 2]
+        punct = [i for i in range(1, len(w)) if w[i-1] in "·ㆍ)/" and w[i] not in ")」』”’.,"]
+        if punct: cut = punct                                 # 가운뎃점·괄호 뒤가 있으면 그 자리에서만
+        if not cut: return f'<span class="kw" data-k="{k}">' + w + '</span>'
+        segs = [w[a:b] for a, b in zip([0] + cut, cut + [len(w)])]
+        return "\u200b".join(f'<span class="kw">{s}</span>' for s in segs)
+    return f'<span class="kw" data-k="{k}">' + w + '</span>'
+_K = [0]; _SPLIT = set()
+def loose_next_words(doc, limit=0.7):
+    """양끝맞춤으로 단어 사이가 limit em 넘게 벌어진 줄을 찾아, 다음 줄 첫 어절의 data-k를 돌려준다."""
+    found = set()
+    def tbs(b, out):
+        if type(b).__name__ == "TextBox": out.append(b)
+        for c in getattr(b, "children", []) or []: tbs(c, out)
+    def first_k(b):
+        el = getattr(b, "element", None)
+        if el is not None and el.get("data-k"): return int(el.get("data-k"))
+        for c in getattr(b, "children", []) or []:
+            r = first_k(c)
+            if r is not None: return r
+        return None
+    def walk(b):
+        ls = [c for c in (getattr(b, "children", []) or []) if type(c).__name__ == "LineBox"]
+        for a, nxt in zip(ls, ls[1:]):
+            tb = []; tbs(a, tb)
+            if not tb: continue
+            js = max((getattr(x, "justification_spacing", 0) or 0) for x in tb)
+            if js > limit * tb[0].style["font_size"]:
+                k = first_k(nxt)
+                if k is not None: found.add(k)
+        for c in getattr(b, "children", []) or []:
+            if type(c).__name__ != "LineBox": walk(c)
+    for pg in doc.pages: walk(pg._page_box)
+    return found
+def keep_words(body):
+    out = []; skip = 0
+    for part in re.split(r"(<svg\b.*?</svg>|<style\b.*?</style>|<script\b.*?</script>)", body, flags=re.S):
+        if part.startswith(("<svg", "<style", "<script")): out.append(part); continue
+        # 태그 밖 텍스트 + 인라인 태그 묶음만 대상. 블록 태그는 _WORD에 안 걸린다.
+        out.append(re.sub(r"(?<=>)([^<]*(?:<" + _INL + r"\b[^>]*>[^<]*|</" + _INL + r">[^<]*)*)", lambda m: _WORD.sub(_wrap_word, m.group(1)), part))
+    return "".join(out)
+
 def render(write=True):
     if not (BUILD/"img"/"heart.png").exists():
         import make_assets; make_assets.build()
@@ -231,7 +291,9 @@ def render(write=True):
     toc=f'<section class="toc"><h2 class="plain">차례</h2><ol>{"".join(rows)}</ol></section>'
     body=body.replace("<!--TOC-->", toc)
 
-    css=(ASSETS/"preview.css").read_text(encoding="utf-8")
+    body=re.sub(r'<table class="gtbl([^"]*)"(.*?)</table>', lambda m: f'<table class="gtbl{m.group(1)}{" long" if m.group(0).count("<tr")>=7 else ""}"'+m.group(2)+'</table>', body, flags=re.S)
+    raw_body=body; _SPLIT.clear(); _K[0]=0; body=keep_words(raw_body)
+    css=(ASSETS/"preview.css").read_text(encoding="utf-8")+".kw{white-space:nowrap}"
     meta=(f'<title>{esc(C.TITLE)}</title>'
           f'<meta name="author" content="{esc(C.AUTHOR)}">'
           f'<meta name="description" content="{esc(getattr(C,"DESCRIPTION","AI 투자 루틴과 개인투자자의 판단 구조화 기록 — "+C.SUBTITLE))}">'
@@ -242,7 +304,18 @@ def render(write=True):
     over+=f'<style>{C.EXTRA_CSS}</style>' if getattr(C,'EXTRA_CSS','') else ''
     doc=f'<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">{meta}<style>{css}</style>{over}</head><body>{body}</body></html>'
     (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
-    if write: HTML(string=doc,base_url=str(ROOT)).write_pdf(str(BUILD/C.PDF_OUT)); print("[ok] preview PDF →", BUILD/C.PDF_OUT)
+    head_=doc[:doc.index("<body>")]
+    for _ in range(4):                                       # 벌어진 줄 보정: 다음 어절을 나눠 다시 조판
+        rd=HTML(string=doc,base_url=str(ROOT)).render()
+        new=loose_next_words(rd)-_SPLIT
+        if not new: break
+        _SPLIT.update(new); _K[0]=0
+        doc=head_+"<body>"+keep_words(raw_body)+"</body></html>"
+    print(f"[ok] 줄 간격 보정 어절 {len(_SPLIT)}개")
+    (BUILD/(C.OUTBASE_PREVIEW if hasattr(C,"OUTBASE_PREVIEW") else "preview.html")).write_text(doc,encoding="utf-8")
+    if write:
+        (rd if not new else HTML(string=doc,base_url=str(ROOT)).render()).write_pdf(str(BUILD/C.PDF_OUT))
+        print("[ok] preview PDF →", BUILD/C.PDF_OUT)
     return doc
 
 if __name__=="__main__": render()

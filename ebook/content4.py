@@ -35,7 +35,10 @@ KEYWORDS=["공시","DART","전자공시","공시 읽는 법","유상증자","전
 EXTRA_CSS=("p,li{orphans:3;widows:3}"
            ".prompt,.keybox,.callout,figure.cfig,table.gtbl,.endnote{page-break-inside:avoid}"
            "h3{page-break-after:avoid}"
-           ".keybox{display:block}")
+           ".keybox{display:block}"
+           # 긴 표(7행 이상)·긴 목록은 쪽을 넘어가도 되게 — 행·항목 하나는 쪼개지 않는다(쪽 아래 큰 빈칸 방지)
+           "table.gtbl.long{page-break-inside:auto} table.gtbl tr{page-break-inside:avoid}"
+           "ul.bullets,ul.numlist{page-break-inside:auto} ul.bullets li,ul.numlist li{page-break-inside:avoid}")
 # 미리보기 샘플 PDF(sample_pdf.py): 표지~1장 + 구매 안내 쪽. 색은 표지(남색·파랑·금색)에 맞춤
 SAMPLE={
  "out":"book4_sample.pdf", "rerender":True,

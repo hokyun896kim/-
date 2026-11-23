@@ -80,6 +80,8 @@ def build():
     b.append(f'<rect x="{2330-sw}" y="3408" width="{sw}" height="100" fill="{HI}"/>')
     b.append(T(2330 - sw / 2, 3474, st, 44, INK, 800, "middle"))
 
+    # 유페이퍼 검수: 가장자리가 흰색에 가까우면 '흰 여백'으로 거절될 수 있어 테두리선을 둔다
+    b.append(f'<rect x="6" y="6" width="{W-12}" height="{H-12}" fill="none" stroke="{INK}" stroke-width="12"/>')
     svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">{"".join(b)}</svg>'
     big = IMG / "book4_cover_2x.png"
     cairosvg.svg2png(bytestring=svg.encode(), write_to=str(big), output_width=W, output_height=H)

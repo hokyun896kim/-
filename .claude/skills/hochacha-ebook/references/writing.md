@@ -24,6 +24,9 @@
 - 같은 종결어미 4연속 금지, 한 줄 경구 문단 연속 금지
 - 윤문 후 검사: 숫자·“…” 인용·프롬프트 문안이 원문과 같은지 대조, 서법(추측·당위) 소실 문단은 원문으로 되돌림
 - 대량 윤문은 humanize-korean 파이프라인(진단 → 윤문 → restore_modality → strip_injected_commas → verify_gates). 변경률 30% 넘으면 경고, 50% 넘으면 폐기
+- 설치 위치: 저장소 안 `ebook/vendor/im-not-ai`(v2.4.7, MIT) → `.claude/skills/humanize*`·`.claude/agents/humanize-*` 링크. 새 세션에서도 그대로 쓴다
+- 어휘 레이어(v2.4): `python3 ebook/vendor/im-not-ai/scripts/lexical_layer.py hints --input <원고> --genre column` — "짚다·겹·얹다·매끄럽게·~을 가르는 것은"처럼 번역투 낱말을 문맥 판단용 목록으로 뽑는다. 일괄 치환 금지, [우선]부터 검토
+- 영어 문구(영문 부제·해외 소개문·영문 메타데이터)는 `humanizer` 스킬(`.claude/skills/humanizer`, v4.0.0, MIT)로 점검
 
 ## 사실과 숫자
 - 금융 수치는 "예시" 표시 + 계산 검산(계산식과 결과를 plans/ 메모에 남김)

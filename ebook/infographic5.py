@@ -16,6 +16,7 @@ IMG = ROOT / "build" / "img"; IMG.mkdir(parents=True, exist_ok=True)
 MD = (ROOT / "source" / "book5.md").read_text(encoding="utf-8")
 SANS, MONO = "Noto Sans CJK KR", "JetBrains Mono"
 F_BOLD = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+F_MED = "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"
 
 # ── 색: 표지와 같은 값. 빨강은 글자용(어두운)과 면·선용을 나눈다
 PAPER, INK, SUB, MUTE, RULE, SOFT = "#FFFFFF", "#0D1117", "#3F4955", "#5B6572", "#D5DAE1", "#F2F4F7"
@@ -354,6 +355,222 @@ def fig_3c():
         x += bw + gap
     return save("3c", W, H, b)
 
-FIGS = [fig_p1, fig_1a, fig_1b, fig_2a, fig_2b, fig_2c, fig_3a, fig_3b, fig_3c]
+
+# ───────────────────────── 4장 ─────────────────────────
+def fig_4a():
+    """목표주가 2만 원 상향을 세 갈래로(폭포형, 축 0부터)."""
+    must_be_in_md("80,000원", "96,000원", "100,000원", "1만 6,000원", "4,000원", "80%")
+    W, H = 2400, 1300; b = []
+    y0 = head(b, "CHART · 가상의 B사", "2만 원 상향 가운데 1만 6,000원은 달력이 넘어간 효과")
+    gy0, gy1, mx = y0 + 60, 1090, 110000
+    Y = lambda v: gy1 - (gy1 - gy0) * v / mx
+    for v in (0, 20000, 40000, 60000, 80000, 100000):
+        b.append(L(260, Y(v), 2300, Y(v), RULE, 2)); b.append(T(236, Y(v) + 14, f"{v:,}", size=40, fill=MUTE, anchor="end", font=MONO))
+    bars = [("지난 목표주가", 0, 80000, SUB, "80,000"), ("기준 연도 이동", 80000, 96000, SIG, "+16,000"),
+            ("이익 추정 상향", 96000, 100000, INK, "+4,000"), ("배수 변화", 100000, 100000, MUTE, "0"), ("이번 목표주가", 0, 100000, SUB, "100,000")]
+    bw, x = 300, 340
+    for k, (lab, a_, z, col, val) in enumerate(bars):
+        top, bot = Y(max(a_, z)), Y(min(a_, z))
+        if z == a_ and k == 3: b.append(L(x, Y(z), x + bw, Y(z), MUTE, 6))
+        else: b.append(R(x, top, bw, max(bot - top, 4), col))
+        b.append(T(x + bw / 2, top - 24, val, size=46, fill=SIG_T if col == SIG else INK, w=800, anchor="middle", font=MONO))
+        b.append(T(x + bw / 2, gy1 + 60, lab, "note", INK, 700, "middle"))
+        if 0 < k < 4: b.append(L(x - 92, Y(a_), x, Y(a_), MUTE, 2, "8 8"))
+        x += bw + 92
+    b.append(T(80, H - 40, "가상의 예시 · 기준 연도 → 이익 → 배수 순서로 바꿔 계산", "note", MUTE))
+    return save("4a", W, H, b)
+
+def fig_4b():
+    """감도표 3×3 — 현재주가보다 낮은 칸 표시(아티팩트+차트)."""
+    eps, per = [4500, 5000, 5500], [16, 18, 20]
+    vals = [[e * p for p in per] for e in eps]
+    must_be_in_md("72,000원", "81,000원", "90,000원", "88,000원", "99,000원", "110,000원", "79,000원")
+    W, H = 2400, 1250; b = []
+    y0 = head(b, "CHART · 감도표", "아홉 칸 가운데 리포트가 보여 준 건 한 칸")
+    x0, cw, ch = 560, 560, 220
+    b.append(T(x0 - 40, y0 + 70, "EPS \\ PER", "note", MUTE, 700, "end", font=MONO))
+    for j, p_ in enumerate(per): b.append(T(x0 + j * cw + cw / 2, y0 + 70, f"{p_}배", "head", INK, 800, "middle"))
+    for i, e in enumerate(eps):
+        y = y0 + 110 + i * ch
+        b.append(T(x0 - 40, y + ch / 2 + 16, f"{e:,}원", "head", INK, 800, "end", font=MONO))
+        for j, v in enumerate(vals[i]):
+            x = x0 + j * cw; low = v < 79000; pick = (i, j) == (1, 2)
+            b.append(R(x + 8, y + 8, cw - 16, ch - 16, SCR if pick else (SIG_SOFT if low else SOFT), SIG if pick else None, 6))
+            b.append(T(x + cw / 2, y + ch / 2 + 20, f"{v:,}", size=60, fill=SCR_T if pick else (SIG_T if low else INK), w=800, anchor="middle", font=MONO))
+            if pick: b.append(T(x + cw / 2, y + ch - 30, "리포트의 한 칸", size=34, fill=SIG, w=700, anchor="middle"))
+    ly = y0 + 110 + 3 * ch + 50
+    b.append(R(560, ly - 34, 40, 40, SIG_SOFT) + T(616, ly, "현재주가 79,000원보다 낮은 칸", "note", SUB))
+    b.append(T(80, H - 40, "가상의 예시 · 목표주가 = 2027년 EPS × PER", "note", MUTE))
+    return save("4b", W, H, b)
+
+def fig_4c():
+    """회사 모양에 따라 고르는 배수(드로잉)."""
+    W, H = 2400, 1260; b = []
+    y0 = head(b, "DRAWING", "어떤 배수를 곱했는지부터 본다")
+    items = [("PER", "이익 × 배수", "이익이 꾸준한 회사"), ("PBR", "순자산 × 배수", "은행·보험, 적자 회사"),
+             ("EV/EBITDA", "현금 창출력 × 배수", "설비가 크고 빚이 많은 회사"), ("SOTP", "사업부마다 따로 더하기", "사업이 여럿인 지주회사")]
+    for k, (a_, b_, c_) in enumerate(items):
+        x = 80 + (k % 2) * 1140; y = y0 + 40 + (k // 2) * 400
+        b.append(sbox(x, y, 1100, 340, INK, SOFT if k else SIG_SOFT, 5))
+        b.append(T(x + 50, y + 110, a_, size=72, fill=SIG_T if k == 0 else INK, w=800, font=MONO))
+        b.append(T(x + 50, y + 200, b_, "body", INK, 700))
+        b.append(T(x + 50, y + 270, c_, "note", MUTE, 500))
+    b.append(T(80, H - 40, "방식이 바뀌면 같은 회사도 목표주가가 크게 달라진다 — 바꿨다면 이유가 적혀 있어야 한다", "note", MUTE))
+    return save("4c", W, H, b)
+
+# ───────────────────────── 5장 ─────────────────────────
+D_PX = [40000, 41500, 44000, 48000, 53000, 58000, 61000, 57000, 52000, 47000, 45000, 46500, 48000]   # 1월~다음 1월(월말)
+D_TP = {0: 50000, 4: 65000, 6: 72000, 9: 60000, 11: 55000}                                        # 월 → 목표주가
+def fig_5a():
+    must_be_in_md("50,000원", "65,000원", "72,000원", "60,000원", "55,000원", "6만 1,000원", "4만 5,000원")
+    W, H = 2400, 1400; b = []
+    y0 = head(b, "CHART · 가상의 D사 1년", "목표주가 계단은 주가 선을 뒤따른다")
+    gx0, gx1, gy0, gy1, lo, hi = 260, 2280, y0 + 60, 1180, 30000, 80000
+    X = lambda m: gx0 + (gx1 - gx0) * m / 12; Y = lambda v: gy1 - (gy1 - gy0) * (v - lo) / (hi - lo)
+    for v in range(30000, 80001, 10000):
+        b.append(L(gx0, Y(v), gx1, Y(v), RULE, 2)); b.append(T(gx0 - 24, Y(v) + 14, f"{v:,}", size=40, fill=MUTE, anchor="end", font=MONO))
+    for m, lab in [(0, "1월"), (3, "4월"), (6, "7월"), (9, "10월"), (12, "다음 1월")]:
+        b.append(T(X(m), gy1 + 60, lab, "note", MUTE, 500, "middle"))
+    ms = sorted(D_TP); d = f"M{X(0):.0f} {Y(D_TP[0]):.0f}"
+    for a_, z in zip(ms, ms[1:] + [12]):
+        d += f" H{X(z):.0f}" + (f" V{Y(D_TP[z]):.0f}" if z in D_TP else "")
+    b.append(f'<path d="{d}" stroke="{SIG}" stroke-width="7" fill="none" stroke-dasharray="20 12"/>')
+    for m in ms:
+        b.append(f'<circle cx="{X(m):.0f}" cy="{Y(D_TP[m]):.0f}" r="12" fill="{SIG}"/>')
+        b.append(T(X(m) + 18, Y(D_TP[m]) - 22, f"{D_TP[m]:,}", size=40, fill=SIG_T, w=800, font=MONO))
+    b.append('<path d="M' + " L".join(f"{X(i):.0f} {Y(v):.0f}" for i, v in enumerate(D_PX)) + f'" stroke="{INK}" stroke-width="7" fill="none"/>')
+    b.append(R(gx0, H - 110, 60, 8, INK) + T(gx0 + 80, H - 96, "주가(월말)", "note", SUB))
+    b.append(R(gx0 + 420, H - 110, 60, 8, SIG) + T(gx0 + 500, H - 96, "목표주가(의견은 1년 내내 매수)", "note", SUB))
+    b.append(T(gx1, H - 96, "가상의 예시", "note", MUTE, 500, "end"))
+    return save("5a", W, H, b)
+
+def fig_5b():
+    ev = [("5월 상향", 1, 4), ("7월 상향", 3, 6), ("10월 하향", 6, 9), ("12월 하향", 8, 11)]
+    chg = [(lab, (D_PX[z] / D_PX[a_] - 1) * 100) for lab, a_, z in ev]
+    labs = [f"{'+' if c > 0 else '−'}{abs(c):.1f}%" for _, c in chg]
+    must_be_in_md(*labs)
+    W, H = 2400, 1100; b = []
+    y0 = head(b, "CHART · 가상의 D사", "올리기 전엔 이미 올랐고, 내리기 전엔 이미 빠졌다")
+    cx0, sc = 1340, 26
+    b.append(L(cx0, y0 + 30, cx0, y0 + 30 + 4 * 170, INK, 4))
+    for k, ((lab, c), s) in enumerate(zip(chg, labs)):
+        y = y0 + 60 + k * 170; w_ = abs(c) * sc
+        up = c > 0
+        b.append(T(80, y + 72, lab, "head", INK, 800))
+        b.append(R(cx0 if up else cx0 - w_, y + 10, w_, 100, INK if up else "#FFFFFF", None if up else INK, 6))
+        b.append(T(cx0 + w_ + 24 if up else cx0 - w_ - 24, y + 78, s, size=54, fill=INK, w=800, anchor="start" if up else "end", font=MONO))
+    b.append(T(80, H - 40, "목표주가를 바꾸기 직전 3개월 주가 변화 · 채운 막대 = 상승, 빈 막대 = 하락 · 가상의 예시", "note", MUTE))
+    return save("5b", W, H, b)
+
+def fig_5c():
+    must_be_in_md("80,000", "79,000", "1.3%", "90,850원", "15%")
+    W, H = 2400, 1200; b = []
+    y0 = head(b, "DRAWING · 가상의 B사", "주가가 목표주가에 닿으면 길은 둘")
+    b.append(sbox(80, y0 + 60, 760, 330, INK, SOFT, 5))
+    b.append(T(130, y0 + 150, "목표주가 80,000", "head", INK, 800))
+    b.append(T(130, y0 + 230, "주가 79,000", "head", INK, 800))
+    b.append(T(130, y0 + 320, "상승여력 1.3% < 매수 기준 15%", "body", SIG_T, 800))
+    b.append(sarrow(860, y0 + 160, 1300, y0 + 90, INK)); b.append(sarrow(860, y0 + 300, 1300, y0 + 520, INK))
+    b.append(sbox(1320, y0 + 10, 1000, 260, INK, None, 5))
+    b.append(T(1370, y0 + 100, "① 의견을 중립으로", "head", INK, 800)); b.append(T(1370, y0 + 180, "국내 리포트에서는 드문 길", "body", MUTE, 500))
+    b.append(sbox(1320, y0 + 400, 1000, 300, SIG, SIG_SOFT, 6))
+    b.append(T(1370, y0 + 490, "② 목표주가를 올린다", "head", INK, 800)); b.append(T(1370, y0 + 570, "79,000 × 1.15 = 90,850원 이상", "body", SIG_T, 800, font=MONO))
+    b.append(T(1370, y0 + 640, "→ 상향 알림", "body", INK, 700))
+    b.append(T(80, H - 40, "매수 기준 15%는 예시 · 증권사마다 리포트 맨 뒤 '투자등급의 정의'에서 확인", "note", MUTE))
+    return save("5c", W, H, b)
+
+# ───────────────────────── 6장 ─────────────────────────
+def fig_6a():
+    must_be_in_md("2,000억 원", "1,850억 원", "1,700억 원", "1,600억 원", "1,650억 원", "17.5%", "3.1%")
+    W, H = 2400, 1300; b = []
+    y0 = head(b, "CHART · 가상의 E사", "추정치는 네 번 내려왔고, 실제는 마지막 기준선만 넘었다")
+    pts = [("1월", 2000), ("4월", 1850), ("7월", 1700), ("10월", 1600)]; act = 1650
+    gx0, gx1, gy0, gy1 = 300, 2100, y0 + 60, 1100
+    Y = lambda v: gy1 - (gy1 - gy0) * v / 2200
+    X = lambda i: gx0 + (gx1 - gx0) * i / 4
+    for v in (0, 500, 1000, 1500, 2000):
+        b.append(L(gx0, Y(v), gx1 + 120, Y(v), RULE, 2)); b.append(T(gx0 - 24, Y(v) + 14, f"{v:,}", size=40, fill=MUTE, anchor="end", font=MONO))
+    for i, (lab, v) in enumerate(pts):
+        b.append(R(X(i) + 40, Y(v), 220, gy1 - Y(v), SOFT, SUB, 3))
+        b.append(T(X(i) + 150, Y(v) - 20, f"{v:,}", size=44, fill=INK, w=800, anchor="middle", font=MONO))
+        b.append(T(X(i) + 150, gy1 + 56, lab + " 추정", "note", MUTE, 500, "middle"))
+    b.append(R(X(4) + 40, Y(act), 220, gy1 - Y(act), INK))
+    b.append(T(X(4) + 150, Y(act) - 20, f"{act:,}", size=44, fill=INK, w=800, anchor="middle", font=MONO))
+    b.append(T(X(4) + 150, gy1 + 56, "실제 발표", "note", INK, 800, "middle"))
+    b.append(L(X(3) + 40, Y(1600), X(4) + 300, Y(1600), SIG, 4, "12 8"))
+    b.append(T(X(4) + 30, Y(1600) + 56, "+3.1%", size=44, fill=SIG_T, w=800, anchor="end", font=MONO))
+    b.append(L(X(0) + 40, Y(2000), X(4) + 300, Y(2000), MUTE, 3, "12 8"))
+    b.append(T(X(4) + 260, Y(2000) - 18, "연초 대비 −17.5%", size=40, fill=INK, w=800, anchor="end"))
+    b.append(T(80, H - 40, "2026년 영업이익 추정(억 원) · 빈 막대 = 추정, 채운 막대 = 실제 · 가상의 예시", "note", MUTE))
+    return save("6a", W, H, b)
+
+def fig_6b():
+    W, H = 2400, 900; b = []
+    y0 = head(b, "DRAWING", "같은 1,650억 원, 어느 자에 대느냐")
+    for k, (lab, ref, txt, col) in enumerate([("직전 컨센서스", 1600, "3.1% 상회", SIG_T), ("연초 추정", 2000, "17.5% 미달", INK)]):
+        y = y0 + 80 + k * 260; x0, sc = 520, 0.62
+        b.append(T(80, y + 60, lab, "head", INK, 800))
+        b.append(sline(x0, y + 40, x0 + 2000 * sc, y + 40, MUTE, 4))
+        for v in range(0, 2001, 250): b.append(sline(x0 + v * sc, y + 20, x0 + v * sc, y + 60, MUTE, 3))
+        b.append(f'<path d="M{x0+ref*sc:.0f} {y-10:.0f} V{y+90:.0f}" stroke="{MUTE}" stroke-width="5" stroke-dasharray="10 8"/>')
+        b.append(T(x0 + ref * sc, y - 24, f"{ref:,}", size=40, fill=MUTE, w=700, anchor="middle", font=MONO))
+        b.append(scircle(x0 + 1650 * sc, y + 40, 30, SIG, 5))
+        b.append(T(x0 + 1650 * sc, y + 130, "1,650", size=40, fill=INK, w=800, anchor="middle", font=MONO))
+        b.append(T(2320, y + 60, txt, "head", col, 800, "end"))
+    return save("6b", W, H, b)
+
+# ───────────────────────── 7장 ─────────────────────────
+def fig_7a():
+    must_be_in_md("70,000원", "60,000원", "58,000원", "52,000원", "15.4%", "실적 개선 가시성 높아진다", "눈높이 조정 불가피, 하반기 회복에 주목")
+    W, H = 2400, 1660; b = []
+    y0 = head(b, "ARTIFACT · 가상의 F사", "의견은 그대로, 낱말이 바뀌었다")
+    def page(x, tag, rows, title, lines_, marks):
+        b.append(R(x, y0 + 20, 1080, 1060, "#FFFFFF", INK, 4)); b.append(R(x, y0 + 20, 1080, 80, SCR))
+        b.append(T(x + 30, y0 + 74, f"○○증권 · F사 · {tag}", size=34, fill=SCR_T, w=700))
+        for k, (a_, v, hot) in enumerate(rows):
+            yy = y0 + 170 + k * 60
+            b.append(T(x + 40, yy, a_, size=36, fill=MUTE)); b.append(T(x + 1040, yy, v, size=36, fill=SIG_T if hot else INK, w=800, anchor="end"))
+        b.append(L(x + 40, y0 + 380, x + 1040, y0 + 380, RULE, 2))
+        tl = title.split("|")
+        for k, s in enumerate(tl): b.append(T(x + 40, y0 + 460 + k * 64, s, size=46, fill=INK, w=900))
+        for k, s in enumerate(lines_):
+            yy = y0 + 640 + k * 64
+            for m in marks:
+                if m in s:
+                    pre = s[:s.index(m)]; fm = ImageFont.truetype(F_MED, 38, index=1)
+                    mx = x + 40 + fm.getlength(pre)
+                    b.append(R(mx - 4, yy - 38, fm.getlength(m) + 8, 50, "#FFE066"))
+            b.append(T(x + 40, yy, s, size=38, fill=SUB, w=500))
+        for k, w_ in enumerate([960, 900, 980]): b.append(R(x + 40, y0 + 900 + k * 40, w_, 12, RULE, rx=6))
+    page(80, "지난 리포트", [("투자의견", "매수", False), ("목표주가", "70,000원", False), ("현재주가", "58,000원", False)],
+         "실적 개선 가시성 높아진다", ["신제품 매출 본격화로", "성장 구간 진입"], ["가시성", "본격화"])
+    page(1240, "석 달 뒤", [("투자의견", "매수(유지)", False), ("목표주가", "60,000원(하향)", True), ("현재주가", "52,000원", False)],
+         "눈높이 조정 불가피,|하반기 회복에 주목", ["상반기 부진은 일시적, 다만", "회복 시점은 다소 지연"], ["눈높이 조정", "다만", "다소 지연"])
+    b.append(sbox(1240, y0 + 1110, 1080, 110, SIG, SIG_SOFT, 5))
+    b.append(T(1280, y0 + 1180, "상승여력 (60,000 − 52,000) ÷ 52,000 = 15.4%", size=40, fill=INK, w=800))
+    b.append(T(80, y0 + 1180, "노란 칸 = 새로 생긴·사라진 낱말", "note", MUTE))
+    return save("7a", W, H, b)
+
+def fig_7b():
+    W, H = 2400, 1150; b = []
+    y0 = head(b, "DRAWING", "투자의견 사다리 — 맨 아래 칸은 거의 비어 있다")
+    rungs = [("매수", "대부분의 리포트", INK, SOFT), ("단기매수(Trading Buy)", "두는 증권사도 있다", SUB, None),
+             ("중립(보유)", "한 칸 내려온 것 자체가 신호", SIG, SIG_SOFT), ("매도", "국내에서는 거의 쓰이지 않는다", MUTE, None)]
+    x1, x2 = 360, 360 + 900
+    b.append(sline(x1, y0 + 20, x1, y0 + 820, INK, 6)); b.append(sline(x2, y0 + 20, x2, y0 + 820, INK, 6))
+    for k, (lab, note, col, fill) in enumerate(rungs):
+        y = y0 + 110 + k * 200
+        b.append(sline(x1, y, x2, y, col, 7 if k != 3 else 3))
+        if fill: b.append(sbox(x2 + 80, y - 70, 1000, 140, col, fill, 4))
+        else: b.append(sbox(x2 + 80, y - 70, 1000, 140, col, None, 3))
+        b.append(T(x2 + 130, y - 4, lab, "head", INK if k != 3 else MUTE, 800))
+        b.append(T(x2 + 130, y + 50, note, "note", MUTE, 500))
+    b.append(sarrow(x1 - 120, y0 + 130, x1 - 120, y0 + 500, SIG, 6))
+    b.append(T(x1 - 140, y0 + 600, "읽을 곳:", "note", SIG_T, 800, "end"))
+    b.append(T(x1 - 140, y0 + 656, "칸 사이 이동", "note", SIG_T, 800, "end"))
+    return save("7b", W, H, b)
+
+FIGS = [fig_p1, fig_1a, fig_1b, fig_2a, fig_2b, fig_2c, fig_3a, fig_3b, fig_3c,
+        fig_4a, fig_4b, fig_4c, fig_5a, fig_5b, fig_5c, fig_6a, fig_6b, fig_7a, fig_7b]
 if __name__ == "__main__":
     for f in FIGS: print(f())

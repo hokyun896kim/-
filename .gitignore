@@ -18,3 +18,4 @@ data/*.parquet
 .idea/
 .vscode/
 ebook/build/opendart/
+ebook/build/prices/

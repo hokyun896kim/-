@@ -733,9 +733,87 @@ def fig_10b():
     b.append(T(80, H - 60, "새 리포트가 내려와도 오래된 높은 숫자가 빠지지 않으면 평균은 높게 남는다", "note", MUTE))
     return save("10b", W, H, b)
 
+# ───────────────────────── 13·14장 ─────────────────────────
+def fig_13a():
+    must_be_in_md("8만 → 10만 원", "1만 6,000원", "13% 성장", "14.2%", "20배", "16배", "25% 할증", "370억 원", "4,500원", "72,000원")
+    W, H = 2400, 1640; b = []
+    y0 = head(b, "ARTIFACT · 한 장 양식", "넉 장짜리 리포트를 네 칸으로")
+    x, y, w = 160, y0 + 30, 2080
+    b.append(R(x, y, w, H - y - 120, "#FFFFFF", INK, 5)); b.append(R(x, y, w, 90, SCR))
+    b.append(T(x + 40, y + 60, "B사 · 한 장 요약", size=40, fill=SCR_T, w=800))
+    b.append(T(x + w - 40, y + 60, "1 · 3 · 2 · 1", size=40, fill=SIG, w=800, anchor="end", font=MONO))
+    blocks = [("한 줄", ["○○증권 · 매수 유지 · 목표주가 8만 → 10만 원", "상향 2만 원 중 1만 6,000원은 기준 연도 이동"], 150),
+              ("가정 3줄", ["① 2027년 매출 13% 성장", "② 영업이익률 14.2%", "③ 목표 PER 20배 = 경쟁사 16배 + 25% 할증"], 216),
+              ("확인할 공시 2개", ["① 4분기 잠정실적 — 영업이익 370억 원 필요", "② 신규 고객사 단일판매·공급계약 공시"], 150),
+              ("틀릴 조건 1개", ["공급 지연으로 EPS 4,500원 + 할증 제거", "→ 목표주가 72,000원, 지금 주가 아래"], 150)]
+    yy = y + 150
+    for k, (lab, lines_, hh) in enumerate(blocks):
+        last = k == 3
+        b.append(R(x + 40, yy, w - 80, hh + 60, SIG_SOFT if last else SOFT, SIG if last else None, 5))
+        b.append(T(x + 80, yy + 64, lab, "head", SIG_T if last else INK, 800))
+        for j, s in enumerate(lines_):
+            b.append(T(x + 560, yy + 64 + j * 66, s, "body", INK, 700 if last else 600))
+        yy += hh + 100
+    b.append(T(160, H - 40, "가상의 예시 · 2~8장에서 계산한 숫자", "note", MUTE))
+    return save("13a", W, H, b)
+
+def fig_13b():
+    W, H = 2400, 1160; b = []
+    y0 = head(b, "DRAWING", "남기는 것과 버리는 것")
+    for k in range(4):
+        x = 120 + k * 60; y = y0 + 60 + k * 40
+        b.append(sbox(x, y, 420, 480, INK, "#FFFFFF", 4))
+        for j in range(7): b.append(R(x + 40, y + 60 + j * 56, 300 - (j % 3) * 40, 12, RULE, rx=6))
+    b.append(T(420, y0 + 780, "리포트 4장", "body", MUTE, 700, "middle"))
+    b.append(sarrow(780, y0 + 380, 1180, y0 + 380, INK, 6))
+    b.append(sbox(1240, y0 + 120, 560, 560, SIG, SIG_SOFT, 6))
+    for j, s in enumerate(["한 줄", "가정 3줄", "공시 2개", "틀릴 조건 1개"]):
+        b.append(T(1290, y0 + 230 + j * 120, s, "head", INK, 800))
+    b.append(T(1520, y0 + 780, "한 장", "body", SIG_T, 800, "middle"))
+    b.append(T(1900, y0 + 200, "버리는 것", "body", MUTE, 800))
+    for j, s in enumerate(["'매수'라는 단어", "형용사(견조한·본격화)", "숫자 없는 산업 전망"]):
+        b.append(T(1900, y0 + 270 + j * 62, s, "note", MUTE, 500))
+        b.append(L(1900, y0 + 256 + j * 62, 1900 + tw(s, "note") * 0.95, y0 + 256 + j * 62, MUTE, 3))
+    return save("13b", W, H, b)
+
+def fig_14a():
+    W, H = 2400, 1400; b = []
+    y0 = head(b, "DRAWING", "알림에서 기록까지, 그리고 채점")
+    cx, cy, r = 1200, y0 + 520, 400
+    steps = ["1. 날짜", "2. 비교", "3. 가정", "4. 공시", "5. 기록"]
+    pts = [(cx + r * 1.5 * math.cos(-math.pi / 2 + k * 2 * math.pi / 5), cy + r * math.sin(-math.pi / 2 + k * 2 * math.pi / 5)) for k in range(5)]
+    for k, ((x, y), s) in enumerate(zip(pts, steps)):
+        b.append(sbox(x - 190, y - 70, 380, 140, SIG if k < 2 else INK, SIG_SOFT if k < 2 else SOFT, 5))
+        b.append(T(x, y + 16, s, "head", INK, 800, "middle"))
+    for k in range(5):
+        (x1, y1), (x2, y2) = pts[k], pts[(k + 1) % 5]
+        if k == 4: continue
+        dx, dy = x2 - x1, y2 - y1; d = math.hypot(dx, dy)
+        b.append(sarrow(x1 + dx / d * 220, y1 + dy / d * 110, x2 - dx / d * 220, y2 - dy / d * 110, INK, 4))
+    b.append(sarrow(pts[4][0] + 120, pts[4][1] - 80, pts[0][0] - 200, pts[0][1] + 10, MUTE, 3))
+    b.append(T(cx, cy + 10, "확인할 공시가", "body", MUTE, 700, "middle"))
+    b.append(T(cx, cy + 70, "나오는 날 채점", "body", SIG_T, 800, "middle"))
+    b.append(T(80, H - 40, "빨간 두 칸(앞의 4분)에서 대부분의 알림이 걸러진다", "note", MUTE))
+    return save("14a", W, H, b)
+
+def fig_14b():
+    must_be_in_md("1분", "3분", "5분", "15분")
+    W, H = 2400, 760; b = []
+    y0 = head(b, "CHART · 15분 예산", "앞의 4분이 대부분을 거른다")
+    segs = [("날짜", 1, SIG), ("비교", 3, SIG), ("가정", 5, INK), ("공시", 3, SUB), ("기록", 3, MUTE)]
+    x, sc, y = 120, (2280 - 120) / 15, y0 + 80
+    for lab, m, col in segs:
+        b.append(R(x, y, m * sc - 8, 160, col))
+        b.append(T(x + (m * sc - 8) / 2, y + 100, f"{m}분", size=52, fill="#FFFFFF", w=800, anchor="middle", font=MONO if False else SANS))
+        b.append(T(x + (m * sc - 8) / 2, y + 230, lab, "body", INK, 700, "middle"))
+        x += m * sc
+    b.append(L(120, y + 290, 120 + 4 * sc - 8, y + 290, SIG, 6))
+    b.append(T(120, y + 350, "여기까지 4분: 오래된 목표주가·기준 연도만 옮긴 상향을 거른다", "note", SIG_T, 700))
+    return save("14b", W, H, b)
+
 FIGS = [fig_p1, fig_1a, fig_1b, fig_2a, fig_2b, fig_2c, fig_3a, fig_3b, fig_3c,
         fig_4a, fig_4b, fig_4c, fig_5a, fig_5b, fig_5c, fig_6a, fig_6b, fig_7a, fig_7b,
-        fig_8a, fig_8b, fig_8c, fig_9a, fig_9b, fig_10a, fig_10b]
+        fig_8a, fig_8b, fig_8c, fig_9a, fig_9b, fig_10a, fig_10b, fig_13a, fig_13b, fig_14a, fig_14b]
 
 if __name__ == "__main__":
     for f in FIGS: print(f())

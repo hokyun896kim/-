@@ -612,7 +612,7 @@ def fig_8a():
     return save("8a", W, H, b)
 
 def fig_8b():
-    W, H = 2400, 1180; b = []
+    W, H = 2400, 1260; b = []
     y0 = head(b, "DRAWING", "연결·별도 × 분기·누적 — 네 칸 지도")
     x0, cw, ch = 520, 880, 380
     b.append(T(x0 + cw / 2, y0 + 50, "분기(석 달)", "head", INK, 800, "middle"))
@@ -641,7 +641,7 @@ def fig_8c():
     for lab, v, col, tc in segs:
         w_ = v * sc
         if col: b.append(R(x, y, w_ - 6, 200, col))
-        else: b.append(R(x, y, w_ - 6, 200, "#FFFFFF", SIG, 6)); b.append(f'<path d="M{x+3:.0f} {y+3:.0f} L{x+w_-9:.0f} {y+197:.0f}" stroke="{SIG_SOFT}" stroke-width="2"/>')
+        else: b.append(R(x, y, w_ - 6, 200, "#FFFFFF", SIG, 6))
         b.append(T(x + w_ / 2, y + 120, f"{v:,}", size=60, fill=tc, w=800, anchor="middle", font=MONO))
         b.append(T(x + w_ / 2, y + 270, lab, "body", SIG_T if not col else INK, 800 if not col else 600, "middle"))
         x += w_
@@ -655,7 +655,7 @@ def fig_8c():
 # ───────────────────────── 9장 ─────────────────────────
 def fig_9a():
     must_be_in_md("10개월째", "15개월째")
-    W, H = 2400, 1000; b = []
+    W, H = 2400, 1080; b = []
     y0 = head(b, "CHART · 가상의 H사 2년", "다루던 세 곳 가운데 둘은 중간에 멈췄다")
     gx0, gx1 = 420, 2280; X = lambda m: gx0 + (gx1 - gx0) * m / 24
     for m in range(0, 25, 3):
@@ -724,12 +724,12 @@ def fig_10b():
     y0 = head(b, "DRAWING", "오래된 높은 숫자가 평균을 붙잡고 있다")
     b.append(sline(160, y0 + 400, 2240, y0 + 400, INK, 6))
     b.append(f'<path d="M1200 {y0+400} L1150 {y0+480} L1250 {y0+480} Z" fill="{INK}"/>')
-    for k, (x, lab, old) in enumerate([(300, "140k · 8개월", True), (520, "135k · 7개월", True), (1500, "105k", False), (1720, "98k", False), (1900, "92k", False), (2080, "115k", False)]):
+    for k, (x, lab, sub_, old) in enumerate([(320, "140k", "8개월 전", True), (620, "135k", "7개월 전", True), (1420, "105k", "", False), (1640, "98k", "", False), (1860, "92k", "", False), (2080, "115k", "", False)]):
         y = y0 + 400 - (140 if old else 110)
-        b.append(sbox(x - 90, y, 180, 110 if not old else 140, INK, SIG_SOFT if old else SOFT, 4))
-        b.append(T(x, y - 24, lab, "note", SIG_T if old else MUTE, 700, "middle"))
-    b.append(sarrow(420, y0 + 160, 420, y0 + 240, SIG, 5))
-    b.append(T(420, y0 + 130, "무게가 남아 있다", "body", SIG_T, 800, "middle"))
+        b.append(sbox(x - 95, y, 190, 110 if not old else 140, INK, SIG_SOFT if old else SOFT, 4))
+        b.append(T(x, y - 24, lab, "body", SIG_T if old else MUTE, 800, "middle", font=MONO))
+        if sub_: b.append(T(x, y + 84, sub_, "note", SIG_T, 700, "middle"))
+    b.append(T(470, y0 + 150, "오래된 숫자의 무게가 남아 있다", "body", SIG_T, 800, "middle"))
     b.append(T(80, H - 60, "새 리포트가 내려와도 오래된 높은 숫자가 빠지지 않으면 평균은 높게 남는다", "note", MUTE))
     return save("10b", W, H, b)
 

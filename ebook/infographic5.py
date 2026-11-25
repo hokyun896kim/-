@@ -570,7 +570,172 @@ def fig_7b():
     b.append(T(x1 - 140, y0 + 656, "칸 사이 이동", "note", SIG_T, 800, "end"))
     return save("7b", W, H, b)
 
+# ───────────────────────── 8장 ─────────────────────────
+def fig_8a():
+    must_be_in_md("2,950", "2,610", "8,520", "410", "330", "1,130", "260", "24.2%")
+    W, H = 2400, 1500; b = []
+    y0 = head(b, "ARTIFACT · 가상의 B사", "리포트의 410억 원은 공시 표의 어느 칸에서 왔나")
+    # 왼쪽: 리포트 실적 요약
+    lx, ly, lw = 80, y0 + 40, 820
+    b.append(R(lx, ly, lw, 700, "#FFFFFF", INK, 4)); b.append(R(lx, ly, lw, 80, SCR))
+    b.append(T(lx + 30, ly + 54, "리포트 · 3분기 리뷰", size=36, fill=SCR_T, w=700))
+    rows = [("매출액", "2,950"), ("영업이익", "410"), ("전년 대비", "+24%")]
+    for k, (a_, v) in enumerate(rows):
+        yy = ly + 200 + k * 130
+        b.append(T(lx + 40, yy, a_, "body", SUB, 500)); b.append(T(lx + lw - 40, yy, v, size=54, fill=SIG_T if k == 1 else INK, w=800, anchor="end", font=MONO))
+        b.append(L(lx + 40, yy + 40, lx + lw - 40, yy + 40, RULE, 2))
+    b.append(T(lx + 40, ly + 640, "단위 억 원 · 연결 기준(작게 적힘)", "note", MUTE))
+    # 오른쪽: DART 잠정실적 공시 표
+    rx, rw = 1060, 1260
+    b.append(R(rx, ly, rw, 1000, "#FFFFFF", INK, 4)); b.append(R(rx, ly, rw, 80, SCR))
+    b.append(T(rx + 30, ly + 54, "DART · 연결재무제표기준영업(잠정)실적", size=34, fill=SCR_T, w=700))
+    cols = ["", "당기(3분기)", "전년 3분기", "누적"]; cx = [rx + 40, rx + 640, rx + 920, rx + 1220]
+    for c, s in enumerate(cols):
+        if c: b.append(T(cx[c], ly + 150, s, size=34, fill=MUTE, w=700, anchor="end"))
+    data = [("매출액", "2,950", "2,610", "8,520"), ("영업이익", "410", "330", "1,130")]
+    for r_, row in enumerate(data):
+        yy = ly + 250 + r_ * 130
+        for c, s in enumerate(row):
+            hit = (r_, c) == (1, 1)
+            if hit: b.append(R(cx[c] - 150, yy - 56, 170, 80, SIG_SOFT, SIG, 5))
+            b.append(T(cx[c], yy, s, size=50 if c else 40, fill=INK, w=800 if c else 600, anchor="end" if c else "start", font=MONO if c else SANS))
+        b.append(L(rx + 40, yy + 40, rx + rw - 40, yy + 40, RULE, 2))
+    # 별도 칸
+    yy = ly + 640
+    b.append(T(rx + 40, yy, "별도 기준 영업이익", "body", SUB, 600)); b.append(T(cx[1], yy, "260", size=50, fill=INK, w=800, anchor="end", font=MONO))
+    b.append(T(rx + 40, ly + 760, "같은 공시 안에 410 · 1,130 · 260", "body", INK, 800))
+    b.append(T(rx + 40, ly + 830, "→ 리포트는 연결·당기 칸", "body", SIG_T, 800))
+    b.append(T(rx + 40, ly + 900, "410 ÷ 330 = 1.242 → 24.2% 증가", "body", INK, 700, font=MONO))
+    # 짝 연결선(곧은 선)
+    b.append(f'<path d="M{lx+lw:.0f} {ly+330-20:.0f} H{cx[1]-170:.0f} V{ly+380-30:.0f}" stroke="{SIG}" stroke-width="5" fill="none"/>')
+    b.append(T(80, H - 40, "가상의 예시 · 단위 억 원", "note", MUTE))
+    return save("8a", W, H, b)
+
+def fig_8b():
+    W, H = 2400, 1180; b = []
+    y0 = head(b, "DRAWING", "연결·별도 × 분기·누적 — 네 칸 지도")
+    x0, cw, ch = 520, 880, 380
+    b.append(T(x0 + cw / 2, y0 + 50, "분기(석 달)", "head", INK, 800, "middle"))
+    b.append(T(x0 + cw * 1.5, y0 + 50, "누적(연초부터)", "head", INK, 800, "middle"))
+    for r_, lab in enumerate(["연결", "별도"]):
+        b.append(T(x0 - 40, y0 + 100 + r_ * ch + ch / 2, lab, "head", INK, 800, "end"))
+        b.append(T(x0 - 40, y0 + 160 + r_ * ch + ch / 2, ["자회사 포함", "회사 혼자"][r_], "note", MUTE, 500, "end"))
+    cells = {(0, 0): ("410", "리포트가 주로 쓰는 칸", True), (0, 1): ("1,130", "기사 제목에 섞이기 쉬운 칸", False),
+             (1, 0): ("260", "지주·자회사 큰 회사에서 차이 큼", False), (1, 1): ("—", "", False)}
+    for (r_, c), (v, note, hot) in cells.items():
+        x, y = x0 + c * cw, y0 + 100 + r_ * ch
+        b.append(sbox(x + 10, y + 10, cw - 20, ch - 20, SIG if hot else INK, SIG_SOFT if hot else None, 5 if hot else 4))
+        b.append(T(x + cw / 2, y + ch / 2, v, size=80, fill=SIG_T if hot else INK, w=800, anchor="middle", font=MONO))
+        if note: b.append(T(x + cw / 2, y + ch / 2 + 80, note, "note", MUTE, 500, "middle"))
+    b.append(T(80, H - 40, "숫자는 가상의 B사 3분기 영업이익(억 원)", "note", MUTE))
+    return save("8b", W, H, b)
+
+def fig_8c():
+    must_be_in_md("1,500억 원", "1,130억 원", "340억", "380억", "410억 원", "370억 원", "12.4%", "13.9%")
+    W, H = 2400, 1100; b = []
+    y0 = head(b, "CHART · 가상의 B사", "연간 1,500억 원이 맞으려면 4분기에 370억 원")
+    x0, x1, y = 120, 2280, y0 + 120
+    sc = (x1 - x0) / 1500
+    segs = [("1분기", 340, SUB, "#FFFFFF"), ("2분기", 380, SUB, "#FFFFFF"), ("3분기", 410, INK, "#FFFFFF"), ("4분기 필요", 370, None, SIG_T)]
+    x = x0
+    for lab, v, col, tc in segs:
+        w_ = v * sc
+        if col: b.append(R(x, y, w_ - 6, 200, col))
+        else: b.append(R(x, y, w_ - 6, 200, "#FFFFFF", SIG, 6)); b.append(f'<path d="M{x+3:.0f} {y+3:.0f} L{x+w_-9:.0f} {y+197:.0f}" stroke="{SIG_SOFT}" stroke-width="2"/>')
+        b.append(T(x + w_ / 2, y + 120, f"{v:,}", size=60, fill=tc, w=800, anchor="middle", font=MONO))
+        b.append(T(x + w_ / 2, y + 270, lab, "body", SIG_T if not col else INK, 800 if not col else 600, "middle"))
+        x += w_
+    b.append(L(x0, y - 60, x1, y - 60, INK, 3)); b.append(T(x0, y - 80, "리포트의 2026년 영업이익 추정 1,500", "body", INK, 800))
+    b.append(L(x0, y + 330, x0 + 1130 * sc - 6, y + 330, MUTE, 3)); b.append(T(x0, y + 390, "공시로 확정된 누적 1,130", "note", MUTE, 700))
+    b.append(sbox(1240, y + 450, 1040, 150, SIG, SIG_SOFT, 5))
+    b.append(T(1280, y + 545, "4분기 이익률 12.4% < 3분기 13.9%", "body", INK, 800))
+    b.append(T(80, H - 40, "빈 칸 = 아직 나오지 않은 분기 · 단위 억 원 · 가상의 예시", "note", MUTE))
+    return save("8c", W, H, b)
+
+# ───────────────────────── 9장 ─────────────────────────
+def fig_9a():
+    must_be_in_md("10개월째", "15개월째")
+    W, H = 2400, 1000; b = []
+    y0 = head(b, "CHART · 가상의 H사 2년", "다루던 세 곳 가운데 둘은 중간에 멈췄다")
+    gx0, gx1 = 420, 2280; X = lambda m: gx0 + (gx1 - gx0) * m / 24
+    for m in range(0, 25, 3):
+        b.append(L(X(m), y0 + 30, X(m), y0 + 560, RULE, 2)); b.append(T(X(m), y0 + 610, f"{m}개월", "note", MUTE, 500, "middle"))
+    rows = [("A증권", list(range(1, 11, 3)) + [10], 10), ("B증권", [2, 5, 8, 11, 14, 15], 15), ("C증권", list(range(1, 24, 3)) + [23], None)]
+    for k, (lab, ms, stop) in enumerate(rows):
+        y = y0 + 100 + k * 180
+        b.append(T(80, y + 16, lab, "head", INK, 800))
+        b.append(L(X(0), y, X(stop if stop else 24), y, SUB, 4))
+        for m in sorted(set(ms)): b.append(f'<circle cx="{X(m):.0f}" cy="{y}" r="18" fill="{INK}"/>')
+        if stop:
+            b.append(L(X(stop), y, X(24), y, SIG, 4, "14 10"))
+            b.append(T(X(stop) + 30, y - 30, f"{stop}개월째 마지막 리포트(매수) → 침묵", "note", SIG_T, 700))
+    b.append(T(80, H - 40, "점 = 리포트 · 점선 = 리포트 없음 · 가상의 예시", "note", MUTE))
+    return save("9a", W, H, b)
+
+def fig_9b():
+    must_be_in_md("85,000원", "52,000원", "63.5%", "9개월 전")
+    W, H = 2400, 1200; b = []
+    y0 = head(b, "CHART · 가상의 H사", "9개월째 그대로인 목표주가, 63.5%의 착시")
+    gx0, gx1, gy0, gy1, lo, hi = 260, 2000, y0 + 60, 1000, 0, 100000
+    X = lambda m: gx0 + (gx1 - gx0) * m / 9; Y = lambda v: gy1 - (gy1 - gy0) * (v - lo) / (hi - lo)
+    for v in range(0, 100001, 20000):
+        b.append(L(gx0, Y(v), gx1 + 40, Y(v), RULE, 2)); b.append(T(gx0 - 24, Y(v) + 14, f"{v:,}", size=40, fill=MUTE, anchor="end", font=MONO))
+    px = [74000, 71000, 69000, 66000, 63000, 60000, 58000, 55000, 53000, 52000]
+    b.append(L(X(0), Y(85000), X(9), Y(85000), SIG, 6, "20 12"))
+    b.append(T(X(0), Y(85000) - 24, "화면의 목표주가 85,000원 — 마지막 리포트 9개월 전", "body", SIG_T, 800))
+    b.append('<path d="M' + " L".join(f"{X(i):.0f} {Y(v):.0f}" for i, v in enumerate(px)) + f'" stroke="{INK}" stroke-width="7" fill="none"/>')
+    b.append(f'<circle cx="{X(9):.0f}" cy="{Y(52000):.0f}" r="12" fill="{INK}"/>' + T(X(9) - 20, Y(52000) + 60, "지금 52,000원", "body", INK, 800, "end"))
+    b.append(L(X(9) + 60, Y(85000), X(9) + 60, Y(52000), INK, 4))
+    b.append(T(X(9) + 84, (Y(85000) + Y(52000)) / 2 + 16, "63.5%", size=56, fill=INK, w=800, font=MONO))
+    b.append(T(gx0, H - 40, "주가 경로는 설명을 위한 가상의 값 · 9개월", "note", MUTE))
+    return save("9b", W, H, b)
+
+# ───────────────────────── 10장 ─────────────────────────
+J = [("A", 14, 120000), ("B", 7, 115000), ("C", 3, 98000), ("D", 240, 140000), ("E", 30, 105000), ("F", 5, 92000), ("G", 210, 135000)]
+def fig_10a():
+    must_be_in_md("120,000원", "115,000원", "98,000원", "140,000원", "105,000원", "92,000원", "135,000원", "106,000원", "10만 1,700원", "88,000원", "30.7%", "20.5%", "15.5%")
+    allavg = sum(v for *_, v in J) / 7; rec = [v for _, d, v in J if d <= 90]; r3 = sorted(J, key=lambda x: x[1])[:3]
+    assert allavg == 115000 and sum(rec) / len(rec) == 106000 and round(sum(v for *_, v in r3) / 3, -2) == 101700
+    W, H = 2400, 1400; b = []
+    y0 = head(b, "CHART · 가상의 J사", "같은 일곱 개로 상승여력이 30.7%도, 15.5%도 된다")
+    gx0, gx1, gy0, gy1, lo, hi = 260, 1760, y0 + 60, 1180, 80000, 150000
+    X = lambda d: gx1 - (gx1 - gx0) * d / 260; Y = lambda v: gy1 - (gy1 - gy0) * (v - lo) / (hi - lo)
+    for v in range(80000, 150001, 10000):
+        b.append(L(gx0, Y(v), gx1, Y(v), RULE, 2)); b.append(T(gx0 - 24, Y(v) + 14, f"{v:,}", size=36, fill=MUTE, anchor="end", font=MONO))
+    for d, lab in [(240, "8개월 전"), (180, "6개월 전"), (90, "3개월 전"), (0, "오늘")]:
+        b.append(T(X(d), gy1 + 56, lab, "note", MUTE, 500, "middle"))
+    b.append(L(X(90), gy0, X(90), gy1, MUTE, 3, "10 8"))
+    b.append(L(gx0, Y(88000), gx1, Y(88000), INK, 5)); b.append(T(gx0 + 10, Y(88000) + 50, "지금 주가 88,000", "note", INK, 800))
+    for k, d, v in J:
+        old = d > 90
+        b.append(f'<circle cx="{X(d):.0f}" cy="{Y(v):.0f}" r="22" fill="{"#FFFFFF" if old else INK}" stroke="{INK}" stroke-width="5"/>')
+        b.append(T(X(d) + (34 if d > 10 else -34), Y(v) + 14, f"{k} {v//1000}k", size=36, fill=INK, w=700, anchor="start" if d > 10 else "end", font=MONO))
+    # 오른쪽: 세 가지 평균
+    bx = 1880
+    for k, (lab, v, up, col) in enumerate([("전체 7개 평균", "115,000", "30.7%", MUTE), ("최근 3개월 평균", "106,000", "20.5%", INK), ("최근 3개 평균", "101,700", "15.5%", SIG_T)]):
+        y = y0 + 120 + k * 290
+        b.append(T(bx, y, lab, "note", MUTE, 700)); b.append(T(bx, y + 80, v, size=60, fill=col, w=800, font=MONO))
+        b.append(T(bx, y + 140, f"상승여력 {up}", "body", col, 800))
+    b.append(T(80, H - 40, "빈 점 = 3개월 넘은 리포트 · 가상의 예시", "note", MUTE))
+    return save("10a", W, H, b)
+
+def fig_10b():
+    W, H = 2400, 900; b = []
+    y0 = head(b, "DRAWING", "오래된 높은 숫자가 평균을 붙잡고 있다")
+    b.append(sline(160, y0 + 400, 2240, y0 + 400, INK, 6))
+    b.append(f'<path d="M1200 {y0+400} L1150 {y0+480} L1250 {y0+480} Z" fill="{INK}"/>')
+    for k, (x, lab, old) in enumerate([(300, "140k · 8개월", True), (520, "135k · 7개월", True), (1500, "105k", False), (1720, "98k", False), (1900, "92k", False), (2080, "115k", False)]):
+        y = y0 + 400 - (140 if old else 110)
+        b.append(sbox(x - 90, y, 180, 110 if not old else 140, INK, SIG_SOFT if old else SOFT, 4))
+        b.append(T(x, y - 24, lab, "note", SIG_T if old else MUTE, 700, "middle"))
+    b.append(sarrow(420, y0 + 160, 420, y0 + 240, SIG, 5))
+    b.append(T(420, y0 + 130, "무게가 남아 있다", "body", SIG_T, 800, "middle"))
+    b.append(T(80, H - 60, "새 리포트가 내려와도 오래된 높은 숫자가 빠지지 않으면 평균은 높게 남는다", "note", MUTE))
+    return save("10b", W, H, b)
+
 FIGS = [fig_p1, fig_1a, fig_1b, fig_2a, fig_2b, fig_2c, fig_3a, fig_3b, fig_3c,
-        fig_4a, fig_4b, fig_4c, fig_5a, fig_5b, fig_5c, fig_6a, fig_6b, fig_7a, fig_7b]
+        fig_4a, fig_4b, fig_4c, fig_5a, fig_5b, fig_5c, fig_6a, fig_6b, fig_7a, fig_7b,
+        fig_8a, fig_8b, fig_8c, fig_9a, fig_9b, fig_10a, fig_10b]
+
 if __name__ == "__main__":
     for f in FIGS: print(f())

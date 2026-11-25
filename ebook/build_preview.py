@@ -56,7 +56,9 @@ def _wrap_word(m):
     _K[0] += 1; k = _K[0]
     if k in _SPLIT and not opens and len(plain) >= 4:      # 벌어진 줄 다음 어절: 가운데서만 나눌 수 있게(앞뒤 2음절은 묶음)
         cut = [i for i in range(2, len(w) - 1) if _HAN.match(w[i]) and (_HAN.match(w[i-1]) or w[i-1].isdigit())]   # 음절 사이만, 앞뒤 2자 이상
-        cut = [i for i in cut if i >= 2 and len(w) - i >= 2]
+        han = lambda s: len(_HAN.findall(s))
+        cut = [i for i in cut if (han(w[:i]) >= 2 or re.search(r"\d", w[:i])) and han(w[i:]) >= 2   # 앞은 2음절 이상(숫자 덩어리 허용)
+               and not (han(w[i:]) <= 3 and re.search(r"[.?!]", w[i:]))]   # 문장 끝 어미('니다.')만 넘기지 않는다
         punct = [i for i in range(1, len(w)) if w[i-1] in "·ㆍ)/" and w[i] not in ")」』”’.,"]
         if punct: cut = punct                                 # 가운뎃점·괄호 뒤가 있으면 그 자리에서만
         if not cut: return f'<span class="kw" data-k="{k}">' + w + '</span>'

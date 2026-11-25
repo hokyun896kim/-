@@ -144,7 +144,7 @@ def fig_1a():
         b.append(R(bx0, y + 30, (bx1 - bx0) * v / mx, 80, col))
         b.append(T(bx0 + (bx1 - bx0) * v / mx + 24, y + 92, f"{v}%", size=56, fill=SIG_T if col == SIG else INK, w=800, font=MONO))
     b.append(L(bx0, y0 + 160, bx0, y0 + 520, INK, 4))
-    b.append(T(80, H - 50, "출처: 금융투자협회 집계를 인용한 2026년 3월 보도. 원자료 대조 전", "note", MUTE))
+    b.append(T(80, H - 50, "출처: 금융투자협회 증권사별 리포트 투자등급 비율(2025.12.31 기준)을 인용한 2026년 3월 보도", "note", MUTE))
     return save("1a", W, H, b)
 
 def fig_1b():
@@ -811,9 +811,86 @@ def fig_14b():
     b.append(T(120, y + 350, "여기까지 4분: 오래된 목표주가·기준 연도만 옮긴 상향을 거른다", "note", SIG_T, 700))
     return save("14b", W, H, b)
 
+# ───────────────────────── 11·12장 ─────────────────────────
+def fig_11a():
+    must_be_in_md("20%", "25%", "5%포인트")
+    W, H = 2400, 1100; b = []
+    y0 = head(b, "CHART · 계산 연습(가상 5건)", "사라진 한 건을 빼면 도달률이 올라간다")
+    marks = [("도달", INK, "#FFFFFF"), ("미도달", "#FFFFFF", INK), ("미도달", "#FFFFFF", INK), ("상장폐지", SIG_SOFT, SIG_T), ("중단·미도달", "#FFFFFF", INK)]
+    for k, (lab, fill, tc) in enumerate(marks):
+        x = 120 + k * 230; y = y0 + 80
+        b.append(R(x, y, 200, 200, fill, SIG if k == 3 else INK, 5))
+        b.append(T(x + 100, y + 112, str(k + 1), size=64, fill=tc if fill != INK else "#FFFFFF", w=800, anchor="middle", font=MONO))
+        b.append(T(x + 100, y + 260, lab, "note", SIG_T if k == 3 else INK, 700, "middle"))
+    bx = 1440
+    for k, (lab, v, col) in enumerate([("5건 모두", 20, INK), ("상장폐지 빼고 4건", 25, SIG)]):
+        y = y0 + 90 + k * 230
+        b.append(T(bx, y, lab, "body", INK, 800))
+        b.append(R(bx, y + 30, v * 30, 100, col))
+        b.append(T(bx + v * 30 + 24, y + 104, f"{v}%", size=56, fill=SIG_T if col == SIG else INK, w=800, font=MONO))
+    b.append(L(bx, y0 + 110, bx, y0 + 560, INK, 4))
+    b.append(T(120, H - 100, "채운 칸 = 도달, 빈 칸 = 미도달, 빨간 칸 = 상장폐지(미도달로 센다)", "note", MUTE))
+    b.append(T(120, H - 40, "계산 연습을 위한 가상의 예시 — 검증 결과가 아니다", "note", MUTE))
+    return save("11a", W, H, b)
+
+def fig_11b():
+    W, H = 2400, 1200; b = []
+    y0 = head(b, "DRAWING", "리포트 한 건의 도달 판정")
+    bx = [(80, "리포트", "발간일·목표주가 고정"), (620, "12개월 주가", "다음 거래일부터"), (1160, "최고가 ≥ 목표주가?", "")]
+    for x, t1, t2 in bx:
+        b.append(sbox(x, y0 + 80, 460, 200, INK, SOFT, 5)); b.append(T(x + 230, y0 + 170, t1, "body", INK, 800, "middle"))
+        if t2: b.append(T(x + 230, y0 + 230, t2, "note", MUTE, 500, "middle"))
+    b.append(sarrow(548, y0 + 180, 612, y0 + 180, INK)); b.append(sarrow(1088, y0 + 180, 1152, y0 + 180, INK))
+    outs = [(1760, y0 + 20, "예 → 도달", "며칠 만에?", INK, SOFT), (1760, y0 + 300, "아니오 → 미도달", "12개월 뒤 괴리율", INK, None),
+            (1140, y0 + 560, "상장폐지·거래정지", "빼지 않고 미도달", SIG, SIG_SOFT), (600, y0 + 560, "리포트 중단", "주가로 계속 판정", SIG, SIG_SOFT)]
+    for x, y, t1, t2, col, fill in outs:
+        ww = 540 if x >= 1760 else 500
+        b.append(sbox(x, y, ww, 200, col, fill, 5)); b.append(T(x + ww / 2, y + 90, t1, "body", INK, 800, "middle")); b.append(T(x + ww / 2, y + 150, t2, "note", MUTE, 500, "middle"))
+    b.append(sarrow(1628, y0 + 140, 1752, y0 + 110, INK)); b.append(sarrow(1628, y0 + 230, 1752, y0 + 380, INK))
+    b.append(sarrow(1390, y0 + 288, 1390, y0 + 552, SIG)); b.append(sarrow(850, y0 + 288, 850, y0 + 552, SIG))
+    b.append(T(80, H - 40, "빨간 두 갈래가 생존 편향을 막는 자리", "note", MUTE))
+    return save("11b", W, H, b)
+
+def fig_12a():
+    W, H = 2400, 1000; b = []
+    y0 = head(b, "DRAWING", "상향 리포트 하나를 재는 방법")
+    x0, x1, y = 160, 2260, y0 + 260
+    b.append(sline(x0, y, x1, y, INK, 5))
+    pts = [(x0, "리포트 발간", "기준일", INK), (x0 + 300, "다음 날 시가", "진입", SIG), (x0 + 700, "+5거래일", "", INK), (x0 + 1250, "+20거래일", "", INK), (x1 - 40, "+60거래일", "", INK)]
+    for x, t1, t2, col in pts:
+        b.append(f'<circle cx="{x}" cy="{y}" r="18" fill="{col}"/>')
+        b.append(T(x, y - 50, t1, "body", INK if col == INK else SIG_T, 800, "middle"))
+        if t2: b.append(T(x, y + 70, t2, "note", MUTE, 700, "middle"))
+    y2 = y + 260
+    b.append(sline(x0 + 300, y2, x1, y2, MUTE, 4))
+    b.append(T(x0, y2 + 14, "같은 날 무작위", "note", MUTE, 700))
+    for x in (x0 + 700, x0 + 1250, x1 - 40): b.append(f'<circle cx="{x}" cy="{y2}" r="14" fill="#FFFFFF" stroke="{MUTE}" stroke-width="4"/>')
+    b.append(T(x0 + 980, y2 + 110, "두 줄의 차이 = 초과수익", "body", SIG_T, 800, "middle"))
+    return save("12a", W, H, b)
+
+def fig_12b():
+    must_be_in_md("+2.0%", "+1.5%", "−4.5%", "−3.0%", "+1.0%", "+0.5%", "−0.2%포인트")
+    W, H = 2400, 1100; b = []
+    y0 = head(b, "CHART · 계산 연습(가상 3건)", "세 건으로는 아무것도 말할 수 없다")
+    data = [("연습 1", 2.0, 1.5), ("연습 2", -4.5, -3.0), ("연습 3", 1.0, 0.5)]
+    cx0, sc = 1200, 120
+    b.append(L(cx0, y0 + 40, cx0, y0 + 20 + 3 * 220 - 40, INK, 4))
+    for k, (lab, r_, m) in enumerate(data):
+        y = y0 + 70 + k * 220
+        b.append(T(80, y + 80, lab, "head", INK, 800))
+        for j, (v, fill, stroke) in enumerate([(r_, INK, None), (m, "#FFFFFF", MUTE)]):
+            yy = y + j * 80; w_ = abs(v) * sc
+            b.append(R(cx0 if v > 0 else cx0 - w_, yy, w_, 64, fill, stroke, 4))
+            s = f"{'+' if v > 0 else '−'}{abs(v):.1f}%"
+            b.append(T(cx0 + w_ + 20 if v > 0 else cx0 - w_ - 20, yy + 48, s, size=44, fill=INK if j == 0 else MUTE, w=800 if j == 0 else 600, anchor="start" if v > 0 else "end", font=MONO))
+    b.append(R(1700, H - 130, 50, 30, INK) + T(1770, H - 104, "상향 뒤 20거래일", "note", SUB))
+    b.append(R(1700, H - 80, 50, 30, "#FFFFFF", MUTE, 4) + T(1770, H - 54, "같은 날 무작위 평균", "note", SUB))
+    b.append(T(80, H - 54, "초과수익 평균 약 −0.2%포인트 · 계산 연습용 가상 예시", "note", MUTE))
+    return save("12b", W, H, b)
+
 FIGS = [fig_p1, fig_1a, fig_1b, fig_2a, fig_2b, fig_2c, fig_3a, fig_3b, fig_3c,
         fig_4a, fig_4b, fig_4c, fig_5a, fig_5b, fig_5c, fig_6a, fig_6b, fig_7a, fig_7b,
-        fig_8a, fig_8b, fig_8c, fig_9a, fig_9b, fig_10a, fig_10b, fig_13a, fig_13b, fig_14a, fig_14b]
+        fig_8a, fig_8b, fig_8c, fig_9a, fig_9b, fig_10a, fig_10b, fig_11a, fig_11b, fig_12a, fig_12b, fig_13a, fig_13b, fig_14a, fig_14b]
 
 if __name__ == "__main__":
     for f in FIGS: print(f())

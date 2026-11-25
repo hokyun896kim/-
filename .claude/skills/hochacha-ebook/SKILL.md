@@ -18,16 +18,17 @@ description: Use when planning, writing, designing, building, checking or publis
 |---|---|---|
 | 원고 | `ebook/source/bookN.md` | — |
 | 파서·책 정보 | `ebook/contentN.py` (TITLE, PUBLISHER, PUBDATE, PUBDATE_KO, PRICE, EPUB_VERSION). 4권 `content4.py`는 content2 기반에 `N부.` 헤딩·에필로그·`>` 질문 상자 지원 | — |
-| 그림 | `ebook/infographic2.py`(2권). 데이터 계약형 생성기 본보기: `ebook/archive/sign-tomorrow/infographic4.py` | — |
+| 그림 | `ebook/infographic5.py`(5권: CHART·ARTIFACT·DRAWING, 원고 숫자 대조·대비 검사), `ebook/infographic2.py`(2권) | `python3 ebook/infographic5.py` |
 | 표지 | `ebook/coverN.py` | `python3 ebook/coverN.py` |
 | 본문 PDF | `ebook/build_preview.py` | `cd ebook && BOOK=contentN python build_preview.py` |
 | DOCX / EPUB / 미리보기 | `build_docx.py` / `build_epub.py` / `sample_pdf.py` | 같은 방식 |
 | 집필 중 초고 PDF | `ebook/build_draft.py` | `cd ebook && python3 build_draft.py 4` |
-| 쪽 나눔 감사 | (세션 스크래치 audit.py) | 두 쪽에 걸친 박스 0, 홀로 남은 소제목 0 |
+| 조판 감사 | `ebook/tools/layout_audit.py` | `cd ebook && python3 tools/layout_audit.py` — 빈 쪽·금칙·벌어진 줄·꼬리줄·쪽 넘는 박스 |
 | **출간 게이트** | `scripts/check_publish.py` | `python3 .claude/skills/hochacha-ebook/scripts/check_publish.py N` |
 | 등록 서류 | `ebook/publish/bookN/등록정보.md` | — |
 
-WeasyPrint는 69.0 고정(70은 목차 쪽번호가 0이 됨).
+WeasyPrint는 69.0 고정(70은 목차 쪽번호가 0이 됨). 69는 `word-break:keep-all`을 무시해 한글을 글자 사이에서 끊으므로 `build_preview.keep_words`가 어절을 묶고 벌어진 줄만 음절 단위로 나눈다.
+컨테이너가 초기화되면: `python3 -m pip install weasyprint==69.0 pypdf cairosvg python-docx && python3 -m pip install --ignore-installed pillow`, `apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra epubcheck`, epubcheck가 jar 심볼릭 링크면 `/usr/local/bin/epubcheck`에 `java -jar /usr/share/java/epubcheck.jar "$@"` 래퍼. publish/ 아래 PDF·EPUB은 git에 없으니 다시 빌드해 복사한다.
 
 ## 철칙
 1. **게이트 출력 없이 "올려도 됩니다"라고 말하지 않는다.** `check_publish.py`가 `통과`를 찍어야 한다. 근거 없는 "통과할 거예요"가 거절 두 번의 원인이었다.

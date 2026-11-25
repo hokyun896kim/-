@@ -17,8 +17,8 @@ TITLE="매수 의견만 있는 나라"
 SUBTITLE="AI와 함께 읽는 증권사 리포트, 목표주가 뒤에 숨은 가정들"
 KEYLINE="이 목표주가는 무엇을 가정했나?"
 PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
-PUBDATE="2027-01-15"
-PUBDATE_KO="2027년 1월 15일"   # 유페이퍼 검수 예시 표기(연·월·일 모두)
+PUBDATE="2026-12-15"
+PUBDATE_KO="2026년 12월 15일"   # 유페이퍼 검수 예시 표기(연·월·일 모두)
 EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
 PUBLISHER="유페이퍼"; PRICE="8,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book5_cover.png"

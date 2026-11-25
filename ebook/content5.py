@@ -20,7 +20,7 @@ PROJECT="호차차"; AUTHOR="호차차"; EMAIL="morningstar8590@kakao.com"
 PUBDATE="2027-01-15"
 PUBDATE_KO="2027년 1월 15일"   # 유페이퍼 검수 예시 표기(연·월·일 모두)
 EPUB_VERSION="epub2"   # 유페이퍼는 EPUB 2.0만 받음
-PUBLISHER="유페이퍼"; PRICE="9,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
+PUBLISHER="유페이퍼"; PRICE="8,900원"   # 유페이퍼 검수: 판권·표지·등록정보 일치
 COVER="book5_cover.png"
 PDF_OUT="book5_preview.pdf"; DOCX_OUT="book5.docx"; EPUB_OUT="book5.epub"
 AUTHOR_BIO=("개인투자자. 증권사 리포트를 결론이 아니라 재료로 읽고, 목표주가 한 줄 뒤의 가정을 꺼내 공시 원문과 맞춰 보는 습관을 기록해 왔다. "

@@ -97,7 +97,6 @@ def book4():
     b.append(img(ROOT / "publish" / "book4" / "표지_1240x1835.jpg" if False else ROOT / "build" / "img" / "book4_cover.png", 160, 380, 900, 1332))
     b.append(T(1160, 640, "12월 15일", 96, I4, 900))
     b.append(T(1160, 760, "출간", 96, I4, 900))
-    b.append(T(1160, 960, "전자책 9,900원", 60, I4, 700))
     for k, s in enumerate(["공급계약·잠정실적·자사주", "유상증자·전환사채·최대주주", "감사의견·정정공시·침묵"]):
         b.append(T(1160, 1160 + k * 90, s, 52, G4, 600))
     b.append(R(160, 1900, 1840, 200, Y4))
@@ -176,7 +175,6 @@ def book5():
     b.append(img(ROOT / "build" / "img" / "book5_cover.png", 160, 380, 900, 1332))
     b.append(T(1160, 640, "12월 15일", 96, T5, 900))
     b.append(T(1160, 760, "출간", 96, T5, 900))
-    b.append(T(1160, 960, "전자책 8,900원", 60, T5, 700))
     for k, s in enumerate(["목표주가 쪼개기", "리포트 숫자 vs 공시 원문", "도달률 직접 세기"]):
         b.append(T(1160, 1160 + k * 90, s, 52, S5, 600))
     b.append(R(160, 1900, 1840, 200, R5))
@@ -283,7 +281,7 @@ def book2():
     b.append(T(160, 1760, "부록: AI 프롬프트 33개", 72, INK, 900)); b.append(T(160, 1860, "마스터 프롬프트 3개 + 상황별 30개", 56, SUB, 600))
     save("book2_05", b, BG)
     b = []; frame(b, 6, lab, t2, INK, SUB, INK)
-    cta("book2_06", b, ROOT / "build" / "img" / "book2_cover.png", BG, INK, SUB, OR, "#FFFFFF", ["경제뉴스를", "내 돈의 언어로", "투자를 안 해도 읽는 책", "22개의 장, 22개의 역", "하루 10분 루틴"], "전자책 9,900원")
+    cta("book2_06", b, ROOT / "build" / "img" / "book2_cover.png", BG, INK, SUB, OR, "#FFFFFF", ["경제뉴스를", "내 돈의 언어로", "투자를 안 해도 읽는 책", "22개의 장, 22개의 역", "하루 10분 루틴"], "")
 
 def book3():
     must_be_in(MD3, "−3.86%", "−0.41%", "1,854개", "20개뿐", "계산은 AI가 합니다. 의심은 제가 합니다.")
@@ -322,7 +320,7 @@ def book3():
     b.append(T(160, 1400, "의심은", 150, GOLD, 900, font=SERIF)); b.append(T(160, 1580, "제가 합니다.", 150, GOLD, 900, font=SERIF))
     save("book3_05", b, BG)
     b = []; frame(b, 6, lab, t3, LINE, SUB, INK)
-    cta("book3_06", b, ROOT / "build" / "img" / "book3_cover.png", BG, INK, SUB, GOLD, BG, ["그 방법,", "정말 통했어?", "무너진 매매법들", "살아남은 규칙과 한계", "백테스트가 거짓말하는 법"], "전자책 8,900원")
+    cta("book3_06", b, ROOT / "build" / "img" / "book3_cover.png", BG, INK, SUB, GOLD, BG, ["그 방법,", "정말 통했어?", "무너진 매매법들", "살아남은 규칙과 한계", "백테스트가 거짓말하는 법"], "")
 
 if __name__ == "__main__":
     book4(); book5(); book1(); book2(); book3()

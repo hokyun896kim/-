@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """4·5권 인스타 카드뉴스 — 1080×1350(2배 2160×2700으로 그려 저장). 표지와 같은 색·글꼴.
 원칙(design.md 홍보물): 한 장에 서체 2개, 밝은 요소 1개, CTA 1개, 느낌표·과장어 없음, 숫자는 책 원고에 있는 것만(must_be_in).
-산출: promo/cards/book4_01.png … book5_06.png"""
+산출: promo/<시리즈번호_제목>/카드뉴스/카드_01~06.png"""
 import base64, pathlib, cairosvg
 from PIL import ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "promo" / "cards"; OUT.mkdir(parents=True, exist_ok=True)
+PROMO = ROOT / "promo"
+FOLDER = {"book1": "①_나는AI에게종목을묻지않았다", "book3": "②_그매매법정말통했을까", "book2": "③_질문이바뀌면경제가보인다",
+          "book4": "④_호재일까함정일까", "book5": "⑤_매수의견만있는나라"}   # 파일 번호 → 시리즈 번호 폴더
 MD4 = (ROOT / "source" / "book4.md").read_text(encoding="utf-8")
 MD5 = (ROOT / "source" / "book5.md").read_text(encoding="utf-8")
 W, H = 2160, 2700
@@ -27,7 +29,8 @@ def img(path, x, y, w, h):
     return f'<image x="{x}" y="{y}" width="{w}" height="{h}" href="data:image/png;base64,{b}"/>'
 def save(name, body, bg):
     svg = f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{W}" height="{H}" viewBox="0 0 {W} {H}">{R(0,0,W,H,bg)}{"".join(body)}</svg>'
-    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(OUT / f"{name}.png"), output_width=W, output_height=H)
+    book, n = name.split("_"); out = PROMO / FOLDER[book] / "카드뉴스"; out.mkdir(parents=True, exist_ok=True)
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(out / f"카드_{n}.png"), output_width=W, output_height=H)
 
 # ───────── 4권: 흰 종이·먹색·형광 노랑 ─────────
 P4, I4, G4, L4, Y4 = "#FAFAF7", "#1D1D1F", "#6E6E6A", "#D9D8D2", "#F2D200"
@@ -324,4 +327,4 @@ def book3():
 
 if __name__ == "__main__":
     book4(); book5(); book1(); book2(); book3()
-    print(sorted(p.name for p in OUT.glob("*.png")))
+    print(sorted(str(p.relative_to(PROMO)) for p in PROMO.glob("*/카드뉴스/*.png")))
